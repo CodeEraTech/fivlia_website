@@ -56,14 +56,14 @@ const CategorySection = () => {
               <div className="text-center py-5">No categories found.</div>
             )}
             {!loading && !error &&
-              categories.map((cat) => (
+              categories.map((cat, idx) => (
                 <div
                   className="col-lg-2 col-md-4 col-6 fade-zoom"
-                  key={cat.id}
+                  key={cat.id || cat._id || idx}
                 >
                   <Zoom>
                     <div className="text-center mb-10">
-                      <Link to={`#category-${cat.id}`}>
+                      <Link to={`#category-${cat.id || cat._id || idx}`}>
                         <img
                           src={cat.image}
                           alt={cat.name}
@@ -73,7 +73,7 @@ const CategorySection = () => {
                       </Link>
                       <div className="mt-4">
                         <h5 className="fs-6 mb-0">
-                          <Link to={`#category-${cat.id}`} className="text-inherit">
+                          <Link to={`#category-${cat.id || cat._id || idx}`} className="text-inherit">
                             {cat.name}
                           </Link>
                         </h5>

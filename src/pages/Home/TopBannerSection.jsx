@@ -124,7 +124,7 @@ const TopBannerSection = () => {
               {banners.map((banner, idx) => (
                 <div
                   className={`carousel-item${idx === activeIndex ? " active" : ""}`}
-                  key={banner.id}
+                  key={banner.id || idx}
                 >
                   <div
                     style={{
@@ -163,9 +163,9 @@ const TopBannerSection = () => {
               <span className="visually-hidden">Next</span>
             </button>
             <div className="carousel-indicators">
-              {banners.map((_, idx) => (
+              {banners.map((banner, idx) => (
                 <button
-                  key={idx}
+                  key={banner.id || idx}
                   type="button"
                   className={idx === activeIndex ? "active" : ""}
                   aria-current={idx === activeIndex}

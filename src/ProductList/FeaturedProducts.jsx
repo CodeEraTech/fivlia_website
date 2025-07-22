@@ -84,6 +84,12 @@ const FeaturedProducts = () => {
     autoplaySpeed: 2000,
   };
 
+  // Helper to ensure rating is always a number
+  const getNumericRating = (rating) => {
+    const num = typeof rating === 'number' ? rating : Number(rating && rating.rate !== undefined ? rating.rate : rating);
+    return isNaN(num) ? 0 : num;
+  };
+
   if (loading) return <div className="featured-loading">Loading featured products...</div>;
   if (error) return <div className="featured-error">{error}</div>;
   if (!mappedProducts.length) return <div className="featured-empty">No featured products found.</div>;
@@ -99,6 +105,65 @@ const FeaturedProducts = () => {
           onAddToCart={() => {}}
         />
       )}
+      <style>{`
+        /* Fix product card height (reduced) */
+        .card.card-product {
+          min-height: 320px;
+          max-height: 320px;
+          display: flex;
+          flex-direction: column;
+          justify-content: stretch;
+        }
+        /* Center product image */
+        .card.card-product .text-center.position-relative {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .card.card-product img.mb-3.img-fluid {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        /* Ensure slider dots are not overlapped and reduce gap */
+        .image-itemss .slick-dots {
+          margin-top: 8px !important;
+          margin-bottom: 0 !important;
+          position: relative;
+          bottom: 0;
+        }
+        .image-itemss .slick-dots li {
+          margin: 0 2px !important;
+        }
+        .image-itemss .slick-dots li button:before {
+          font-size: 10px !important;
+        }
+        .card-product .btn-action {
+          border: none !important;
+          background: none !important;
+          box-shadow: none !important;
+        }
+        .card-product .btn-action:focus, .card-product .btn-action:active, .card-product .btn-action:hover {
+          border: none !important;
+          background: none !important;
+          box-shadow: none !important;
+        }
+        .card-product .fa-heart {
+          border: none !important;
+          box-shadow: none !important;
+          outline: none !important;
+          background: #0aad0a !important;
+          color: #fff !important;
+          border-radius: 7px;
+          padding: 6px 8px;
+          font-size: 1.1rem;
+          transition: background 0.18s;
+        }
+        .card-product .fa-heart:hover {
+          background: #088a08 !important;
+        }
+      `}</style>
       <div className="container">
         <div className="row">
           <div className="col-md-12 mb-6">
@@ -135,75 +200,77 @@ const FeaturedProducts = () => {
           <div className="col-md-9 ">
             <div className="image-itemss">
               <Slider {...sliderSettings}>
-                {mappedProducts.map((prod) => (
-                  <div className="images swiper-slide px-4" key={prod.id}>
-                    <div className="col">
-                      <div className="card card-product">
-                        <div className="card-body">
-                          <div className="text-center position-relative ">
-                            <img
-                              src={prod.image}
-                              alt={prod.name}
-                              className="mb-3 img-fluid"
-                              style={{ height: 180, objectFit: "cover", cursor: "pointer" }}
-                              onClick={() => handleQuickView(prod)}
-                              onError={e => { e.target.src = 'https://via.placeholder.com/200x200?text=No+Image'; }}
-                            />
-                            <div className="card-product-action">
-                              <button
-                                className="btn-action"
-                                title="Quick View"
+                {mappedProducts.map((prod) => {
+                  const numericRating = getNumericRating(prod.rating);
+                  return (
+                    <div className="images swiper-slide px-4" key={prod.id}>
+                      <div className="col">
+                        <div className="card card-product">
+                          <div className="card-body">
+                            <div className="text-center position-relative ">
+                              <img
+                                src={prod.image}
+                                alt={prod.name}
+                                className="mb-3 img-fluid"
+                                style={{ height: 120, objectFit: "cover", cursor: "pointer" }}
                                 onClick={() => handleQuickView(prod)}
-                                style={{ marginRight: 8 }}
-                              >
-                                <i className="fa fa-eye" />
-                              </button>
-                              <button
-                                className="btn-action"
-                                title="Wishlist"
-                                style={{ marginRight: 8 }}
-                              >
-                                <i className="fa fa-heart" />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="text-small mb-1">
-                            <span className="text-muted small">{prod.category}</span>
-                          </div>
-                          <h2 className="fs-6">
-                            <span
-                              className="text-inherit text-decoration-none"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleQuickView(prod)}
-                            >
-                              {prod.name}
-                            </span>
-                          </h2>
-                          <div className="d-flex justify-content-between align-items-center mt-3">
-                            <div>
-                              <span className="text-dark">₹{prod.price}</span>{' '}
-                              {prod.mrp && prod.mrp > prod.price && (
-                                <span className="text-decoration-line-through text-muted">
-                                  ₹{prod.mrp}
+                                onError={e => { e.target.src = 'https://via.placeholder.com/200x200?text=No+Image'; }}
+                              />
+                              {/* Star rating below image */}
+                              <div style={{ margin: '0.25rem 0 0.5rem 0' }}>
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <i
+                                    key={i}
+                                    className={
+                                      i < Math.floor(numericRating)
+                                        ? 'fa fa-star text-warning'
+                                        : (i < numericRating ? 'fa fa-star-half-o text-warning' : 'fa fa-star-o text-warning')
+                                    }
+                                    style={{ fontSize: '1rem', marginRight: 2 }}
+                                  />
+                                ))}
+                                <span style={{ fontSize: '0.9rem', color: '#888', marginLeft: 4 }}>
+                                  {numericRating.toFixed(1)}
                                 </span>
-                              )}
+                              </div>
+                              <div className="card-product-action">
+                                <button
+                                  className="btn-action"
+                                  title="Wishlist"
+                                  style={{ marginRight: 8, border: 'none', background: 'none', boxShadow: 'none' }}
+                                >
+                                  <i className="fa fa-heart" />
+                                </button>
+                              </div>
                             </div>
-                            <div>
-                              <button
-                                type="button"
-                                className="btn btn-primary btn-sm"
+                            <div className="text-small mb-1">
+                              <span className="text-muted small">{prod.category}</span>
+                            </div>
+                            <h2 className="fs-6">
+                              <span
+                                className="text-inherit text-decoration-none"
+                                style={{ cursor: "pointer" }}
                                 onClick={() => handleQuickView(prod)}
                               >
-                                <i className="fa fa-plus" />{' '}
-                                Add
-                              </button>
+                                {prod.name}
+                              </span>
+                            </h2>
+                            <div className="d-flex justify-content-between align-items-center mt-3">
+                              <div>
+                                <span className="text-dark">₹{prod.price}</span>{' '}
+                                {prod.mrp && prod.mrp > prod.price && (
+                                  <span className="text-decoration-line-through text-muted">
+                                    ₹{prod.mrp}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </Slider>
             </div>
           </div>
