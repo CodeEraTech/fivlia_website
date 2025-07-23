@@ -63,7 +63,7 @@ const CategorySection = () => {
                 >
                   <Zoom>
                     <div className="text-center mb-10">
-                      <Link to={`#category-${cat.id || cat._id || idx}`}>
+                      <Link to={`/Shop?category=${cat.id || cat._id || idx}`} aria-label={`Go to ${cat.name} category`}>
                         <img
                           src={cat.image}
                           alt={cat.name}
@@ -73,7 +73,7 @@ const CategorySection = () => {
                       </Link>
                       <div className="mt-4">
                         <h5 className="fs-6 mb-0">
-                          <Link to={`#category-${cat.id || cat._id || idx}`} className="text-inherit">
+                          <Link to={`/Shop?category=${cat.id || cat._id || idx}`} className="text-inherit" aria-label={`Go to ${cat.name} category`}>
                             {cat.name}
                           </Link>
                         </h5>

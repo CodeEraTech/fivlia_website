@@ -10,7 +10,7 @@ export const ENDPOINTS = {
   POPULAR_PRODUCTS: "/website/bestSelling?lat=29.1553958&lng=75.7218976",
   RELATED_PRODUCTS: '/website/relatedProducts?lat=29.1553958&lng=75.7218976',
   FEATURED_PRODUCTS: '/website/featureProduct?lat=29.1553958&lng=75.7218976',
-  PRODUCTS: "/products",
-  PRODUCT_DETAIL: (id) => `/products/${id}`,
+  SEARCH_PRODUCTS: '/website/searchProduct?lat=29.1553958&lng=75.7218976',
+  PRODUCTS: "/website/getProduct?lat=29.1553958&lng=75.7218976",
   
 }; 
