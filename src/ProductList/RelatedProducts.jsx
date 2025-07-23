@@ -39,6 +39,7 @@ const RelatedProducts = ({ productId }) => {
     is_new: prod.is_new || false,
     description: prod.description || '',
     productImageUrl: prod.productImageUrl,
+    variants: prod.variants || [],
   });
 
   // When modal closes, if a pending product exists, open it
@@ -141,6 +142,8 @@ const RelatedProducts = ({ productId }) => {
           padding: 22px 14px 18px 14px;
           transition: box-shadow 0.18s, border 0.18s, transform 0.13s;
           cursor: pointer;
+          height: 100%;
+          justify-content: space-between;
         }
         .related-product-modern-card:hover {
           box-shadow: 0 6px 24px rgba(10,173,10,0.13), 0 2px 8px rgba(0,0,0,0.08);
@@ -170,6 +173,8 @@ const RelatedProducts = ({ productId }) => {
           display: flex;
           flex-direction: column;
           align-items: center;
+          flex: 1 1 auto;
+          justify-content: space-between;
         }
         .related-modern-name {
           font-size: 1.08rem;

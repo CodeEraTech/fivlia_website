@@ -37,6 +37,7 @@ const PopularProducts = () => {
             sku: product.sku,
             status: product.status,
             inCart: product.inCart?.status || false,
+            variants: product.variants || [],
           }));
           
           setProducts(processedProducts);

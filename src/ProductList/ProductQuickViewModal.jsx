@@ -12,14 +12,19 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
       ? [product.image]
       : [];
 
+  const variants = product.variants || [];
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const selectedVariant = variants[selectedVariantIdx] || {};
+
   const [selectedImage, setSelectedImage] = useState(images[0] || '');
   const [quantity, setQuantity] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
 
-  // Reset selected image and quantity when product changes
+  // Reset selected image, quantity, and variant when product changes
   React.useEffect(() => {
     setSelectedImage(images[0] || '');
     setQuantity(1);
+    setSelectedVariantIdx(0);
   }, [product]);
 
   if (!isOpen) return null;
@@ -67,6 +72,21 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   <span className="pqv-brand">Brand: {product.brand}</span>
                 )}
               </div>
+              {/* Variant Selector */}
+              {variants.length > 0 && (
+                <div className="pqv-variant-selector">
+                  {variants.map((variant, idx) => (
+                    <button
+                      key={variant._id || idx}
+                      className={`pqv-variant-pill${selectedVariantIdx === idx ? ' selected' : ''}`}
+                      onClick={() => setSelectedVariantIdx(idx)}
+                      type="button"
+                    >
+                      {variant.variantValue || variant.attributeName || `Variant ${idx + 1}`}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="pqv-product-desc">
                 {product.description && product.description.length > 200 ? (
                   <>
@@ -95,9 +115,12 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                 )}
               </div>
               <div className="pqv-product-price">
-                <span className="pqv-price">₹{product.price}</span>
-                {product.mrp && product.mrp > product.price && (
-                  <span className="pqv-mrp">₹{product.mrp}</span>
+                <span className="pqv-price">₹{selectedVariant.sell_price || product.price}</span>
+                {selectedVariant.mrp && selectedVariant.mrp > (selectedVariant.sell_price || product.price) && (
+                  <span className="pqv-mrp">₹{selectedVariant.mrp}</span>
+                )}
+                {selectedVariant.discountValue && (
+                  <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
                 )}
               </div>
               <div className="pqv-qty-add-row">
@@ -124,11 +147,34 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                 </div>
                 <button
                   className="pqv-add-to-cart-btn"
-                  onClick={() => onAddToCart(product, quantity)}
+                  onClick={() => onAddToCart({ ...product, selectedVariant }, quantity)}
                 >
                   <i className="fa fa-shopping-cart" style={{ marginRight: 8 }} /> Add to Cart
                 </button>
               </div>
+              {/* Variant Pills CSS */}
+              <style>{`
+                .pqv-variant-selector {
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 1rem;
+                }
+                .pqv-variant-pill {
+                  border: 1px solid #0aad0a;
+                  background: #fff;
+                  color: #0aad0a;
+                  border-radius: 20px;
+                  padding: 6px 18px;
+                  cursor: pointer;
+                  font-weight: 500;
+                  transition: background 0.18s, color 0.18s;
+                }
+                .pqv-variant-pill.selected,
+                .pqv-variant-pill:hover {
+                  background: #0aad0a;
+                  color: #fff;
+                }
+              `}</style>
             </div>
           </div>
           <div className="pqv-related-section">

@@ -43,6 +43,7 @@ const FeaturedProducts = () => {
     is_new: prod.is_new || false,
     description: prod.description || '',
     productImageUrl: prod.productImageUrl,
+    variants: prod.variants || [],
   }));
 
   // Modal logic
@@ -109,10 +110,15 @@ const FeaturedProducts = () => {
         /* Fix product card height (reduced) */
         .card.card-product {
           min-height: 320px;
-          max-height: 320px;
           display: flex;
           flex-direction: column;
-          justify-content: stretch;
+          justify-content: space-between;
+        }
+        .card.card-product .card-body {
+          display: flex;
+          flex-direction: column;
+          flex: 1 1 auto;
+          justify-content: space-between;
         }
         /* Center product image */
         .card.card-product .text-center.position-relative {
@@ -263,6 +269,16 @@ const FeaturedProducts = () => {
                                     ₹{prod.mrp}
                                   </span>
                                 )}
+                              </div>
+                              <div>
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() => handleQuickView(prod)}
+                                >
+                                  <i className="fa fa-plus" />{' '}
+                                  Add
+                                </button>
                               </div>
                             </div>
                           </div>

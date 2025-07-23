@@ -73,10 +73,74 @@ const ProductItem = ({ products = [] }) => {
 
   if (!products || products.length === 0) {
     return (
-      <div className="row g-4 row-cols-lg-5 row-cols-2 row-cols-md-3">
-        <div className="col-12 text-center">
+      <div className="product-flex-wrap">
+        <div className="text-center w-100">
           <p className="text-muted">No products available</p>
         </div>
+        <style>{`
+          .product-flex-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: flex-start;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+          }
+          .product-flex-wrap .col.fade-zoom {
+            flex: 0 0 280px;
+            width: 280px;
+            max-width: 280px;
+            min-width: 280px;
+            display: flex;
+          }
+          .product-flex-wrap .card-product {
+            min-height: 420px;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+          .product-flex-wrap .card-product .card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            justify-content: space-between;
+          }
+          @media (max-width: 1200px) {
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 45vw;
+              width: 45vw;
+              max-width: 100vw;
+              min-width: 220px;
+            }
+          }
+          @media (max-width: 900px) {
+            .product-flex-wrap {
+              gap: 1.2rem;
+            }
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 90vw;
+              width: 90vw;
+              max-width: 100vw;
+              min-width: 180px;
+            }
+          }
+          @media (max-width: 600px) {
+            .product-flex-wrap {
+              gap: 0.7rem;
+            }
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 98vw;
+              width: 98vw;
+              max-width: 100vw;
+              min-width: 140px;
+            }
+            .product-flex-wrap .card-product {
+              min-height: 320px;
+            }
+          }
+        `}</style>
       </div>
     );
   }
@@ -89,7 +153,7 @@ const ProductItem = ({ products = [] }) => {
         onClose={handleModalClose}
         onAddToCart={handleModalAddToCart}
       />
-      <div className="row g-4 row-cols-lg-5 row-cols-2 row-cols-md-3">
+      <div className="product-flex-wrap">
         {products.map((product) => (
           <div key={product.id} className="col fade-zoom">
             <div className="card card-product">
@@ -105,7 +169,7 @@ const ProductItem = ({ products = [] }) => {
                     alt={product.name}
                     className="mb-3 img-fluid"
                     style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
-                    onClick={() => handleQuickView(product)}
+                    onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
                     onError={(e) => {
                       e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
                     }}
@@ -137,7 +201,7 @@ const ProductItem = ({ products = [] }) => {
                   <span
                     className="text-inherit text-decoration-none"
                     style={{ cursor: 'pointer' }}
-                    onClick={() => handleQuickView(product)}
+                    onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
                   >
                     {product.name}
                   </span>
@@ -163,7 +227,7 @@ const ProductItem = ({ products = [] }) => {
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      onClick={() => handleQuickView(product)}
+                      onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
                     >
                       <i className="fa fa-plus" />{' '}
                       Add
@@ -174,6 +238,64 @@ const ProductItem = ({ products = [] }) => {
             </div>
           </div>
         ))}
+        <style>{`
+          .product-flex-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+          }
+          .product-flex-wrap .col.fade-zoom {
+            flex: 0 0 230px;
+            width: 230px;
+            max-width: 230px;
+            min-width: 230px;
+            display: flex;
+            margin-bottom: 2rem;
+          }
+          .product-flex-wrap .card-product {
+            min-height: 420px;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+          .product-flex-wrap .card-product .card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            justify-content: space-between;
+          }
+          @media (max-width: 1200px) {
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 23vw;
+              width: 23vw;
+              max-width: 100vw;
+              min-width: 160px;
+            }
+          }
+          @media (max-width: 900px) {
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 45vw;
+              width: 45vw;
+              max-width: 100vw;
+              min-width: 140px;
+            }
+          }
+          @media (max-width: 600px) {
+            .product-flex-wrap .col.fade-zoom {
+              flex: 0 0 98vw;
+              width: 98vw;
+              max-width: 100vw;
+              min-width: 120px;
+            }
+            .product-flex-wrap .card-product {
+              min-height: 320px;
+            }
+          }
+        `}</style>
       </div>
     </>
   );

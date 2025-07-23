@@ -4,11 +4,12 @@ import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints.jsx";
 import assortment from "../../images/assortment-citrus-fruits.png";
 
-const FilterSideBar = ({ onSubcategoryChange }) => {
+const FilterSideBar = ({ onFilterChange }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openDropdowns, setOpenDropdowns] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedSubcats, setSelectedSubcats] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,18 +52,23 @@ const FilterSideBar = ({ onSubcategoryChange }) => {
     // eslint-disable-next-line
   }, [categories, selectedCategory]);
 
+  // Handle main category checkbox change
+  const handleCategoryChange = (catId, checked) => {
+    let updated = checked
+      ? [...selectedCategories, catId]
+      : selectedCategories.filter((id) => id !== catId);
+    setSelectedCategories(updated);
+    // Call parent with new filter state
+    if (onFilterChange) onFilterChange({ category: updated, subCategory: selectedSubcats });
+  };
+
   // Handle subcategory checkbox change
-  const handleSubcatChange = (mainCatId, subcatId, checked) => {
+  const handleSubcatChange = (subcatId, checked) => {
     let updated = checked
       ? [...selectedSubcats, subcatId]
       : selectedSubcats.filter((id) => id !== subcatId);
     setSelectedSubcats(updated);
-    if (onSubcategoryChange) onSubcategoryChange(updated);
-    // Optionally, update URL params for filtering
-    const params = new URLSearchParams(location.search);
-    params.set("category", mainCatId);
-    params.set("subcat", updated.join(","));
-    navigate({ search: params.toString() }, { replace: true });
+    if (onFilterChange) onFilterChange({ category: selectedCategories, subCategory: updated });
   };
 
   const toggleDropdown = (index) => {
@@ -129,13 +135,7 @@ const FilterSideBar = ({ onSubcategoryChange }) => {
                             className="form-check-input sidebar-subcat-checkbox"
                             id={`subcat-${sub._id || sub.id}`}
                             checked={selectedSubcats.includes(sub._id || sub.id)}
-                            onChange={(e) =>
-                              handleSubcatChange(
-                                cat._id || cat.id,
-                                sub._id || sub.id,
-                                e.target.checked
-                              )
-                            }
+                            onChange={e => handleSubcatChange(sub._id || sub.id, e.target.checked)}
                           />
                         </li>
                       ))}
@@ -159,9 +159,9 @@ const FilterSideBar = ({ onSubcategoryChange }) => {
         </div>
       )}
       {/* Bottom image section */}
-      <div className="py-4 position-relative">
+      {/* <div className="py-4 position-relative">
         <img src={assortment} alt="assortment" className="img-fluid rounded-3" />
-      </div>
+      </div> */}
       {/* Custom styles for sidebar */}
       <style>{`
         .sidebar-categories-container {

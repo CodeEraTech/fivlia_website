@@ -30,43 +30,71 @@ function Dropdown() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({ category: [], subCategory: [] });
+  const [currentPage, setCurrentPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 20;
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    let url = ENDPOINTS.SEARCH_PRODUCTS;
+    let url = ENDPOINTS.PRODUCTS;
     if (categoryId) {
-      url += `&category=${categoryId}`;
+      url += `&id=${categoryId}`;
     }
     get(url)
       .then((res) => {
-        console.log(res.data,url,3445);
         const data = res.data.products || res.data.result || [];
-        setProducts(
-          data.map((prod) => ({
+        const mapped = data.map((prod) => {
+          const variant = prod.variants && prod.variants[0] ? prod.variants[0] : {};
+          return {
             id: prod._id,
             name: prod.productName || prod.name,
             image: prod.productImageUrl && prod.productImageUrl[0],
-            price: prod.sell_price || prod.price,
-            mrp: prod.mrp,
-            brand: prod.brand_Name && prod.brand_Name.name,
+            price: variant.sell_price || prod.sell_price || prod.price,
+            mrp: variant.mrp || prod.mrp,
+            discount_percentage: variant.discountValue || prod.discount_percentage || 0,
             category: prod.category && prod.category[0] && prod.category[0].name,
             category_id: prod.category && prod.category[0] && prod.category[0]._id,
-            rating: typeof prod.rating === "object" && prod.rating !== null
-              ? prod.rating.rate || 0
-              : prod.rating || 0,
-            review_count: prod.review_count || 0,
-            discount_percentage: prod.discount_percentage || 0,
-            is_hot: prod.is_hot || false,
+            subCategory: prod.subCategory || [],
+            brand: prod.brand_Name && prod.brand_Name.name,
+            rating: prod.rating && (prod.rating.rate || prod.rating) || 0,
+            review_count: prod.rating && prod.rating.users || 0,
+            is_hot: prod.is_hot || prod.feature_product || false,
             is_new: prod.is_new || false,
             description: prod.description || '',
             productImageUrl: prod.productImageUrl,
-          }))
-        );
+            variants: prod.variants || [],
+          };
+        });
+        setAllProducts(mapped);
+        setFilteredProducts(mapped);
       })
       .catch((err) => setError(err.message || "Failed to fetch products"))
       .finally(() => setLoading(false));
   }, [categoryId]);
+
+  // Filtering logic
+  const handleFilterChange = (filters) => {
+    setSelectedFilters(filters);
+    setCurrentPage(1); // Reset to first page on filter change
+    let filtered = allProducts;
+    if (filters.category && filters.category.length > 0) {
+      filtered = filtered.filter(prod => filters.category.includes(prod.category_id));
+    }
+    if (filters.subCategory && filters.subCategory.length > 0) {
+      filtered = filtered.filter(prod => prod.subCategory && prod.subCategory.some(sub => filters.subCategory.includes(sub._id || sub.id)));
+    }
+    setFilteredProducts(filtered);
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE);
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+  };
 
      // loading
      const [loaderStatus, setLoaderStatus] = useState(true);
@@ -76,6 +104,12 @@ function Dropdown() {
        }, 1500);
      }, []);
    
+  // Get current category name for banner
+  let categoryName = "All Products";
+  if (filteredProducts.length > 0 && filteredProducts[0].category) {
+    categoryName = filteredProducts[0].category;
+  }
+
   return (
     <div>
       {loaderStatus ? (
@@ -97,63 +131,44 @@ function Dropdown() {
           <div className="container ">
             <div className="row">
               {/* Vertical Dropdowns Column */}
-              <FilterSideBar />
+              <FilterSideBar onFilterChange={handleFilterChange} />
               {/* Cards Column */}
-              <div className="col-lg-9 col-md-8">
+              <div className="col-lg-9 col-md-8" style={{ paddingTop: '2rem', paddingRight: 0 }}>
+                {/* Top banner for category name */}
+                <div className="card mb-4 bg-light border-0">
+                  <div className="card-body p-4">
+                    <h1 className="mb-0">{categoryName}</h1>
+                  </div>
+                </div>
                 {loading ? (
                   <div className="text-center py-5">Loading products...</div>
                 ) : error ? (
                   <div className="text-center text-danger py-5">{error}</div>
                 ) : (
-                  <ProductItem products={products} />
+                  <ProductItem products={paginatedProducts} />
                 )}
-                {/* Pagination should be here, after products, not outside the main content column */}
-                <div className="row mt-8">
-                  <div className="col">
-                    <nav>
-                      <ul className="pagination">
-                        <li className="page-item disabled">
-                          <Link
-                            className="page-link  mx-1 rounded-3 "
-                            to="#"
-                            aria-label="Previous"
-                          >
-                            <i className="fa fa-chevron-left" />
-                          </Link>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <nav aria-label="Product pagination" className="mt-4">
+                    <ul className="pagination justify-content-center">
+                      <li className={`page-item${currentPage === 1 ? ' disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous" disabled={currentPage === 1}>
+                          <i className="fa fa-chevron-left" />
+                        </button>
+                      </li>
+                      {Array.from({ length: totalPages }).map((_, idx) => (
+                        <li key={idx + 1} className={`page-item${currentPage === idx + 1 ? ' active' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(idx + 1)}>{idx + 1}</button>
                         </li>
-                        <li className="page-item ">
-                          <Link className="page-link  mx-1 rounded-3 active" to="#">
-                            1
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link className="page-link mx-1 rounded-3 text-body" to="#">
-                            2
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link className="page-link mx-1 rounded-3 text-body" to="#">
-                            ...
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link className="page-link mx-1 rounded-3 text-body" to="#">
-                            12
-                          </Link>
-                        </li>
-                        <li className="page-item">
-                          <Link
-                            className="page-link mx-1 rounded-3 text-body"
-                            to="#"
-                            aria-label="Next"
-                          >
-                            <i className="fa fa-chevron-right" />
-                          </Link>
-                        </li>
-                      </ul>
-                    </nav>
-                  </div>
-                </div>
+                      ))}
+                      <li className={`page-item${currentPage === totalPages ? ' disabled' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next" disabled={currentPage === totalPages}>
+                          <i className="fa fa-chevron-right" />
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                )}
               </div>
             </div>
           </div>
