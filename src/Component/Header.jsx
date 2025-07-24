@@ -10,6 +10,8 @@ import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import { useAuth } from "../Component/AuthContext";
 
+
+
 const Header = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -205,29 +207,28 @@ const Header = () => {
               </svg>
             </a>
           ) : (
-            <button
-  className="btn text-muted d-inline-block p-0"
-  onClick={logout}
-  title="Logout"
-  style={{ lineHeight: '1' }}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={20}
-    height={20}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="feather feather-log-out"
+           <button
+    className="btn text-muted d-inline-block p-0"
+    onClick={() => navigate("/MyAccountSetting")} // 👈 redirect on profile icon click
+    title="My Profile"
+    style={{ lineHeight: '1' }}
   >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" />
-    <line x1="21" y1="12" x2="9" y2="12" />
-  </svg>
-</button>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="feather feather-user"
+    >
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx={12} cy={7} r={4} />
+    </svg>
+  </button>
 
           )}
         </div>
