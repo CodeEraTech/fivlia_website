@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { post } from "../apis/apiClient";
 import productimage1 from '../images/product-img-1.jpg'
 import productimage2 from '../images/product-img-2.jpg'
 import productimage3 from '../images/product-img-3.jpg'
@@ -7,6 +8,7 @@ import productimage5 from '../images/product-img-5.jpg'
 import { Link, useNavigate } from "react-router-dom";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
+import { useAuth } from "../Component/AuthContext";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -22,7 +24,9 @@ const Header = () => {
   const [catLoading, setCatLoading] = useState(true);
   const [catError, setCatError] = useState(null);
   const searchWrapperRef = useRef();
+   const { isLoggedIn, logout } = useAuth();
 
+   
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
@@ -36,6 +40,11 @@ const Header = () => {
     setSuggestions([]);
   };
 
+   const handleLogout = () => {
+          logout(); 
+    navigate("/");
+  };
+  
   // Debounced search effect
   useEffect(() => {
     if (!searchQuery) {
@@ -170,9 +179,58 @@ const Header = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-heart"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">5<span className="visually-hidden">unread messages</span></span>
                   </Link>
-                  <Link to="#" className="text-muted" data-bs-toggle="modal" data-bs-target="#userModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx={12} cy={7} r={4} /></svg>
-                  </Link>
+                         <div className="list-inline-item d-inline-block">
+          {!isLoggedIn ? (
+            <a
+              href="#"
+              className="text-muted"
+              data-bs-toggle="modal"
+              data-bs-target="#userModal"
+              title="Login"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={20}
+                height={20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-user"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx={12} cy={7} r={4} />
+              </svg>
+            </a>
+          ) : (
+            <button
+  className="btn text-muted d-inline-block p-0"
+  onClick={logout}
+  title="Logout"
+  style={{ lineHeight: '1' }}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={20}
+    height={20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="feather feather-log-out"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+</button>
+
+          )}
+        </div>
                   <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
                     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
                     <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">1<span className="visually-hidden">unread messages</span></span>
@@ -258,9 +316,58 @@ const Header = () => {
               <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-heart"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">5<span className="visually-hidden">unread messages</span></span>
             </Link>
-            <Link to="#" className="text-muted" data-bs-toggle="modal" data-bs-target="#userModal">
-              <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx={12} cy={7} r={4} /></svg>
-            </Link>
+                 <div className="list-inline-item d-inline-block">
+          {!isLoggedIn ? (
+            <a
+              href="#"
+              className="text-muted"
+              data-bs-toggle="modal"
+              data-bs-target="#userModal"
+              title="Login"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={20}
+                height={20}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="feather feather-user"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx={12} cy={7} r={4} />
+              </svg>
+            </a>
+          ) : (
+            <button
+  className="btn text-muted d-inline-block p-0"
+  onClick={logout}
+  title="Logout"
+  style={{ lineHeight: '1' }}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={20}
+    height={20}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="feather feather-log-out"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+</button>
+
+          )}
+        </div>
             <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
               <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">1<span className="visually-hidden">unread messages</span></span>
@@ -453,7 +560,7 @@ const Header = () => {
           <div className="modal-content p-4">
             <div className="modal-header border-0">
               <h5 className="modal-title fs-3 fw-bold" id="userModalLabel">
-                Sign Up
+                Mobile Login
               </h5>
               <button
                 type="button"
@@ -463,56 +570,98 @@ const Header = () => {
               />
             </div>
             <div className="modal-body">
-              <form>
-                <div className="mb-3">
-                  <label htmlFor="fullName" className="form-label">
-                    Name
+              {/* Mobile login form with API call and redirect */}
+              {(() => {
+                const [mobile, setMobile] = useState("");
+                const [error, setError] = useState("");
+                const [loading, setLoading] = useState(false);
+                const navigate = useNavigate();
+
+                const handleSendOtp = async (e) => {
+                  e.preventDefault();
+                  setError("");
+                  setLoading(true);
+                  let formattedMobile = mobile.replace(/\D/g, "");
+                  if (formattedMobile.length === 10) {
+                    formattedMobile = "+91" + formattedMobile;
+                  } else if (formattedMobile.length === 12 && formattedMobile.startsWith("91")) {
+                    formattedMobile = "+" + formattedMobile;
+                  } else if (!formattedMobile.startsWith("+91")) {
+                    setError("Please enter a valid 10 digit mobile number");
+                    setLoading(false);
+                    return;
+                  }
+                  try {
+                    // Step 1: Check if user exists
+                    const verifyRes = await post(ENDPOINTS.VERIFY_MOBILE, { mobileNumber: formattedMobile });
+                    if (verifyRes.data.status === 1) {
+                      // User exists, send login OTP
+                      const loginRes = await post(ENDPOINTS.LOGIN, { mobileNumber: formattedMobile });
+                      if (loginRes.data.message?.toLowerCase().includes("otp sent")) {
+                        localStorage.setItem("mobile", formattedMobile);
+                        // Close modal
+                        const modalEl = document.getElementById('userModal');
+                        if (modalEl && window.bootstrap?.Modal) {
+                          const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                          modal.hide();
+                        }
+                        navigate("/otp-verification");
+                      } else {
+                        setError(loginRes.data.message || "Error sending OTP");
+                      }
+                    } else if (verifyRes.data.status === 0) {
+                      // User not found, register and send OTP
+                      const regRes = await post(ENDPOINTS.REGISTER, { mobileNumber: formattedMobile });
+                      if (regRes.data.message?.toLowerCase().includes("otp sent")) {
+                        localStorage.setItem("mobile", formattedMobile);
+                        // Close modal
+                        const modalEl = document.getElementById('userModal');
+                        if (modalEl && window.bootstrap?.Modal) {
+                          const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                          modal.hide();
+                        }
+                        navigate("/otp-verification");
+                      } else {
+                        setError(regRes.data.message || "Error sending OTP");
+                      }
+                    } else {
+                      setError(verifyRes.data.message || "Error verifying mobile");
+                    }
+                  } catch (err) {
+                    setError(err.response?.data?.message || "Something went wrong");
+                  }
+                  setLoading(false);
+                };
+                return (
+                  <form onSubmit={handleSendOtp}>
+                    <div className="mb-4">
+                      <label htmlFor="mobileNumber" className="form-label">
+                        Mobile Number
                   </label>
                   <input
-                    type="text"
+                        type="tel"
                     className="form-control"
-                    id="fullName"
-                    placeholder="Enter Your Name"
+                        id="mobileNumber"
+                        placeholder="Enter 10 digit mobile number"
                     required
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        disabled={loading}
                   />
+                      {error && <div className="text-danger mt-2">{error}</div>}
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email address
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    placeholder="Enter Email address"
-                    required
-                  />
-                </div>
-                <div className="mb-5">
-                  <label htmlFor="password" className="form-label">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    placeholder="Enter Password"
-                    required
-                  />
-                  <small className="form-text">
-                    By Signup, you agree to our{" "}
-                    <Link to="#!">Terms of Service</Link> &amp;{" "}
-                    <Link to="#!">Privacy Policy</Link>
-                  </small>
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  Sign Up
+                    <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                      {loading ? "Sending OTP..." : "Login"}
                 </button>
               </form>
+                );
+              })()}
             </div>
-            <div className="modal-footer border-0 justify-content-center">
+            {/* <div className="modal-footer border-0 justify-content-center">
               Already have an account? <Link to="/MyAccountSignIn">Sign in</Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

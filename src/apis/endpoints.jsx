@@ -3,7 +3,9 @@ export const API_BASE_URL = "https://api.fivlia.in";
 
 // Define all endpoints here
 export const ENDPOINTS = {
-  LOGIN: "/auth/login",
+   VERIFY_MOBILE: "verifyMobile",
+  LOGIN: "login",
+  VERIFY_OTP: "verifyOtp",
   REGISTER: "/auth/register",
   CATEGORIES: "/getMainCategory",
   BANNERS: "/getAllBanner",

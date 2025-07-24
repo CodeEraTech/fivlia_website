@@ -37,6 +37,7 @@ import FAQ from "./pages/FooterElements/Faq";
 import Coupons from "./pages/FooterElements/Coupons";
 import Careers from "./pages/FooterElements/Careers";
 import HelpCenter from "./pages/FooterElements/HelpCenter";
+import OtpVerification from "./pages/Accounts/OtpVerification";
 const App = () => {
   return (
     <div>
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/MyAccountForgetPassword" element={<MyAccountForgetPassword />} />
           <Route path="/MyAccountSignIn" element={<MyAccountSignIn />} />
           <Route path="/MyAccountSignUp" element={<MyAccountSignUp />} />
+           <Route path="/otp-verification" element={<OtpVerification />} />
           {/* About pages */}
           <Route path="/Blog" element={<Blog />} />
           <Route path="/BlogCategory" element={<BlogCategory />} />
