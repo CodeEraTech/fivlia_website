@@ -127,17 +127,60 @@ function Dropdown() {
             {/* Pagination */}
             {totalPages > 1 && (
               <nav aria-label="Product pagination" className="mt-4">
-                <ul className="pagination justify-content-center">
+                <ul className="pagination justify-content-center flex-wrap">
                   <li className={`page-item${currentPage === 1 ? ' disabled' : ''}`}>
                     <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous" disabled={currentPage === 1}>
                       <i className="fa fa-chevron-left" />
                     </button>
                   </li>
-                  {Array.from({ length: totalPages }).map((_, idx) => (
-                    <li key={idx + 1} className={`page-item${currentPage === idx + 1 ? ' active' : ''}`}>
-                      <button className="page-link" onClick={() => handlePageChange(idx + 1)}>{idx + 1}</button>
-                    </li>
-                  ))}
+                  {(() => {
+                    const pages = [];
+                    const DOTS = '...';
+                    const pageNeighbours = 2;
+                    let startPage = Math.max(2, currentPage - pageNeighbours);
+                    let endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+                    if (currentPage <= 1 + pageNeighbours) {
+                      endPage = Math.min(1 + 2 * pageNeighbours, totalPages - 1);
+                    }
+                    if (currentPage >= totalPages - pageNeighbours) {
+                      startPage = Math.max(totalPages - 2 * pageNeighbours, 2);
+                    }
+                    // Always show first page
+                    pages.push(
+                      <li key={1} className={`page-item${currentPage === 1 ? ' active' : ''}`}>
+                        <button className="page-link" onClick={() => handlePageChange(1)}>1</button>
+                      </li>
+                    );
+                    // Show left dots if needed
+                    if (startPage > 2) {
+                      pages.push(
+                        <li key="dots-left" className="page-item disabled"><span className="page-link">{DOTS}</span></li>
+                      );
+                    }
+                    // Show middle pages
+                    for (let i = startPage; i <= endPage; i++) {
+                      pages.push(
+                        <li key={i} className={`page-item${currentPage === i ? ' active' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(i)}>{i}</button>
+                        </li>
+                      );
+                    }
+                    // Show right dots if needed
+                    if (endPage < totalPages - 1) {
+                      pages.push(
+                        <li key="dots-right" className="page-item disabled"><span className="page-link">{DOTS}</span></li>
+                      );
+                    }
+                    // Always show last page
+                    if (totalPages > 1) {
+                      pages.push(
+                        <li key={totalPages} className={`page-item${currentPage === totalPages ? ' active' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(totalPages)}>{totalPages}</button>
+                        </li>
+                      );
+                    }
+                    return pages;
+                  })()}
                   <li className={`page-item${currentPage === totalPages ? ' disabled' : ''}`}>
                     <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next" disabled={currentPage === totalPages}>
                       <i className="fa fa-chevron-right" />
@@ -152,67 +195,6 @@ function Dropdown() {
     </div>
   );
 }
-
-const dropdownData = [
-  {
-    title: "Dairy, Bread & Eggs",
-    items: [
-      "Milk",
-      "Milk Drinks",
-      "Curd & Yogurt",
-      "Eggs",
-      "Bread",
-      "Buns & Bakery",
-      "Butter & More",
-      "Cheese",
-      "Paneer & Tofu",
-      "Cream & Whitener",
-      "Condensed Milk",
-      "Vegan Drinks",
-    ],
-  },
-  {
-    title: "Snacks & Munchies",
-    items: [
-      "Chips & Crisps",
-      "Nachos",
-      "Popcorn",
-      "Bhujia & Mixtures",
-      "Namkeen Snacks",
-      "Healthy Snacks",
-      "Cakes & Rolls",
-      "Energy Bars",
-      "Papad & Fryums",
-      "Rusks & Wafers",
-    ],
-  },
-  {
-    title: "Fruits & Vegetables",
-    items: [
-      "Fresh Vegetables",
-      "Herbs & Seasonings",
-      "Fresh Fruits",
-      "Organic Fruits & Vegetables",
-      "Cuts & Sprouts",
-      "Exotic Fruits & Veggies",
-      "Flower Bouquets, Bunches",
-    ],
-  },
-  {
-    title: "Cold Drinks & Juices" ,
-    items: [
-      "Soft Drinks",
-      "Fruit Juices",
-      "Coldpress",
-      "Energy Drinks",
-      "Water & Ice Cubes",
-      "Soda & Mixers",
-      "Concentrates & Syrups",
-      "Detox & Energy Drinks",
-      "Juice Collection",
-    ],
-  },
-];
 
 
 export default Dropdown;
