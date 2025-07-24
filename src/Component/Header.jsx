@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Grocerylogo from "../images/Grocerylogo.png";
 import menubanner from "../images/menu-banner.jpg";
 import productimage1 from '../images/product-img-1.jpg'
@@ -7,15 +7,87 @@ import productimage3 from '../images/product-img-3.jpg'
 import productimage4 from '../images/product-img-4.jpg'
 import productimage5 from '../images/product-img-5.jpg'
 import { Link } from "react-router-dom";
+import { get } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
+import ProductQuickViewModal from '../ProductList/ProductQuickViewModal';
 
 const Header = () => {
 
 
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceTimeout = useRef();
+  const inputRef = useRef();
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(true);
+  const [catError, setCatError] = useState(null);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
+
+  // Debounced search effect
+  useEffect(() => {
+    if (!searchQuery) {
+      setSuggestions([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+    debounceTimeout.current = setTimeout(() => {
+      get(`${ENDPOINTS.SEARCH_PRODUCTS}&search=${encodeURIComponent(searchQuery)}`)
+        .then((res) => {
+          setSuggestions(res.data?.products || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError("Failed to fetch suggestions");
+          setLoading(false);
+        });
+    }, 300); // 300ms debounce
+    return () => clearTimeout(debounceTimeout.current);
+  }, [searchQuery]);
+
+  // Hide suggestions on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (inputRef.current && !inputRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch categories for All Departments menu
+  useEffect(() => {
+    let isMounted = true;
+    setCatLoading(true);
+    get(ENDPOINTS.CATEGORIES)
+      .then((res) => {
+        if (isMounted) {
+          setCategories(res.data?.result || []);
+          setCatError(null);
+        }
+      })
+      .catch((err) => {
+        if (isMounted) setCatError("Failed to load categories");
+      })
+      .finally(() => {
+        if (isMounted) setCatLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div>
@@ -26,6 +98,20 @@ const Header = () => {
           outline: none !important;
           box-shadow: none !important;
           border: none !important;
+        }
+        @media (min-width: 600px) {
+          .search-suggestion-dropdown {
+            min-width: 420px !important;
+            max-width: 540px !important;
+            left: 0 !important;
+            right: auto !important;
+          }
+        }
+        @media (min-width: 900px) {
+          .search-suggestion-dropdown {
+            min-width: 520px !important;
+            max-width: 700px !important;
+          }
         }
       `}</style>
       <>
@@ -132,15 +218,7 @@ const Header = () => {
       <>
         <div className="container  displaydesign">
           <div className="row g-4">
-            <div className="col-8 col-sm-4 col-lg-9 py-2 ">
-              <input
-                className="form-control "
-                style={{ width: "100%" }}
-                list="datalistOptions"
-                id="exampleDataList"
-                placeholder="Type to search..."
-              />
-            </div>
+            {/* Remove the search bar in the .container.displaydesign row (top section) */}
             <div className="col-4 col-sm-4 col-lg-3 py-2 d-flex" style={{ justifyContent: 'center' }}>
               {/* Button trigger modal */}
               {/* <button
@@ -236,20 +314,97 @@ const Header = () => {
       <nav className="navbar navbar-expand-lg navbar-light sticky-top">
         <div className="container">
           <Link className="navbar-brand" to="/">
-            <img
-              src={Grocerylogo}
-              style={{ width: 200, marginBottom: 10, marginLeft: "-15px" }}
-              alt="Fivlia logo"
-            />
+            <span style={{
+              color: '#30574e',
+              fontWeight: 'bold',
+              fontSize: '2rem',
+              letterSpacing: '0.15em',
+              fontFamily: 'Montserrat, Arial, sans-serif',
+              textTransform: 'uppercase',
+              textShadow: '0 2px 8px rgba(48,87,78,0.08)'
+            }}>
+              FIVLIA
+            </span>
           </Link>
-          <input
-            className="form-control responsivesearch "
-            list="datalistOptions"
-            id="exampleDataList"
-            placeholder="Type to search..."
-            fdprocessedid="9icrif"
-            style={{ width: "35%" }}
-          />
+          <div style={{ position: 'relative', flex: 1, maxWidth: 600, minWidth: 220, marginLeft: 16, marginRight: 16 }}>
+            <input
+              ref={inputRef}
+              className="form-control responsivesearch"
+              style={{ width: '100%', minWidth: 120, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
+              id="product-search-input"
+              placeholder="Search for products..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onKeyUp={e => setSearchQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              autoComplete="off"
+              aria-label="Search for products"
+            />
+            <span style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: '#30574e', pointerEvents: 'none' }}>
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            {showSuggestions && (searchQuery || loading || error) && (
+              <div
+                className="search-suggestion-dropdown"
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  zIndex: 1000,
+                  background: '#fff',
+                  border: '1px solid #e0e0e0',
+                  borderTop: 'none',
+                  maxHeight: 400,
+                  width: '100%',
+                  overflowY: 'auto',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                  borderRadius: '0 0 8px 8px',
+                  transition: 'width 0.2s',
+                  minWidth: 320,
+                  // Remove minWidth for mobile, increase for larger screens
+                }}
+              >
+                {loading && <div className="p-2 text-center text-muted">Loading...</div>}
+                {error && <div className="p-2 text-danger">{error}</div>}
+                {!loading && !error && suggestions.length === 0 && searchQuery && (
+                  <div className="p-2 text-muted">No products found</div>
+                )}
+                {!loading && !error && suggestions.map(product => (
+                  <div
+                    key={product._id || product.id || product.productName}
+                    className="d-flex align-items-center p-2 suggestion-item"
+                    style={{ cursor: 'pointer', borderBottom: '1px solid #f0f0f0', transition: 'background 0.2s' }}
+                    onMouseDown={() => {
+                      setShowSuggestions(false);
+                      setQuickViewProduct(product);
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f6f6f6'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <img src={product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || ''} alt={product.productName} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: '1rem', color: '#30574e' }}>{product.productName}</div>
+                      <div style={{ fontSize: '0.95em', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.category && product.category[0]?.name}</div>
+                      {product.variants && product.variants[0] && (
+                        <div style={{ fontSize: '0.95em', color: '#222', marginTop: 2 }}>
+                          ₹{product.variants[0].sell_price} <span style={{ textDecoration: 'line-through', color: '#aaa', marginLeft: 4, fontSize: '0.9em' }}>{product.variants[0].mrp > product.variants[0].sell_price ? `₹${product.variants[0].mrp}` : ''}</span>
+                          {product.variants[0].discountValue ? <span style={{ color: '#e53935', marginLeft: 8, fontWeight: 500 }}>-{product.variants[0].discountValue}%</span> : null}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {quickViewProduct && (
+              <ProductQuickViewModal
+                product={quickViewProduct}
+                show={!!quickViewProduct}
+                onHide={() => setQuickViewProduct(null)}
+              />
+            )}
+          </div>
 
           <button
             className="navbar-toggler"
@@ -301,376 +456,35 @@ const Header = () => {
             <div
               className="dropdown-menu sm-menu"
               aria-labelledby="navbarDropdown"
+              style={{ minWidth: 220 }}
             >
-              <Link className="dropdown-item" to="/Shop">
-                Dairy, Bread &amp; Eggs
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Snacks &amp; Munchies
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Fruits &amp; Vegetables
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Cold Drinks &amp; Juices
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Breakfast &amp; Instant Food
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Bakery &amp; Biscuits
-              </Link>
-              <Link className="dropdown-item" to="/Shop">
-                Chicken, Meat &amp; Fish
-              </Link>
+              {catLoading && <div className="dropdown-item text-muted">Loading...</div>}
+              {catError && <div className="dropdown-item text-danger">{catError}</div>}
+              {!catLoading && !catError && categories.length === 0 && (
+                <div className="dropdown-item text-muted">No categories found</div>
+              )}
+              {!catLoading && !catError && categories.map((cat, idx) => (
+                <Link
+                  className="dropdown-item"
+                  to={`/Shop?category=${cat.id || cat._id || idx}`}
+                  key={cat.id || cat._id || idx}
+                  aria-label={`Go to ${cat.name} category`}
+                >
+                  {cat.name}
+                </Link>
+              ))}
             </div>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/Grocery-react/">
-              Home
-            </Link>
-          </li>
-          <li className="nav-item dmenu dropdown">
-            <Link
-              className="nav-link dropdown-toggle"
-              to="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              About
-            </Link>
-            <div
-              className="dropdown-menu sm-menu"
-              aria-labelledby="navbarDropdown"
-            >
-              <Link className="dropdown-item" to="/Blog">
-                Blog
-              </Link>
-              {/* <Link className="dropdown-item" to="pages/blog-single.html">
-                    Blog Single
-                  </Link> */}
-              <Link className="dropdown-item" to="/BlogCategory">
-                Blog Category
-              </Link>
-              <Link className="dropdown-item" to="/AboutUs">
-                About us
-              </Link>
-              {/* <Link className="dropdown-item" to="pages/404error.html">
-                    404 Error
-                  </Link> */}
-              <Link className="dropdown-item" to="/Contact">
-                Contact
-              </Link>
-            </div>
-          </li>
-
-          <li className="nav-item dmenu dropdown">
-            <Link
-              className="nav-link dropdown-toggle"
-              to="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
+            <Link className="nav-link" to="/Shop">
               Shop
             </Link>
-            <div
-              className="dropdown-menu sm-menu"
-              aria-labelledby="navbarDropdown"
-            >
-              <Link className="dropdown-item" to="/Shop">
-                Shop
-              </Link>
-              <Link className="dropdown-item" to="/ShopWishList">
-                Shop Wishlist
-              </Link>
-              <Link className="dropdown-item" to="/ShopCart">
-                Shop Cart
-              </Link>
-              <Link className="dropdown-item" to="/ShopCheckOut">
-                Shop Checkout
-              </Link>
-            </div>
           </li>
-
-          <li className="nav-item dmenu dropdown">
-            <Link
-              className="nav-link dropdown-toggle"
-              to="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Stores
+          <li className="nav-item">
+            <Link className="nav-link" to="/AboutUs">
+              About Us
             </Link>
-            <div
-              className="dropdown-menu sm-menu"
-              aria-labelledby="navbarDropdown"
-            >
-              <Link className="dropdown-item" to="/StoreList">
-                Store List
-              </Link>
-              {/* <Link className="dropdown-item" to="pages/store-grid.html">
-                    Store Grid
-                  </Link> */}
-              <Link className="dropdown-item" to="/SingleShop">
-                Single Store
-              </Link>
-            </div>
           </li>
-          {/* <li className="nav-item dmenu dropdown">
-                <Link
-                  className="nav-link dropdown-toggle"
-                  to="#"
-                  id="navbarDropdown"
-                  role="button"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Pages
-                </Link>
-                <div
-                  className="dropdown-menu sm-menu"
-                  aria-labelledby="navbarDropdown"
-                >
-                  <Link className="dropdown-item" to="pages/blog.html">
-                    Blog
-                  </Link>
-                  <div>
-                    <Link className="dropdown-item" to="pages/blog-single.html">
-                      Blog Single
-                    </Link>
-                    <Link
-                      className="dropdown-item"
-                      to="pages/blog-category.html"
-                    >
-                      Blog Category
-                    </Link>
-                    <Link className="dropdown-item" to="pages/about.html">
-                      About us
-                    </Link>
-                    <Link className="dropdown-item" to="pages/404error.html">
-                      404 Error
-                    </Link>
-                    <Link className="dropdown-item" to="pages/contact.html">
-                      Contact
-                    </Link>
-                  </div>
-                </div>
-              </li> */}
-
-          <li className="nav-item dropdown megamenu-li dmenu">
-            <Link
-              className="nav-link dropdown-toggle"
-              to="/Shop"
-              id="dropdown01"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              All Services
-            </Link>
-            <div
-              className="dropdown-menu megamenu sm-menu border-top"
-              aria-labelledby="dropdown01"
-            >
-              <div className="row">
-                <div className="col-sm-6 col-lg-3 border-right mb-4">
-                  <div>
-                    <h6 className="text-primary ps-3">
-                      Dairy, Bread &amp; Eggs
-                    </h6>
-                    <Link className="dropdown-item" to="/Shop">
-                      Butter
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Milk Drinks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Curd &amp; Yogurt
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Eggs
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Buns &amp; Bakery
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Cheese
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Condensed Milk
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Dairy Products
-                    </Link>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-lg-3 border-right mb-4">
-                  <div>
-                    <h6 className="text-primary ps-3">
-                      Breakfast &amp; Instant Food
-                    </h6>
-                    <Link className="dropdown-item" to="/Shop">
-                      Breakfast Cereal
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Noodles, Pasta &amp; Soup
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Frozen Veg Snacks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Frozen Non-Veg Snacks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Vermicelli
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Instant Mixes
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Batter
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      {" "}
-                      Fruit and Juices
-                    </Link>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-lg-3 mb-4">
-                  <div>
-                    <h6 className="text-primary ps-3">
-                      Cold Drinks &amp; Juices
-                    </h6>
-                    <Link className="dropdown-item" to="/Shop">
-                      Soft Drinks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Fruit Juices
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Coldpress
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Water &amp; Ice Cubes
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Soda &amp; Mixers
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Health Drinks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Herbal Drinks
-                    </Link>
-                    <Link className="dropdown-item" to="/Shop">
-                      Milk Drinks
-                    </Link>
-                  </div>
-                </div>
-
-                {/* <div className="row"> */}
-                <div className="col-sm-6 col-lg-3 border-right mb-4">
-                  <div className="card border-0">
-                    <img
-                      src={menubanner}
-                      style={{ width: "90%" }}
-                      alt="eCommerce HTML Template"
-                      className="img-fluid rounded-3"
-                    />
-                    <div className="position-absolute ps-6 mt-8">
-                      <h5 className=" mb-0 ">
-                        Dont miss this <br />
-                        offer today.
-                      </h5>
-                      <Link
-                        to="/Shop"
-                        className="btn btn-primary btn-sm mt-3"
-                      >
-                        Shop Now
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* </div> */}
-            </div>
-          </li>
-
-          <li className="nav-item dmenu dropdown">
-            <Link
-              className="nav-link dropdown-toggle"
-              to=""
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              Account
-            </Link>
-            <div
-              className="dropdown-menu sm-menu"
-              aria-labelledby="navbarDropdown"
-            >
-              <div>
-                <div>
-                  <Link className="dropdown-item" to="/MyAccountSignIn">
-                    Sign in
-                  </Link>
-                  <Link className="dropdown-item" to="/MyAccountSignUp">
-                    Signup
-                  </Link>
-                  <Link
-                    className="dropdown-item"
-                    to="/MyAccountForgetPassword"
-                  >
-                    Forgot Password
-                  </Link>
-                  <Link className="dropdown-item" to="/MyAccountOrder">
-                    Orders
-                  </Link>
-                  <Link className="dropdown-item" to="/MyAccountSetting">
-                    Settings
-                  </Link>
-                  <Link className="dropdown-item" to="/MyAccountAddress">
-                    Address
-                  </Link>
-                  <Link
-                    className="dropdown-item"
-                    to="/MyAcconutPaymentMethod"
-                  >
-                    Payment Method
-                  </Link>
-                  <Link
-                    className="dropdown-item"
-                    to="/MyAcconutNotification"
-                  >
-                    Notification
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </li>
-          {/* <li className="nav-item">
-                <Link className="nav-link" to="">
-                  Contact us
-                </Link>
-              </li> */}
         </ul>
       </div>
       {/* <div className="col-md-2 col-xxl-1 text-end d-none d-lg-block">
