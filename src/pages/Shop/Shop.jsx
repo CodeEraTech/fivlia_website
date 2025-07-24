@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { MagnifyingGlass } from 'react-loader-spinner'
 import assortment from "../../images/assortment-citrus-fruits.png";
 import { Link, useLocation } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -19,6 +18,7 @@ import FilterSideBar from "./FilterSideBar";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints.jsx";
 import ProductItem from "../../ProductList/ProductItem";
+import ProductShimmer from '../../ProductList/ProductShimmer';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -96,14 +96,6 @@ function Dropdown() {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-     // loading
-     const [loaderStatus, setLoaderStatus] = useState(true);
-     useEffect(() => {
-       setTimeout(() => {
-         setLoaderStatus(false);
-       }, 1500);
-     }, []);
-   
   // Get current category name for banner
   let categoryName = "All Products";
   if (filteredProducts.length > 0 && filteredProducts[0].category) {
@@ -112,68 +104,51 @@ function Dropdown() {
 
   return (
     <div>
-      {loaderStatus ? (
-        <div className="loader-container">
-          <MagnifyingGlass
-            visible={true}
-            height="100"
-            width="100"
-            ariaLabel="magnifying-glass-loading"
-            wrapperStyle={{}}
-            wrapperclassName="magnifying-glass-wrapper"
-            glassColor="#c0efff"
-            color="#0aad0a"
-          />
-        </div>
-      ) : (
-        <>
-          <ScrollToTop />
-          <div className="container ">
-            <div className="row">
-              {/* Vertical Dropdowns Column */}
-              <FilterSideBar onFilterChange={handleFilterChange} />
-              {/* Cards Column */}
-              <div className="col-lg-9 col-md-8" style={{ paddingTop: '2rem', paddingRight: 0 }}>
-                {/* Top banner for category name */}
-                <div className="card mb-4 bg-light border-0">
-                  <div className="card-body p-4">
-                    <h1 className="mb-0">{categoryName}</h1>
-                  </div>
-                </div>
-                {loading ? (
-                  <div className="text-center py-5">Loading products...</div>
-                ) : error ? (
-                  <div className="text-center text-danger py-5">{error}</div>
-                ) : (
-                  <ProductItem products={paginatedProducts} />
-                )}
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <nav aria-label="Product pagination" className="mt-4">
-                    <ul className="pagination justify-content-center">
-                      <li className={`page-item${currentPage === 1 ? ' disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous" disabled={currentPage === 1}>
-                          <i className="fa fa-chevron-left" />
-                        </button>
-                      </li>
-                      {Array.from({ length: totalPages }).map((_, idx) => (
-                        <li key={idx + 1} className={`page-item${currentPage === idx + 1 ? ' active' : ''}`}>
-                          <button className="page-link" onClick={() => handlePageChange(idx + 1)}>{idx + 1}</button>
-                        </li>
-                      ))}
-                      <li className={`page-item${currentPage === totalPages ? ' disabled' : ''}`}>
-                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next" disabled={currentPage === totalPages}>
-                          <i className="fa fa-chevron-right" />
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
-                )}
+      <ScrollToTop />
+      <div className="container ">
+        <div className="row">
+          {/* Vertical Dropdowns Column */}
+            <FilterSideBar onFilterChange={handleFilterChange} />
+          {/* Cards Column */}
+          <div className="col-lg-9 col-md-8" style={{ paddingTop: '2rem', paddingRight: 0 }}>
+            {/* Top banner for category name */}
+            <div className="card mb-4 bg-light border-0">
+              <div className="card-body p-4">
+                <h1 className="mb-0">{categoryName}</h1>
               </div>
             </div>
+            {loading ? (
+              <ProductShimmer count={12} />
+            ) : error ? (
+              <div className="text-center text-danger py-5">{error}</div>
+            ) : (
+              <ProductItem products={paginatedProducts} />
+            )}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav aria-label="Product pagination" className="mt-4">
+                <ul className="pagination justify-content-center">
+                  <li className={`page-item${currentPage === 1 ? ' disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} aria-label="Previous" disabled={currentPage === 1}>
+                      <i className="fa fa-chevron-left" />
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPages }).map((_, idx) => (
+                    <li key={idx + 1} className={`page-item${currentPage === idx + 1 ? ' active' : ''}`}>
+                      <button className="page-link" onClick={() => handlePageChange(idx + 1)}>{idx + 1}</button>
+                    </li>
+                  ))}
+                  <li className={`page-item${currentPage === totalPages ? ' disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} aria-label="Next" disabled={currentPage === totalPages}>
+                      <i className="fa fa-chevron-right" />
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

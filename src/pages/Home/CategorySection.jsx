@@ -47,7 +47,27 @@ const CategorySection = () => {
           </div>
           <div className="row ">
             {loading && (
-              <div className="text-center py-5">Loading...</div>
+              <>
+                {Array.from({ length: 12 }).map((_, idx) => (
+                  <div className="col-lg-2 col-md-4 col-6 fade-zoom" key={idx}>
+                    <div className="category-shimmer text-center mb-10">
+                      <div className="shimmer-circle shimmer-bg" style={{ width: 100, height: 100, margin: '0 auto', borderRadius: 50 }} />
+                      <div className="shimmer-line shimmer-bg" style={{ width: 100, height: 16, margin: '18px auto 0', borderRadius: 6 }} />
+                    </div>
+                  </div>
+                ))}
+                <style>{`
+                  .shimmer-bg {
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+                    background-size: 400% 100%;
+                    animation: shimmer 1.2s ease-in-out infinite;
+                  }
+                  @keyframes shimmer {
+                    0% { background-position: -400px 0; }
+                    100% { background-position: 400px 0; }
+                  }
+                `}</style>
+              </>
             )}
             {error && (
               <div className="text-center text-danger py-5">{error}</div>

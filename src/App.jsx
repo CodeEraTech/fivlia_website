@@ -38,6 +38,8 @@ import Coupons from "./pages/FooterElements/Coupons";
 import Careers from "./pages/FooterElements/Careers";
 import HelpCenter from "./pages/FooterElements/HelpCenter";
 import OtpVerification from "./pages/Accounts/OtpVerification";
+import ProductDetails from './ProductList/ProductDetails';
+
 const App = () => {
   return (
     <div>
@@ -45,6 +47,7 @@ const App = () => {
         <Header/>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
           {/* Shop pages */}
           <Route path="/Shop" element={<Shop />} />
           <Route path="/ShopGridCol3" element={<ShopGridCol3 />} />

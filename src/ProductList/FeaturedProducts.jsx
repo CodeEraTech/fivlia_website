@@ -6,6 +6,7 @@ import ProductQuickViewModal from "./ProductQuickViewModal";
 import bannerdeal from "../images/banner-deal1.jpg";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import ProductShimmer from './ProductShimmer';
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState([]);
@@ -26,24 +27,30 @@ const FeaturedProducts = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Map products to match card structure
+  // Robust mapping for new API response
   const mappedProducts = products.map(prod => ({
-    id: prod._id,
+    id: prod._id || prod.id,
     name: prod.productName || prod.name,
-    image: prod.productImageUrl && prod.productImageUrl[0],
-    price: prod.sell_price || prod.price,
-    mrp: prod.mrp,
-    brand: prod.brand_Name && prod.brand_Name.name,
-    category: prod.category && prod.category[0] && prod.category[0].name,
-    category_id: prod.category && prod.category[0] && prod.category[0]._id,
-    rating: prod.rating || 0,
+    description: prod.description,
+    image: prod.productImageUrl?.[0] || prod.productThumbnailUrl || prod.image,
+    price: prod.variants?.[0]?.sell_price || prod.sell_price || prod.price,
+    mrp: prod.variants?.[0]?.mrp || prod.mrp,
+    category: prod.category?.[0]?.name || (prod.category && prod.category.name) || '',
+    category_id: prod.category?.[0]?._id || (prod.category && prod.category._id) || '',
+    brand: prod.brand_Name?.name || prod.brand || '',
+    unit: prod.unit?.name || '',
+    tax: prod.tax,
+    rating: prod.rating || 4.5,
     review_count: prod.review_count || 0,
-    discount_percentage: prod.discount_percentage || 0,
-    is_hot: prod.is_hot || false,
+    discount_percentage: prod.variants?.[0]?.discountValue || prod.discount_percentage || 0,
+    is_hot: prod.feature_product || prod.is_hot || false,
     is_new: prod.is_new || false,
-    description: prod.description || '',
-    productImageUrl: prod.productImageUrl,
+    sku: prod.sku,
+    status: prod.status,
+    inCart: prod.inCart?.status || false,
     variants: prod.variants || [],
+    productImageUrl: prod.productImageUrl || [],
+    productThumbnailUrl: prod.productThumbnailUrl,
   }));
 
   // Modal logic
@@ -91,7 +98,7 @@ const FeaturedProducts = () => {
     return isNaN(num) ? 0 : num;
   };
 
-  if (loading) return <div className="featured-loading">Loading featured products...</div>;
+  if (loading) return <div className="featured-loading container mt-5"><ProductShimmer count={4} /></div>;
   if (error) return <div className="featured-error">{error}</div>;
   if (!mappedProducts.length) return <div className="featured-empty">No featured products found.</div>;
 
@@ -168,6 +175,29 @@ const FeaturedProducts = () => {
         }
         .card-product .fa-heart:hover {
           background: #088a08 !important;
+        }
+        .card-product .btn-action {
+          border: none !important;
+          background: #0aad0a !important;
+          color: #fff !important;
+          border-radius: 7px;
+          padding: 6px 8px;
+          font-size: 1.1rem;
+          transition: background 0.18s;
+          box-shadow: none !important;
+          outline: none !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .card-product .btn-action:focus,
+        .card-product .btn-action:active,
+        .card-product .btn-action:hover {
+          background: #088a08 !important;
+          color: #fff !important;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
         }
       `}</style>
       <div className="container">
@@ -246,6 +276,14 @@ const FeaturedProducts = () => {
                                   style={{ marginRight: 8, border: 'none', background: 'none', boxShadow: 'none' }}
                                 >
                                   <i className="fa fa-heart" />
+                                </button>
+                                <button
+                                  className="btn-action"
+                                  title="Quick View"
+                                  style={{ border: 'none', background: 'none', boxShadow: 'none' }}
+                                  onClick={() => handleQuickView(prod)}
+                                >
+                                  <i className="fa fa-eye" />
                                 </button>
                               </div>
                             </div>

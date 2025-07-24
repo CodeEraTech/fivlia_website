@@ -82,7 +82,42 @@ const FilterSideBar = ({ onFilterChange }) => {
   return (
     <div className="col-md-3 sidebar-categories-container">
       <h5 className="mb-3 mt-8">Categories</h5>
-      {loading && <div className="text-center py-3">Loading...</div>}
+      {loading && (
+        <div className="sidebar-categories-container">
+          <div className="shimmer-title shimmer-bg" style={{ width: '60%', height: 24, margin: '24px 0 18px 0', borderRadius: 6 }} />
+          <div className="sidebar-main-box">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div className="sidebar-category-row" key={idx} style={{ borderBottom: idx !== 5 ? '1px solid #e0e0e0' : 'none', borderRadius: idx === 0 ? '10px 10px 0 0' : idx === 5 ? '0 0 10px 10px' : '0' }}>
+                <div className="sidebar-category-header d-flex align-items-center justify-content-between">
+                  <div className="shimmer-line shimmer-bg" style={{ width: '70%', height: 18, borderRadius: 4 }} />
+                  <div className="shimmer-circle shimmer-bg" style={{ width: 18, height: 18, borderRadius: '50%' }} />
+                </div>
+                <div className="sidebar-subcat-list show">
+                  <ul className="nav flex-column ms-2 mb-2">
+                    {Array.from({ length: 2 }).map((_, subIdx) => (
+                      <li className="nav-item sidebar-subcat-item d-flex align-items-center justify-content-between" key={subIdx}>
+                        <div className="shimmer-line shimmer-bg" style={{ width: '60%', height: 14, borderRadius: 4 }} />
+                        <div className="shimmer-circle shimmer-bg" style={{ width: 14, height: 14, borderRadius: '50%' }} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+          <style>{`
+            .shimmer-bg {
+              background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+              background-size: 400% 100%;
+              animation: shimmer 1.2s ease-in-out infinite;
+            }
+            @keyframes shimmer {
+              0% { background-position: -400px 0; }
+              100% { background-position: 400px 0; }
+            }
+          `}</style>
+        </div>
+      )}
       {error && <div className="text-danger py-3">{error}</div>}
       {!loading && !error && categories.length === 0 && (
         <div className="text-center py-3">No categories found.</div>

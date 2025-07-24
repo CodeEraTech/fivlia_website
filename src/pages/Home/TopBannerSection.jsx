@@ -112,7 +112,31 @@ const TopBannerSection = () => {
   return (
     <section className="hero-section">
       <div className="container mt-8">
-        {loading && <div className="text-center py-5">Loading banners...</div>}
+        {loading && (
+          <div className="banner-shimmer-wrapper text-center py-5">
+            <div
+              className="banner-shimmer shimmer-bg"
+              style={{
+                width: '100%',
+                minHeight: bannerHeight,
+                borderRadius: '.5rem',
+                margin: '0 auto',
+                maxWidth: '100%',
+              }}
+            />
+            <style>{`
+              .shimmer-bg {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+                background-size: 400% 100%;
+                animation: shimmer 1.2s ease-in-out infinite;
+              }
+              @keyframes shimmer {
+                0% { background-position: -400px 0; }
+                100% { background-position: 400px 0; }
+              }
+            `}</style>
+          </div>
+        )}
         {error && <div className="text-center text-danger py-5">{error}</div>}
         {!loading && !error && banners.length > 0 && (
           <div

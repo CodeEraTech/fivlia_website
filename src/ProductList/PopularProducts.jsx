@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProductItem from "./ProductItem";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
+import ProductShimmer from './ProductShimmer';
 
 const PopularProducts = () => {
   const [products, setProducts] = useState([]);
@@ -70,10 +71,7 @@ const PopularProducts = () => {
           </div>
           <div className="row">
             <div className="col-12 text-center">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-3">Loading popular products...</p>
+              <ProductShimmer count={10} />
             </div>
           </div>
         </div>

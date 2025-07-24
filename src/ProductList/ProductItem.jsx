@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import ProductQuickViewModal from "./ProductQuickViewModal";
 
 const ProductItem = ({ products = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
+  const navigate = useNavigate();
 
   const handleAddClick = () => {
     Swal.fire({
@@ -169,28 +170,33 @@ const ProductItem = ({ products = [] }) => {
                     alt={product.name}
                     className="mb-3 img-fluid"
                     style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
-                    onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
+                    onClick={() => navigate(`/product/${product.id}`, { state: { product } })}
                     onError={(e) => {
                       e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
                     }}
                   />
-                  <div className="card-product-action">
-                    <Link
-                      to="#!"
+                  <div className="card-product-action" style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
+                    <button
                       className="btn-action"
                       data-bs-toggle="tooltip"
                       data-bs-html="true"
                       title="Wishlist"
-                      style={{ marginRight: '8px' }}
+                      style={{ marginRight: '4px', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                     >
                       <i className="fa fa-heart" />
-                    </Link>
+                    </button>
+                    <button
+                      className="btn-action"
+                      title="Quick View"
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                      onClick={() => handleQuickView(product)}
+                    >
+                      <i className="fa fa-eye" />
+                    </button>
                   </div>
                 </div>
                 <div className="text-small mb-1">
-                  <Link to={`/category/${product.category_id}`} className="text-decoration-none text-muted">
-                    <small>{product.category}</small>
-                  </Link>
+                  <span className="text-muted small">{product.category}</span>
                 </div>
                 {product.brand && (
                   <div className="text-small mb-1">
@@ -201,7 +207,7 @@ const ProductItem = ({ products = [] }) => {
                   <span
                     className="text-inherit text-decoration-none"
                     style={{ cursor: 'pointer' }}
-                    onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
+                    onClick={() => navigate(`/product/${product.id}`, { state: { product } })}
                   >
                     {product.name}
                   </span>
@@ -227,7 +233,7 @@ const ProductItem = ({ products = [] }) => {
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      onClick={() => handleQuickView(products.find(p => p.id === product.id) || product)}
+                      onClick={() => handleQuickView(product)}
                     >
                       <i className="fa fa-plus" />{' '}
                       Add
@@ -286,14 +292,42 @@ const ProductItem = ({ products = [] }) => {
           }
           @media (max-width: 600px) {
             .product-flex-wrap .col.fade-zoom {
-              flex: 0 0 98vw;
-              width: 98vw;
-              max-width: 100vw;
-              min-width: 120px;
+              flex: 1 1 100%;
+              width: 100%;
+              max-width: 100%;
+              min-width: 0;
+              box-sizing: border-box;
+            }
+            .product-flex-wrap {
+              padding-left: 0 !important;
+              padding-right: 0 !important;
             }
             .product-flex-wrap .card-product {
               min-height: 320px;
             }
+          }
+        `}</style>
+        <style>{`
+          .btn-action {
+            background: #0aad0a !important;
+            color: #fff !important;
+            border-radius: 7px;
+            padding: 6px 8px;
+            font-size: 1.1rem;
+            transition: background 0.18s;
+            border: none;
+            outline: none;
+            box-shadow: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .btn-action:focus, .btn-action:active, .btn-action:hover {
+            background: #088a08 !important;
+            color: #fff !important;
+            border: none;
+            outline: none;
+            box-shadow: none;
           }
         `}</style>
       </div>

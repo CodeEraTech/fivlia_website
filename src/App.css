@@ -2,6 +2,24 @@ html {
   scroll-behavior: smooth;
 }
 
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  @media (max-width: 900px) {
+    .container-fluid, .container {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      overflow-x: hidden !important;
+    }
+  }
+  @media (max-width: 600px) {
+    .container-fluid, .container {
+      max-width: 100vw !important;
+      overflow-x: hidden !important;
+    }
+  }
+
 .border-top {
   border-top: var(--bs-border-width) var(--bs-border-style)
     var(--bs-border-color) !important;
@@ -28786,11 +28804,6 @@ select {
   visibility: visible;
 }
 
-@media screen and (max-width: 768px) {
-  .responsivesearch {
-    display: none;
-  }
-}
 
 @media screen and (min-width: 767px) {
   .displaydesign{
