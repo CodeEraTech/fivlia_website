@@ -19,7 +19,7 @@ import dairybreadeggs from "../images/dairy-bread-eggs.png";
 import grocerybanner from "../images/grocery-banner.png";
 import grocerybanner2 from "../images/grocery-banner-2.jpg";
 import map from "../images/map.png";
-import iphone from "../images/iphone-2.png";
+import iphone from "../images/fivliaWebsite.png";
 import googleplay from "../images/googleplay-btn.svg";
 import appstore from "../images/appstore-btn.svg";
 import bannerdeal from "../images/banner-deal1.jpg";
@@ -268,7 +268,7 @@ const Home = () => {
                           </div>
                           <div className="mt-3 mt-lg-0">
                             {/* btn */}
-                            <Link to="#" className="btn btn-dark">
+                            <Link to="https://play.google.com/store/apps/details?id=com.fivlia.user" className="btn btn-dark">
                               Download Fivlia App
                             </Link>
                           </div>
@@ -531,7 +531,7 @@ const Home = () => {
                               {/* list item */}
                               <li className="list-inline-item">
                                 {/* img */}
-                                <Link to="#!">
+                                <Link to="https://testflight.apple.com/join/Wz9jYACY">
                                   {" "}
                                   <img
                                     src={appstore}
@@ -542,7 +542,7 @@ const Home = () => {
                               </li>
                               <li className="list-inline-item">
                                 {/* img */}
-                                <Link to="#!">
+                                <Link to="https://play.google.com/store/apps/details?id=com.fivlia.user">
                                   {" "}
                                   <img
                                     src={googleplay}
