@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import { useAuth } from "../Component/AuthContext";
+import LocationDeliveryInfo from "./LocationDeliveryInfo";
 
 
 
@@ -120,6 +121,24 @@ const Header = () => {
           letter-spacing: 0.02em !important;
           font-size: 1.0rem !important;
         }
+        
+        /* Top menu responsive styles */
+        .top-menu ul {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+        .top-menu .list-inline-item {
+          margin-right: 0;
+        }
+        .top-menu .list-inline-item a {
+          font-size: 0.9rem;
+          transition: color 0.2s ease;
+        }
+        .top-menu .list-inline-item a:hover {
+          color: #30574e !important;
+        }
+        
         /* Desktop layout for >991px */
         @media (min-width: 992px) {
           .header-search-desktop {
@@ -156,6 +175,18 @@ const Header = () => {
             gap: 1.5rem;
           }
         }
+        
+        /* Mobile responsive for top menu */
+          @media (max-width: 576px) {
+            .top-menu ul {
+              flex-direction: row;
+              flex-wrap: wrap;
+              gap: 0.25rem;
+            }
+            .top-menu .list-inline-item {
+              margin-bottom: 0;
+            }
+          }
       `}</style>
       <style>{`
         .search-suggestion-dropdown, .search-suggestion-dropdown * {
@@ -173,7 +204,31 @@ const Header = () => {
             <div className="container">
               <div className="d-flex align-items-center justify-content-between">
                 <div className="flex-grow-1">
-                  <span> Super Value Deals - Save more with coupons</span>
+                  <nav className="top-menu">
+                    <ul className="list-inline mb-0 d-flex flex-wrap align-items-center">
+                      <li className="list-inline-item">
+                        <Link to="/AboutUs" className="text-decoration-none text-muted">About Us</Link>
+                      </li>
+                      <li className="list-inline-item">
+                        <span className="text-muted mx-2">|</span>
+                      </li>
+                      <li className="list-inline-item">
+                        <Link to="#" className="text-decoration-none text-muted">Terms</Link>
+                      </li>
+                      <li className="list-inline-item">
+                        <span className="text-muted mx-2">|</span>
+                      </li>
+                      <li className="list-inline-item">
+                        <Link to="#" className="text-decoration-none text-muted">Privacy</Link>
+                      </li>
+                      <li className="list-inline-item">
+                        <span className="text-muted mx-2">|</span>
+                      </li>
+                      <li className="list-inline-item">
+                        <Link to="/Contact" className="text-decoration-none text-muted">Contact Us</Link>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
                 {/* Desktop icons in top deals row */}
                 <div className="d-none d-lg-flex header-icons-desktop gap-3">
@@ -244,6 +299,9 @@ const Header = () => {
       </>
       {/* Mobile search and icons row (unchanged) */}
       <div className="container">
+        <div className="header-search-mobile">
+            <LocationDeliveryInfo/>
+        </div>
         <div className="d-flex align-items-center header-search-mobile py-2" style={{ borderBottom: '1px solid #eee' }}>
           <div className="flex-grow-1" ref={searchWrapperRef} style={{ position: 'relative', maxWidth: 'calc(100% - 120px)' }}>
             {/* Search input and suggestions (mobile/tablet) */}
@@ -392,12 +450,15 @@ const Header = () => {
               FIVLIA
             </span>
           </Link>
+          <div className="header-search-desktop">
+              <LocationDeliveryInfo/>
+          </div>
           {/* Desktop search box between logo and nav links */}
           <div className="header-search-desktop ms-3 me-4" ref={searchWrapperRef} style={{ display: 'none', flex: 1, maxWidth: 520, position: 'relative' }}>
             <input
               ref={inputRef}
               className="form-control responsivesearch"
-              style={{ width: '100%', minWidth: 120, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
+              style={{ width: '100%', minWidth: 300, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
               id="product-search-input-desktop"
               placeholder="Search for products..."
               value={searchQuery}
@@ -504,7 +565,7 @@ const Header = () => {
                       <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
                   </span>{" "}
-                  All Departments
+                  Categories
                 </Link>
                 <div
                   className="dropdown-menu sm-menu"

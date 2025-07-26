@@ -53,6 +53,7 @@ import { MagnifyingGlass } from "react-loader-spinner";
 import FAQ from "./FooterElements/Faq";
 import CategorySection from "./Home/CategorySection";
 import TopBannerSection from "./Home/TopBannerSection";
+import BrandsSection from "./Home/BrandsSection";
 import FeaturedProducts from "../ProductList/FeaturedProducts";
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -474,55 +475,8 @@ const Home = () => {
                             {/* heading */}
                             <h1>Get the Fivlia app</h1>
                             <h5 className="mb-0">
-                              We will send you a link, open it on your phone to
-                              download the app.
+                              To get the app, open this page on your phone and tap the App Store or Google Play button below.
                             </h5>
-                          </div>
-                          <div className="mb-5">
-                            {/* form check */}
-                            <div className="form-check form-check-inline">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="flexRadioDefault"
-                                id="flexRadioDefault1"
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault1"
-                              >
-                                Email
-                              </label>
-                            </div>
-                            {/* form check */}
-                            <div className="form-check form-check-inline">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="flexRadioDefault"
-                                id="flexRadioDefault2"
-                                defaultChecked
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="flexRadioDefault2"
-                              >
-                                Phone
-                              </label>
-                            </div>
-                            {/* form */}
-                            {/* <form className="row g-3 mt-2">
-
-          
-          <div className="col-6 ">
-            
-            <input type="text" className="form-control" placeholder="Phone">
-          </div>
-           
-          <div className="col-6">
-            <button type="submit" className="btn btn-primary mb-3">Share app link</button>
-          </div>
-        </form> */}
                           </div>
                           <div>
                             {/* app */}
@@ -564,6 +518,7 @@ const Home = () => {
                             src={iphone}
                             alt="iphone"
                             className=" img-fluid"
+                            style={{height:656}}
                           />
                         </div>
                       </Slide>
@@ -574,10 +529,10 @@ const Home = () => {
               </section>
             </>
             <>
-              <FeaturedProducts />
+              {/* <FeaturedProducts /> */}
             </>
             <>
-              <section className="my-lg-14 my-8">
+              {/* <section className="my-lg-14 my-8">
                 <div className="container" style={{ marginTop: 50 }}>
                   <div
                     className="row justify-content-center  g-4"
@@ -659,7 +614,7 @@ const Home = () => {
                               </div>
                             </div>
                             <div className="icon-content">
-                              {/* <h4 className="wt-tilte">Reports</h4> */}
+                              <h4 className="wt-tilte">Reports</h4>
                               <h3 className="h5 mb-3">10 minute grocery now</h3>
                               <p>
                                 Get your order delivered to your doorstep at the
@@ -673,261 +628,14 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </section>
+              </section> */}
             </>
             <>
-            <FAQ/>
+            {/* <FAQ/> */}
             </>
             <>
-              <div className="container">
-                <Slider {...settings2}>
-                  {/* <div className="images swiper-slide p-4">
-    <div className="item">
-      <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product6} alt="Grocery Ecommerce Template" className="mb-3 style={{paddingLeft:'40px'}} " />
-            <div>Dairy, Bread &amp; Eggs</div>
-          </div>
-        </div>
-     </Link>
-    </div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item"> 
-    <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product9} alt="Grocery Ecommerce Template" className="mb-3"style={{paddingLeft:'40px'}} />
-            <div>Snack &amp; Munchies</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item">
-       <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product3} alt="Grocery Ecommerce Template" className="mb-3"style={{paddingLeft:'40px'}} />
-            <div>Bakery &amp; Biscuits</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item"> 
-    <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product7} alt="Grocery Ecommerce Template " className="mb-3 " style={{paddingLeft:'40px'}} />
-            <div>Instant Food</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item"> 
-    <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product10} alt="Grocery Ecommerce Template" className="mb-3"style={{paddingLeft:'40px'}} />
-            <div>Tea, Coffee &amp; Drinks</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item">
-      <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product2} alt="Grocery Ecommerce Template" className="mb-3" style={{paddingLeft:'40px'}}/>
-            <div>Atta, Rice &amp; Dal</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item">
-       <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product1} alt="Grocery Ecommerce Template" className="mb-3" style={{paddingLeft:'40px'}}/>
-            <div>Baby Care</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item"> 
-    <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product4} alt="Grocery Ecommerce Template" className="mb-3" style={{paddingLeft:'40px'}}/>
-            <div>Chicken, Meat &amp; Fish</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item"> 
-    <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product5} alt="Grocery Ecommerce Template" className="mb-3" style={{paddingLeft:'40px'}}/>
-            <div>Cleaning Essentials</div>
-          </div>
-        </div>
-     </Link></div>
-  </div>
-  <div className="images swiper-slide p-4">
-    <div className="item">
-      <Link to="#" className="text-decoration-none text-inherit">
-        <div className="card card-product mb-4">
-          <div className="card-body text-center py-8">
-            <img src={product8} alt="Grocery Ecommerce Template" className="mb-3" style={{paddingLeft:'40px'}}/>
-            <div>Pet Care</div>
-          </div>
-        </div>
-     </Link>
-    </div>
-  </div> */}
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product1}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid "
-                        alt="product"
-                      />
-                      <h6 className="card-title partner">
-                      <div>Baby Care</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product2}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Atta, Rice &amp; Dal</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product3}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Bakery &amp; Biscuits</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product4}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Chicken, Meat &amp; Fish</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product5}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Cleaning Essentials</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product6}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Dairy, Bread &amp; Eggs</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product7}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Instant Food</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product8}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                      <div>Pet Care</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product9}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Snack &amp; Munchies</div>
-                      </h6>
-                    </div>
-                  </div>
-                  <div className="m-1">
-                    <div className="partner-list">
-                      <img
-                        src={product10}
-                        style={{ objectFit: "cover" }}
-                        className="img-fluid"
-                        alt="product"
-                      />
-                       <h6 className="card-title">
-                       <div>Tea, Coffee &amp; Drinks</div>
-                      </h6>
-                    </div>
-                  </div>
-                </Slider>
-              </div>
+              <BrandsSection />
             </>
-
-            
           </>
         )}
       </div>

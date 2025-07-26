@@ -32,6 +32,15 @@ const CategorySection = () => {
 
   return (
     <section className="my-lg-14 my-8">
+      <style>{`
+        /* Responsive grid adjustments */
+        @media (max-width: 650px) {
+          .col-lg-2 {
+            flex: 0 0 33.333% !important;
+            max-width: 33.333% !important;
+          }
+        }
+      `}</style>
       <div className="container ">
         <div className="row">
           <div className="col-12">
@@ -48,25 +57,25 @@ const CategorySection = () => {
           <div className="row ">
             {loading && (
               <>
-                {Array.from({ length: 12 }).map((_, idx) => (
-                  <div className="col-lg-2 col-md-4 col-6 fade-zoom" key={idx}>
+                {Array.from({ length: 15 }).map((_, idx) => (
+                  <div className="col-lg-2 col-md-4 col-6 fade-zoom"  style={{ flex: '0 0 20%', maxWidth: '20%' }} key={idx}>
                     <div className="category-shimmer text-center mb-10">
                       <div className="shimmer-circle shimmer-bg" style={{ width: 100, height: 100, margin: '0 auto', borderRadius: 50 }} />
                       <div className="shimmer-line shimmer-bg" style={{ width: 100, height: 16, margin: '18px auto 0', borderRadius: 6 }} />
                     </div>
                   </div>
                 ))}
-                <style>{`
-                  .shimmer-bg {
-                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
-                    background-size: 400% 100%;
-                    animation: shimmer 1.2s ease-in-out infinite;
-                  }
-                  @keyframes shimmer {
-                    0% { background-position: -400px 0; }
-                    100% { background-position: 400px 0; }
-                  }
-                `}</style>
+                  <style>{`
+                   .shimmer-bg {
+                     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+                     background-size: 400% 100%;
+                     animation: shimmer 1.2s ease-in-out infinite;
+                   }
+                   @keyframes shimmer {
+                     0% { background-position: -400px 0; }
+                     100% { background-position: 400px 0; }
+                   }
+                 `}</style>
               </>
             )}
             {error && (
@@ -79,6 +88,7 @@ const CategorySection = () => {
               categories.map((cat, idx) => (
                 <div
                   className="col-lg-2 col-md-4 col-6 fade-zoom"
+                  style={{ flex: '0 0 20%', maxWidth: '20%' }}
                   key={cat.id || cat._id || idx}
                 >
                   <Zoom>
