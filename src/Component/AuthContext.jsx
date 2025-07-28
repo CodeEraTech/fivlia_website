@@ -18,14 +18,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
     setIsLoggedIn(true); // ✅ now this is defined
-    console.log("Logged in! token:", newToken);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
     setIsLoggedIn(false); // ✅ this is defined too
-    console.log("Logged out!");
   };
 
   return (

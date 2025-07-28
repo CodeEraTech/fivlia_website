@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import ProductQuickViewModal from "./ProductQuickViewModal";
+import { calculateDeliveryTime } from "../apis/googleMapsApi";
 
 const ProductItem = ({ products = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -70,6 +71,14 @@ const ProductItem = ({ products = [] }) => {
       return <span className="badge bg-success">New</span>;
     }
     return null;
+  };
+
+  // Helper function to get delivery time
+  const getDeliveryTime = (product) => {
+    // Use product ID or a random seed to generate consistent delivery time
+    const seed = product.id || Math.random();
+    const deliveryTime = calculateDeliveryTime(seed, seed);
+    return deliveryTime;
   };
 
   if (!products || products.length === 0) {
@@ -195,8 +204,13 @@ const ProductItem = ({ products = [] }) => {
                     </button>
                   </div>
                 </div>
-                <div className="text-small mb-1">
+                {/* Category and Delivery Time Row */}
+                <div className="category-delivery-row">
                   <span className="text-muted small">{product.category}</span>
+                  <div className="delivery-time-display">
+                    <i className="fa fa-clock-o" style={{ marginRight: '4px', color: '#0AAD0A' }}></i>
+                    <span className="delivery-time-text">{getDeliveryTime(product)} min</span>
+                  </div>
                 </div>
                 {product.brand && (
                   <div className="text-small mb-1">
@@ -274,6 +288,24 @@ const ProductItem = ({ products = [] }) => {
             flex: 1 1 auto;
             justify-content: space-between;
           }
+          .category-delivery-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+          }
+          .delivery-time-display {
+            background: rgba(10, 173, 10, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+          }
+          .delivery-time-text {
+            font-size: 0.75rem;
+            color: #0AAD0A;
+            font-weight: 600;
+          }
           @media (max-width: 1200px) {
             .product-flex-wrap .col.fade-zoom {
               flex: 0 0 23vw;
@@ -304,6 +336,12 @@ const ProductItem = ({ products = [] }) => {
             }
             .product-flex-wrap .card-product {
               min-height: 320px;
+            }
+            .delivery-time-text {
+              font-size: 0.7rem;
+            }
+            .delivery-time-display {
+              padding: 0.2rem 0.4rem;
             }
           }
         `}</style>
