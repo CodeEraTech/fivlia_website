@@ -7,7 +7,7 @@ import {
   calculateDeliveryTime, 
   storeLocation, 
   getStoredLocation 
-} from '../apis/googleMapsApi';
+} from '../apis/olaMapApis';
 
 const LocationDeliveryInfo = () => {
   const [location, setLocation] = useState('Mumbai, Maharashtra');
