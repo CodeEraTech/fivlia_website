@@ -8,6 +8,7 @@ export const ENDPOINTS = {
   VERIFY_OTP: "verifyOtp",
   REGISTER: "/auth/register",
   CATEGORIES: "/getMainCategory",
+  BRANDS: "/getBrand",
   BANNERS: "/getAllBanner",
   POPULAR_PRODUCTS: "/website/bestSelling?lat=29.1553958&lng=75.7218976",
   RELATED_PRODUCTS: '/website/relatedProducts?lat=29.1553958&lng=75.7218976',
