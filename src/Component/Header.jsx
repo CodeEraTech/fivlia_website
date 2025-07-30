@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import { useAuth } from "../Component/AuthContext";
+import { useCart } from "../Component/CartContext";
 import LocationDeliveryInfo from "./LocationDeliveryInfo";
 import UserLoginModal from "./UserLoginModal";
 import CartCanvas from "./CartCanvas";
@@ -24,6 +25,7 @@ const Header = () => {
   const [catError, setCatError] = useState(null);
   const searchWrapperRef = useRef();
    const { isLoggedIn, logout } = useAuth();
+   const { cartCount } = useCart();
 
    
   const handleClick = () => {
@@ -285,7 +287,12 @@ const Header = () => {
         </div>
                   <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
                     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">1<span className="visually-hidden">unread messages</span></span>
+                    {cartCount > 0 && (
+                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {cartCount}
+                        <span className="visually-hidden">items in cart</span>
+                      </span>
+                    )}
                   </Link>
                 </div>
               </div>
@@ -425,7 +432,12 @@ const Header = () => {
         </div>
             <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
               <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">1<span className="visually-hidden">unread messages</span></span>
+              {cartCount > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {cartCount}
+                  <span className="visually-hidden">items in cart</span>
+                </span>
+              )}
             </Link>
           </div>
         </div>
@@ -588,16 +600,6 @@ const Header = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/Shop">
                   Shop
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/AboutUs">
-                  About Us
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/Contact">
-                  Contact Us
                 </Link>
               </li>
             </ul>

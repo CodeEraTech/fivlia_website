@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { API_BASE_URL, ENDPOINTS } from '../apis/endpoints';
+import { post } from '../apis/apiClient';
+import { ENDPOINTS } from '../apis/endpoints';
 import { useAuth } from './AuthContext';
+import { useCart } from './CartContext';
 import Swal from 'sweetalert2';
 
 const AddToCartButton = ({ 
@@ -15,14 +16,10 @@ const AddToCartButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const { checkAuth } = useAuth();
+  const { fetchCartItems } = useCart();
 
-  // Add to cart function moved from apiClient.jsx
+  // Add to cart function using post method from apiClient
   const addToCart = async (productData) => {
-    const { token } = checkAuth();
-    if (!token) {
-      throw new Error('Authentication required');
-    }
-
     const formData = new FormData();
     formData.append('name', productData.name);
     formData.append('price', productData.price.toString());
@@ -38,13 +35,13 @@ const AddToCartButton = ({
     }
 
     const config = {
+      auth: true,
       headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`
+        'Content-Type': 'multipart/form-data'
       }
     };
 
-    return axios.post(`${API_BASE_URL}${ENDPOINTS.ADD_TO_CART}`, formData, config);
+    return post(ENDPOINTS.ADD_TO_CART, formData, config);
   };
 
   const handleAddToCart = async () => {
@@ -106,6 +103,9 @@ const AddToCartButton = ({
           showConfirmButton: true,
           timer: 3000,
         });
+
+        // Refresh cart data
+        await fetchCartItems();
 
         if (onSuccess) {
           onSuccess(response.data);

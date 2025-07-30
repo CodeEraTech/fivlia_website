@@ -1,47 +1,67 @@
 import axios from 'axios';
-import { API_BASE_URL } from './endpoints.jsx';
+import { API_BASE_URL, ENDPOINTS } from './endpoints.jsx';
 
+// Create axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  timeout: 10000,
 });
 
-// Helper to get token (customize as needed)
-const getToken = () => localStorage.getItem('token');
-
-// Helper to merge auth header if needed
-const withAuth = (config = {}) => {
-  if (config.auth) {
-    const token = getToken();
-    return {
-      ...config,
-      headers: {
-        ...config.headers,
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-    };
-  }
-  return config;
+// Get token from localStorage
+const getToken = () => {
+  return localStorage.getItem("token");
 };
 
-// Request interceptor (optional, for global logic)
-apiClient.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error)
-);
+// Helper function to add auth headers
+const withAuth = (config = {}) => {
+  const token = getToken();
+  return {
+    ...config,
+    headers: {
+      ...config.headers,
+      'Authorization': `Bearer ${token}`
+    }
+  };
+};
 
-// Response interceptor (handle global errors, etc.)
-apiClient.interceptors.response.use(
-  (response) => response,
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    // Add auth token if auth: true is set
+    if (config.auth) {
+      const token = getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
   (error) => {
-    // You can handle global errors here
     return Promise.reject(error);
   }
 );
 
-export const get = (url, config = {}) => apiClient.get(url, withAuth(config));
-export const post = (url, data, config = {}) => apiClient.post(url, data, withAuth(config));
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem("token");
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Helper functions
+export const get = (endpoint, config = {}) => {
+  return apiClient.get(endpoint, config);
+};
+
+export const post = (endpoint, data, config = {}) => {
+  return apiClient.post(endpoint, data, config);
+};
 
 export default apiClient; 

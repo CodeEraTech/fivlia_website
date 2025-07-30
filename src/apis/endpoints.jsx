@@ -6,7 +6,7 @@ export const ENDPOINTS = {
   VERIFY_MOBILE: "/verifyMobile",
   LOGIN: "/login",
   VERIFY_OTP: "/verifyOtp",
-  REGISTER: "/register",
+  REGISTER: "/auth/register",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
   BANNERS: "/getAllBanner",
@@ -16,4 +16,5 @@ export const ENDPOINTS = {
   SEARCH_PRODUCTS: '/website/searchProduct?lat=29.1553958&lng=75.7218976',
   PRODUCTS: "/website/getProduct?lat=29.1553958&lng=75.7218976",
   ADD_TO_CART: "/addCart",
+  GET_CART: "/getCart",
 }; 
