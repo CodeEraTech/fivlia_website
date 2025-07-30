@@ -1,31 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import AddToCartButton from "../Component/AddToCartButton";
 
 const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
-  if (!product) return null;
-
-  // Gather all images (main + variants)
-  const images = product.productImageUrl && Array.isArray(product.productImageUrl)
-    ? product.productImageUrl
-    : product.image
-      ? [product.image]
-      : [];
-
-  const variants = product.variants || [];
+  // Move all hooks to the top before any conditional returns
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
-  const selectedVariant = variants[selectedVariantIdx] || {};
-
-  const [selectedImage, setSelectedImage] = useState(images[0] || '');
+  const [selectedImage, setSelectedImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
 
-  // Reset selected image, quantity, and variant when product changes
-  React.useEffect(() => {
-    setSelectedImage(images[0] || '');
-    setQuantity(1);
-    setSelectedVariantIdx(0);
-  }, [product]);
+  // Gather all images (main + variants)
+  const images = product?.productImageUrl && Array.isArray(product.productImageUrl)
+    ? product.productImageUrl
+    : product?.image
+      ? [product.image]
+      : [];
 
-  if (!isOpen) return null;
+  const variants = product?.variants || [];
+  const selectedVariant = variants[selectedVariantIdx] || {};
+
+  // Reset selected image, quantity, and variant when product changes
+  useEffect(() => {
+    if (product && isOpen) {
+      setSelectedImage(images[0] || '');
+      setQuantity(1);
+      setSelectedVariantIdx(0);
+    }
+  }, [product?.id, isOpen]); // Only reset when product ID changes or modal opens
+
+  // Early returns after hooks
+  if (!product || !isOpen) return null;
 
   return (
     <div className="pqv-modal-overlay" onClick={onClose}>
@@ -126,29 +129,64 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   <div className="pqv-qty-box">
                     <button
                       className="pqv-qty-btn"
-                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Decrease clicked, current quantity:', quantity);
+                        setQuantity(prev => {
+                          const newQty = Math.max(1, prev - 1);
+                          console.log('New quantity after decrease:', newQty);
+                          return newQty;
+                        });
+                      }}
                       aria-label="Decrease quantity"
+                      type="button"
                     >-</button>
                     <input
                       type="number"
                       min="1"
                       value={quantity}
-                      onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => {
+                        e.preventDefault();
+                        const newValue = Math.max(1, parseInt(e.target.value) || 1);
+                        console.log('Input changed, new value:', newValue);
+                        setQuantity(newValue);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                        }
+                      }}
                       className="pqv-qty-input"
                     />
                     <button
                       className="pqv-qty-btn"
-                      onClick={() => setQuantity(q => q + 1)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Increase clicked, current quantity:', quantity);
+                        setQuantity(prev => {
+                          const newQty = prev + 1;
+                          console.log('New quantity after increase:', newQty);
+                          return newQty;
+                        });
+                      }}
                       aria-label="Increase quantity"
+                      type="button"
                     >+</button>
                   </div>
                 </div>
-                <button
+                <AddToCartButton
+                  product={product}
+                  quantity={quantity}
+                  selectedVariant={selectedVariant}
                   className="pqv-add-to-cart-btn"
-                  onClick={() => onAddToCart({ ...product, selectedVariant }, quantity)}
-                >
-                  <i className="fa fa-shopping-cart" style={{ marginRight: 8 }} /> Add to Cart
-                </button>
+                  onSuccess={(data) => {
+                    if (onAddToCart) {
+                      onAddToCart({ ...product, selectedVariant }, quantity);
+                    }
+                  }}
+                />
               </div>
               {/* Variant Pills CSS */}
               <style>{`

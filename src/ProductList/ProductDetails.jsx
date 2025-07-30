@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
 import RelatedProducts from "./RelatedProducts";
+import AddToCartButton from "../Component/AddToCartButton";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -146,12 +147,12 @@ const ProductDetails = () => {
                 >+</button>
               </div>
             </div>
-            <button
+            <AddToCartButton
+              product={product}
+              quantity={quantity}
+              selectedVariant={selectedVariant}
               className="pqv-add-to-cart-btn"
-              disabled
-            >
-              <i className="fa fa-shopping-cart" style={{ marginRight: 8 }} /> Add to Cart
-            </button>
+            />
           </div>
         </div>
       </div>
