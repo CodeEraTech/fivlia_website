@@ -35,7 +35,7 @@ const AddToCartButton = ({
     }
 
     const config = {
-      auth: true,
+      authRequired: true,
       headers: {
         'Content-Type': 'multipart/form-data'
       }

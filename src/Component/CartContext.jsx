@@ -7,13 +7,13 @@ const CartContext = createContext();
 
 // Get cart items function - using get method from apiClient
 const getCart = async () => {
-  console.log('CartContext: getCart function called');
+  // console.log('CartContext: getCart function called');
   const authConfig = {
-    auth: true
+    authRequired: true
   };
-  console.log('CartContext: Making API call with config:', authConfig);
+  // console.log('CartContext: Making API call with config:', authConfig);
   const response = await get(ENDPOINTS.GET_CART, authConfig);
-  console.log('CartContext: getCart response:', response);
+  // console.log('CartContext: getCart response:', response);
   return response;
 };
 
@@ -26,35 +26,35 @@ export const CartProvider = ({ children }) => {
 
   // Fetch cart items from API
   const fetchCartItems = async () => {
-    console.log('CartContext: fetchCartItems called');
+    //console.log('CartContext: fetchCartItems called');
     const { isAuthenticated } = checkAuth();
-    console.log('CartContext: isAuthenticated:', isAuthenticated);
+    //console.log('CartContext: isAuthenticated:', isAuthenticated);
     
     if (!isAuthenticated) {
-      console.log('CartContext: User not authenticated, clearing cart');
+      //console.log('CartContext: User not authenticated, clearing cart');
       setCartItems([]);
       setCartCount(0);
       return;
     }
 
     try {
-      console.log('CartContext: Starting API call to get cart');
+      //console.log('CartContext: Starting API call to get cart');
       setLoading(true);
       setError(null);
       const response = await getCart();
-      console.log('CartContext: API response:', response.data);
+      //console.log('CartContext: API response:', response.data);
       
       if (response.data && response.data.items) {
-        console.log('CartContext: Setting cart items:', response.data.items);
+        //console.log('CartContext: Setting cart items:', response.data.items);
         setCartItems(response.data.items);
         setCartCount(response.data.items.length);
       } else {
-        console.log('CartContext: No items in response, clearing cart');
+        //console.log('CartContext: No items in response, clearing cart');
         setCartItems([]);
         setCartCount(0);
       }
     } catch (error) {
-      console.error('CartContext: Failed to fetch cart:', error);
+      //console.error('CartContext: Failed to fetch cart:', error);
       setError(error.message);
       setCartItems([]);
       setCartCount(0);
@@ -119,13 +119,13 @@ export const CartProvider = ({ children }) => {
 
   // Initialize cart on mount
   useEffect(() => {
-    console.log('CartContext: useEffect triggered, calling fetchCartItems');
+    //console.log('CartContext: useEffect triggered, calling fetchCartItems');
     fetchCartItems();
   }, []);
 
   // Update cart count when items change
   useEffect(() => {
-    console.log('CartContext: cartItems changed, updating count:', cartItems.length);
+    //console.log('CartContext: cartItems changed, updating count:', cartItems.length);
     setCartCount(cartItems.length);
   }, [cartItems]);
 

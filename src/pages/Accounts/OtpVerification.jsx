@@ -33,9 +33,11 @@ const OtpVerification = () => {
 
       const msg = res.data.message?.toLowerCase();
 
-      if (msg && msg.includes("login successful")) {
+      if (msg && msg.includes("login successful")) {        
         if (res.data.token) {
           login(res.data.token);
+        } else {
+          console.warn('OTP Verification: Login successful but no token received');
         }
 
         setSuccess("Login successful! Redirecting...");
