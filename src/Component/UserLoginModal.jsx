@@ -14,8 +14,6 @@ const UserLoginModal = () => {
     setError("");
     setLoading(true);
     let formattedMobile = mobile.replace(/\D/g, "");
-
-    // Validate and format number
     if (formattedMobile.length === 10) {
       formattedMobile = "+91" + formattedMobile;
     } else if (formattedMobile.length === 12 && formattedMobile.startsWith("91")) {
@@ -25,33 +23,16 @@ const UserLoginModal = () => {
       setLoading(false);
       return;
     }
-
-    // Direct redirect for test number
-    if (formattedMobile === "+919999999999") {
-      localStorage.setItem("mobile", formattedMobile);
-      const modalEl = document.getElementById("userModal");
-      if (modalEl && window.bootstrap?.Modal) {
-        const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.hide();
-      }
-      navigate("/otp-verification");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const verifyRes = await post(ENDPOINTS.VERIFY_MOBILE, {
-        mobileNumber: formattedMobile,
-      });
-
+      // Step 1: Check if user exists
+      const verifyRes = await post(ENDPOINTS.VERIFY_MOBILE, { mobileNumber: formattedMobile });
       if (verifyRes.data.status === 1) {
-        const loginRes = await post(ENDPOINTS.LOGIN, {
-          mobileNumber: formattedMobile,
-        });
-
+        // User exists, send login OTP
+        const loginRes = await post(ENDPOINTS.LOGIN, { mobileNumber: formattedMobile });
         if (loginRes.data.message?.toLowerCase().includes("otp sent")) {
           localStorage.setItem("mobile", formattedMobile);
-          const modalEl = document.getElementById("userModal");
+          // Close modal
+          const modalEl = document.getElementById('userModal');
           if (modalEl && window.bootstrap?.Modal) {
             const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.hide();
@@ -61,13 +42,12 @@ const UserLoginModal = () => {
           setError(loginRes.data.message || "Error sending OTP");
         }
       } else if (verifyRes.data.status === 0) {
-        const regRes = await post(ENDPOINTS.REGISTER, {
-          mobileNumber: formattedMobile,
-        });
-
+        // User not found, register and send OTP
+        const regRes = await post(ENDPOINTS.REGISTER, { mobileNumber: formattedMobile });
         if (regRes.data.message?.toLowerCase().includes("otp sent")) {
           localStorage.setItem("mobile", formattedMobile);
-          const modalEl = document.getElementById("userModal");
+          // Close modal
+          const modalEl = document.getElementById('userModal');
           if (modalEl && window.bootstrap?.Modal) {
             const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.hide();
@@ -82,7 +62,6 @@ const UserLoginModal = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
-
     setLoading(false);
   };
 
@@ -138,4 +117,4 @@ const UserLoginModal = () => {
   );
 };
 
-export default UserLoginModal;
+export default UserLoginModal; 
