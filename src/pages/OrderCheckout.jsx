@@ -196,7 +196,7 @@ const OrderCheckout = () => {
                            <div className="row">
                              {addresses.map((address, index) => (
                                <div key={address._id || index} className="col-12 mb-3">
-                                 <div className="border rounded-3 p-4">
+                                 <div className="border rounded p-4">
                                    <div className="d-flex align-items-start">
                                      <div className="form-check me-3 mt-1">
                                        <input
@@ -376,7 +376,7 @@ const OrderCheckout = () => {
           </section>
 
           {/* Add Address Modal Component */}
-          <AddAddressModal />
+          <AddAddressModal onAddressAdded={fetchAddresses} />
         </>
       )}
     </div>
