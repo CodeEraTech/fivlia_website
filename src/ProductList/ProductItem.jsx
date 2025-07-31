@@ -181,7 +181,7 @@ const ProductItem = ({ products = [] }) => {
                     style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
                     onClick={() => navigate(`/product/${product.id}`, { state: { product } })}
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                      e.target.src = '/assets/img/no_image.jpg';
                     }}
                   />
                   <div className="card-product-action" style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>

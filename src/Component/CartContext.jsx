@@ -7,11 +7,9 @@ const CartContext = createContext();
 
 // Get cart items function - using get method from apiClient
 const getCart = async () => {
-  // console.log('CartContext: getCart function called');
   const authConfig = {
     authRequired: true
   };
-  // console.log('CartContext: Making API call with config:', authConfig);
   const response = await get(ENDPOINTS.GET_CART, authConfig);
   // console.log('CartContext: getCart response:', response);
   return response;
@@ -22,7 +20,8 @@ export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { checkAuth } = useAuth();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const { checkAuth, isLoggedIn } = useAuth();
 
   // Fetch cart items from API
   const fetchCartItems = async () => {
@@ -117,11 +116,16 @@ export const CartProvider = ({ children }) => {
     }, 0);
   };
 
-  // Initialize cart on mount
+  // Initialize cart on mount and when authentication state changes
   useEffect(() => {
-    //console.log('CartContext: useEffect triggered, calling fetchCartItems');
-    fetchCartItems();
-  }, []);
+    //console.log('CartContext: useEffect triggered, isLoggedIn:', isLoggedIn);
+    
+    // Wait for authentication to be initialized
+    if (isLoggedIn !== undefined) {
+      setIsInitialized(true);
+      fetchCartItems();
+    }
+  }, [isLoggedIn]);
 
   // Update cart count when items change
   useEffect(() => {
@@ -139,7 +143,8 @@ export const CartProvider = ({ children }) => {
       removeFromCart,
       updateQuantity,
       getCartTotal,
-      fetchCartItems
+      fetchCartItems,
+      isInitialized
     }}>
       {children}
     </CartContext.Provider>

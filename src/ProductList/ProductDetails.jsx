@@ -44,10 +44,12 @@ const ProductDetails = () => {
         <div className="pqv-modal-left">
           <div className="pqv-main-image-wrapper">
             <img
-              src={selectedImage}
+              src={selectedImage || '/assets/img/no_image.jpg'}
               alt={product.productName || product.name}
               className="pqv-main-image"
-              onError={e => { e.target.src = 'https://via.placeholder.com/400x400?text=No+Image'; }}
+              onError={(e) => {
+                e.target.src = '/assets/img/no_image.jpg';
+              }}
             />
           </div>
           {images.length > 1 && (
@@ -55,11 +57,11 @@ const ProductDetails = () => {
               {images.map((img, idx) => (
                 <img
                   key={img + idx}
-                  src={img}
+                  src={img || '/assets/img/no_image.jpg'}
                   alt={`Thumbnail ${idx + 1}`}
                   className={`pqv-thumbnail${selectedImage === img ? ' selected' : ''}`}
                   onClick={() => setSelectedImage(img)}
-                  onError={e => { e.target.src = 'https://via.placeholder.com/60x60?text=No+Image'; }}
+                  onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
                 />
               ))}
             </div>

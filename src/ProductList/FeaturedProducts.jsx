@@ -250,7 +250,7 @@ const FeaturedProducts = () => {
                                 className="mb-3 img-fluid"
                                 style={{ height: 120, objectFit: "cover", cursor: "pointer" }}
                                 onClick={() => handleQuickView(prod)}
-                                onError={e => { e.target.src = 'https://via.placeholder.com/200x200?text=No+Image'; }}
+                                onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
                               />
                               {/* Star rating below image */}
                               <div style={{ margin: '0.25rem 0 0.5rem 0' }}>

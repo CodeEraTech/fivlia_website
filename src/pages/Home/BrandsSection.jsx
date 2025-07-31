@@ -342,7 +342,7 @@ const BrandsSection = () => {
                     className="img-fluid"
                     alt={brand.brandName}
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/80x80?text=' + encodeURIComponent(brand.brandName.charAt(0));
+                      e.target.src = '/assets/img/no_image.jpg';
                     }}
                   />
                   <h6 className="card-title">

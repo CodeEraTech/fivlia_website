@@ -11,7 +11,8 @@ const CartCanvas = () => {
     error, 
     removeFromCart, 
     updateQuantity, 
-    getCartTotal 
+    getCartTotal,
+    isInitialized
   } = useCart();
 
   const handleQuantityChange = (productId, varientId, newQuantity) => {
@@ -26,6 +27,36 @@ const CartCanvas = () => {
     removeFromCart(productId, varientId);
   };
 
+  // Show loading shimmer while initializing
+  if (!isInitialized || loading) {
+    return (
+      <div
+        className="offcanvas offcanvas-end"
+        tabIndex={-1}
+        id="offcanvasRight"
+        aria-labelledby="offcanvasRightLabel"
+      >
+        <div className="offcanvas-header border-bottom">
+          <div className="text-start">
+            <h5 id="offcanvasRightLabel" className="mb-0 fs-4">
+              Shop Cart
+            </h5>
+            <small>Location in 382480</small>
+          </div>
+          <button
+            type="button"
+            className="btn-close text-reset"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          />
+        </div>
+        <div className="offcanvas-body">
+          <CartShimmer />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="offcanvas offcanvas-end"
@@ -38,7 +69,6 @@ const CartCanvas = () => {
           <h5 id="offcanvasRightLabel" className="mb-0 fs-4">
             Shop Cart ({cartCount} items)
           </h5>
-          <small>Location in 382480</small>
         </div>
         <button
           type="button"
@@ -48,9 +78,7 @@ const CartCanvas = () => {
         />
       </div>
       <div className="offcanvas-body">
-        {loading ? (
-          <CartShimmer />
-        ) : error ? (
+        {error ? (
           <div className="alert alert-danger" role="alert">
             {error}
           </div>
@@ -64,22 +92,22 @@ const CartCanvas = () => {
           </div>
         ) : (
           <>
-            <div className="alert alert-danger" role="alert">
+            {/* <div className="alert alert-danger" role="alert">
               You've got FREE delivery. Start checkout now!
-            </div>
+            </div> */}
             <div>
               <div className="py-3">
                 <ul className="list-group list-group-flush">
                   {cartItems.map((item, index) => (
-                    <li key={`${item.productId}-${item.varientId}-${index}`} className="list-group-item py-3 px-0 border-top">
+                    <li key={`${item.productId}-${item.varientId}-${index}`} className="list-group-item py-3 px-0">
                       <div className="row align-items-center">
                         <div className="col-2">
                           <img
-                            src={item.image || 'https://via.placeholder.com/60x60?text=No+Image'}
+                            src={item.image || '/assets/img/no_image.jpg'}
                             alt={item.name}
                             className="img-fluid rounded"
                             onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/60x60?text=No+Image';
+                              e.target.src = '/assets/img/no_image.jpg';
                             }}
                           />
                         </div>

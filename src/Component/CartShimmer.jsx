@@ -40,7 +40,7 @@ const CartShimmer = () => {
         <div className="shimmer-checkout-btn"></div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .cart-shimmer {
           padding: 1rem;
         }

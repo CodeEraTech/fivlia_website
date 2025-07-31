@@ -25,7 +25,7 @@ const Header = () => {
   const [catError, setCatError] = useState(null);
   const searchWrapperRef = useRef();
    const { isLoggedIn, logout } = useAuth();
-   const { cartCount } = useCart();
+   const { cartCount, isInitialized } = useCart();
 
    
   const handleClick = () => {
@@ -287,8 +287,8 @@ const Header = () => {
         </div>
                   <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
                     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-                    {cartCount > 0 && (
-                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {isInitialized && cartCount > 0 && (
+                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill" style={{ backgroundColor: '#198754' }}>
                         {cartCount}
                         <span className="visually-hidden">items in cart</span>
                       </span>
@@ -432,8 +432,8 @@ const Header = () => {
         </div>
             <Link className="text-muted position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" to="#offcanvasExample" role="button" aria-controls="offcanvasRight">
               <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="feather feather-shopping-bag"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1={3} y1={6} x2={21} y2={6} /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
-              {cartCount > 0 && (
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {isInitialized && cartCount > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill" style={{ backgroundColor: '#198754' }}>
                   {cartCount}
                   <span className="visually-hidden">items in cart</span>
                 </span>
