@@ -74,12 +74,20 @@ const AccountLayout = ({ children, activePath = "" }) => {
                 <li className="nav-item">
                   <hr />
                 </li>
-                <li className="nav-item">
-                  <Link className="nav-link text-danger" to="/Grocery-react/">
-                    <i className="fas fa-sign-out-alt me-2" />
-                    Logout
-                  </Link>
-                </li>
+               <li className="nav-item">
+  <button
+    className="nav-link text-danger btn btn-link text-start w-100"
+    onClick={() => {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = "/";
+    }}
+  >
+    <i className="fas fa-sign-out-alt me-2" />
+    Logout
+  </button>
+</li>
+
               </ul>
             </div>
           </div>
