@@ -21,4 +21,5 @@ export const ENDPOINTS = {
   GET_CART: "/getCart",
   UPDATE_CART: "/updateCart",
   REMOVE_CART: "/removeCart",
+  GET_ADDRESS: "/getAddress",
 }; 

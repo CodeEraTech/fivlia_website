@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 import CartShimmer from "./CartShimmer";
 
@@ -16,6 +16,8 @@ const CartCanvas = () => {
     updatingItems,
     removingItems
   } = useCart();
+
+  const navigate = useNavigate();
 
   const handleQuantityChange = (cartItemId, newQuantity) => {
     if (newQuantity > 0) {
@@ -40,6 +42,17 @@ const CartCanvas = () => {
 
   const isAnyItemProcessing = () => {
     return updatingItems.size > 0 || removingItems.size > 0;
+  };
+
+  const handleCheckout = () => {
+    const offcanvas = document.getElementById('offcanvasRight');
+    if (offcanvas) {
+      const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
+      if (bsOffcanvas) {
+        bsOffcanvas.hide();
+      }
+    }
+    navigate('/OrderCheckout');
   };
 
   // Show loading shimmer while initializing
@@ -107,10 +120,6 @@ const CartCanvas = () => {
           </div>
         ) : (
           <>
-            {/* <div className="alert alert-danger" role="alert">
-              You've got FREE delivery. Start checkout now!
-            </div> */}
-            
             {/* Scrollable Products Section */}
             <div className="cart-products-section">
               <ul className="list-group list-group-flush">
@@ -210,14 +219,14 @@ const CartCanvas = () => {
               <h6 className="mb-0">Total:</h6>
               <h6 className="mb-0 text-success">₹{getCartTotal()}</h6>
             </div>
-            <Link 
-              to="/ShopCart" 
+            <button 
+              onClick={handleCheckout}
               className={`btn btn-success w-100 ${isAnyItemProcessing() ? 'disabled' : ''}`}
-              data-bs-dismiss="offcanvas"
               style={{ 
                 pointerEvents: isAnyItemProcessing() ? 'none' : 'auto',
                 opacity: isAnyItemProcessing() ? 0.6 : 1
               }}
+              disabled={isAnyItemProcessing()}
             >
               {isAnyItemProcessing() ? (
                 <>
@@ -227,7 +236,7 @@ const CartCanvas = () => {
               ) : (
                 'Proceed to Checkout'
               )}
-            </Link>
+            </button>
           </div>
         </div>
       )}

@@ -19,7 +19,7 @@ import Shop from "./pages/Shop/Shop";
 import ShopGridCol3 from "./pages/Shop/ShopGridCol3";
 import ShopListCol from "./pages/Shop/ShopListCol";
 import ShopCart from "./pages/Shop/ShopCart";
-import ShopCheckOut from "./pages/Shop/ShopCheckOut";
+import OrderCheckout from "./pages/OrderCheckout";
 import ShopWishList from "./pages/Shop/ShopWishList";
 // Store pages
 import StoreList from "./pages/store/StoreList";
@@ -47,13 +47,14 @@ const App = () => {
         <Header/>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          {/* Shop pages */}
           <Route path="/Shop" element={<Shop />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/OrderCheckout" element={<OrderCheckout />} />
+          
+          {/* Shop pages */}
           <Route path="/ShopGridCol3" element={<ShopGridCol3 />} />
           <Route path="/ShopListCol" element={<ShopListCol />} />
           <Route path="/ShopWishList" element={<ShopWishList />} />
-          <Route path="/ShopCheckOut" element={<ShopCheckOut />} />
           <Route path="/ShopCart" element={<ShopCart />} />
           {/* Store pages */}
           <Route path="/StoreList" element={<StoreList />} />
