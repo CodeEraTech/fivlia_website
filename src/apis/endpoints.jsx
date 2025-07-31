@@ -19,4 +19,6 @@ export const ENDPOINTS = {
   PRODUCTS: "/website/getProduct?lat=29.1553958&lng=75.7218976",
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
+  UPDATE_CART: "/updateCart",
+  REMOVE_CART: "/removeCart",
 }; 

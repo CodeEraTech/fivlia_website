@@ -116,4 +116,14 @@ export const post = (endpoint, data, config = {}) => {
   return apiClient.post(endpoint, data, finalConfig);
 };
 
+export const put = (endpoint, data, config = {}) => {
+  const finalConfig = config.authRequired ? withAuth(config) : config;
+  return apiClient.put(endpoint, data, finalConfig);
+};
+
+export const del = (endpoint, config = {}) => {
+  const finalConfig = config.authRequired ? withAuth(config) : config;
+  return apiClient.delete(endpoint, finalConfig);
+};
+
 export default apiClient;

@@ -9,22 +9,37 @@ const CartCanvas = () => {
     cartCount, 
     loading, 
     error, 
-    removeFromCart, 
-    updateQuantity, 
+    removeCartItem, 
+    updateCartItem, 
     getCartTotal,
-    isInitialized
+    isInitialized,
+    updatingItems,
+    removingItems
   } = useCart();
 
-  const handleQuantityChange = (productId, varientId, newQuantity) => {
+  const handleQuantityChange = (cartItemId, newQuantity) => {
     if (newQuantity > 0) {
-      updateQuantity(productId, varientId, newQuantity);
+      updateCartItem(cartItemId, newQuantity);
     } else {
-      removeFromCart(productId, varientId);
+      // If quantity is 0 or negative, remove the item
+      removeCartItem(cartItemId);
     }
   };
 
-  const handleRemoveItem = (productId, varientId) => {
-    removeFromCart(productId, varientId);
+  const handleRemoveItem = (cartItemId) => {
+    removeCartItem(cartItemId);
+  };
+
+  const isItemUpdating = (cartItemId) => {
+    return updatingItems.has(cartItemId);
+  };
+
+  const isItemRemoving = (cartItemId) => {
+    return removingItems.has(cartItemId);
+  };
+
+  const isAnyItemProcessing = () => {
+    return updatingItems.size > 0 || removingItems.size > 0;
   };
 
   // Show loading shimmer while initializing
@@ -41,7 +56,6 @@ const CartCanvas = () => {
             <h5 id="offcanvasRightLabel" className="mb-0 fs-4">
               Shop Cart
             </h5>
-            <small>Location in 382480</small>
           </div>
           <button
             type="button"
@@ -77,7 +91,8 @@ const CartCanvas = () => {
           aria-label="Close"
         />
       </div>
-      <div className="offcanvas-body">
+      
+      <div className="offcanvas-body cart-body">
         {error ? (
           <div className="alert alert-danger" role="alert">
             {error}
@@ -95,13 +110,20 @@ const CartCanvas = () => {
             {/* <div className="alert alert-danger" role="alert">
               You've got FREE delivery. Start checkout now!
             </div> */}
-            <div>
-              <div className="py-3">
-                <ul className="list-group list-group-flush">
-                  {cartItems.map((item, index) => (
+            
+            {/* Scrollable Products Section */}
+            <div className="cart-products-section">
+              <ul className="list-group list-group-flush">
+                {cartItems.map((item, index) => {
+                  const cartItemId = item._id || item.cartItemId;
+                  const isUpdating = isItemUpdating(cartItemId);
+                  const isRemoving = isItemRemoving(cartItemId);
+                  const isProcessing = isUpdating || isRemoving;
+                  
+                  return (
                     <li key={`${item.productId}-${item.varientId}-${index}`} className="list-group-item py-3 px-0">
-                      <div className="row align-items-center">
-                        <div className="col-2">
+                      <div className="row align-items-center g-2">
+                        <div className="col-3 col-sm-2">
                           <img
                             src={item.image || '/assets/img/no_image.jpg'}
                             alt={item.name}
@@ -111,30 +133,33 @@ const CartCanvas = () => {
                             }}
                           />
                         </div>
-                        <div className="col-5">
-                          <h6 className="mb-0">{item.name}</h6>
+                        <div className="col-6 col-sm-5">
+                          <h6 className="mb-0 text-truncate">{item.name}</h6>
                           <span>
                             <small className="text-muted">₹{item.price} / unit</small>
                           </span>
                           <div className="mt-2 small">
                             <button
-                              onClick={() => handleRemoveItem(item.productId, item.varientId)}
+                              onClick={() => handleRemoveItem(cartItemId)}
                               className="text-decoration-none text-danger border-0 bg-transparent p-0"
                               style={{ cursor: 'pointer' }}
+                              disabled={isProcessing}
                             >
                               <span className="me-1">
                                 <i className="fa fa-trash"></i>
                               </span>
-                              Remove
+                              {isRemoving ? 'Removing...' : 'Remove'}
                             </button>
                           </div>
                         </div>
-                        <div className="col-3">
-                          <div className="input-group flex-nowrap justify-content-center">
+                        <div className="col-3 col-sm-3">
+                          <div className="cart-qty-box">
                             <button
                               type="button"
-                              className="btn btn-sm btn-outline-secondary"
-                              onClick={() => handleQuantityChange(item.productId, item.varientId, item.quantity - 1)}
+                              className="cart-qty-btn"
+                              onClick={() => handleQuantityChange(cartItemId, item.quantity - 1)}
+                              disabled={isProcessing}
+                              aria-label="Decrease quantity"
                             >
                               -
                             </button>
@@ -142,46 +167,208 @@ const CartCanvas = () => {
                               type="number"
                               min="1"
                               value={item.quantity}
-                              onChange={(e) => handleQuantityChange(item.productId, item.varientId, parseInt(e.target.value) || 1)}
-                              className="form-control text-center"
-                              style={{ width: '50px' }}
+                              onChange={(e) => handleQuantityChange(cartItemId, parseInt(e.target.value) || 1)}
+                              className="cart-qty-input"
+                              disabled={isProcessing}
                             />
                             <button
                               type="button"
-                              className="btn btn-sm btn-outline-secondary"
-                              onClick={() => handleQuantityChange(item.productId, item.varientId, item.quantity + 1)}
+                              className="cart-qty-btn"
+                              onClick={() => handleQuantityChange(cartItemId, item.quantity + 1)}
+                              disabled={isProcessing}
+                              aria-label="Increase quantity"
                             >
                               +
                             </button>
+                            {isProcessing && (
+                              <div className="cart-updating-indicator">
+                                <div className="spinner-border spinner-border-sm text-success" role="status">
+                                  <span className="visually-hidden">Processing...</span>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="col-2 text-end">
+                        <div className="col-12 col-sm-2 text-end">
                           <span className="fw-bold">₹{item.price * item.quantity}</span>
                         </div>
                       </div>
                     </li>
-                  ))}
-                </ul>
-              </div>
-              
-              {/* Cart Summary */}
-              <div className="border-top pt-3">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h6 className="mb-0">Total:</h6>
-                  <h6 className="mb-0 text-success">₹{getCartTotal()}</h6>
-                </div>
-                <Link 
-                  to="/ShopCart" 
-                  className="btn btn-success w-100"
-                  data-bs-dismiss="offcanvas"
-                >
-                  Checkout
-                </Link>
-              </div>
+                  );
+                })}
+              </ul>
             </div>
           </>
         )}
       </div>
+
+      {/* Fixed Checkout Section */}
+      {cartItems.length > 0 && (
+        <div className="cart-checkout-section">
+          <div className="pt-3">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h6 className="mb-0">Total:</h6>
+              <h6 className="mb-0 text-success">₹{getCartTotal()}</h6>
+            </div>
+            <Link 
+              to="/ShopCart" 
+              className={`btn btn-success w-100 ${isAnyItemProcessing() ? 'disabled' : ''}`}
+              data-bs-dismiss="offcanvas"
+              style={{ 
+                pointerEvents: isAnyItemProcessing() ? 'none' : 'auto',
+                opacity: isAnyItemProcessing() ? 0.6 : 1
+              }}
+            >
+              {isAnyItemProcessing() ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Updating...
+                </>
+              ) : (
+                'Proceed to Checkout'
+              )}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .cart-body {
+          display: flex;
+          flex-direction: column;
+          height: calc(100vh - 120px);
+          padding-bottom: 0;
+          overflow-x: hidden;
+        }
+
+        .cart-products-section {
+          flex: 1;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding-bottom: 20px;
+        }
+
+        .cart-checkout-section {
+          position: sticky;
+          bottom: 0;
+          background: white;
+          padding: 1rem;
+          border-top: 1px solid #e0e0e0;
+          box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+          z-index: 10;
+          overflow: hidden;
+        }
+
+        .cart-qty-box {
+          display: flex;
+          align-items: center;
+          border: 1px solid #e0e0e0;
+          border-radius: 7px;
+          background: #fafafa;
+          gap: 6px;
+          height: 40px;
+          min-width: 110px;
+          max-width: 140px;
+          position: relative;
+        }
+
+        .cart-qty-btn {
+          background: none;
+          border: none;
+          font-size: 1.3rem;
+          color: #0aad0a;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          cursor: pointer;
+          transition: background 0.15s;
+          box-shadow: 0 1px 2px rgba(10,173,10,0.04);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .cart-qty-btn:hover:not(:disabled) {
+          background: #e6f7e6;
+        }
+
+        .cart-qty-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .cart-qty-input {
+          width: 32px;
+          text-align: center;
+          font-size: 1rem;
+          border: none;
+          background: transparent;
+          outline: none;
+          height: 32px;
+          line-height: 32px;
+          flex-shrink: 0;
+        }
+
+        .cart-qty-input:disabled {
+          opacity: 0.6;
+        }
+
+        .cart-updating-indicator {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 4px;
+          padding: 2px;
+        }
+
+        .btn.disabled {
+          cursor: not-allowed;
+        }
+
+        .list-group-item {
+          overflow-x: hidden;
+        }
+
+        .row {
+          margin: 0;
+        }
+
+        .col-3, .col-6, .col-12, .col-sm-2, .col-sm-3, .col-sm-5 {
+          padding: 0 8px;
+        }
+
+        @media (max-width: 576px) {
+          .cart-body {
+            height: calc(100vh - 100px);
+          }
+          
+          .cart-qty-box {
+            height: 36px;
+            min-width: 100px;
+            max-width: 120px;
+          }
+          
+          .cart-qty-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 1.1rem;
+          }
+          
+          .cart-qty-input {
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            font-size: 0.9rem;
+          }
+
+          .col-3, .col-6, .col-12 {
+            padding: 0 4px;
+          }
+        }
+      `}</style>
     </div>
   );
 };

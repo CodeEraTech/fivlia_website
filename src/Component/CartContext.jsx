@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { get } from '../apis/apiClient';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { get, put, del } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
 import { useAuth } from './AuthContext';
 
@@ -7,9 +7,11 @@ const CartContext = createContext();
 
 // Get cart items function - using get method from apiClient
 const getCart = async () => {
+  // console.log('CartContext: getCart function called');
   const authConfig = {
     authRequired: true
   };
+  // console.log('CartContext: Making API call with config:', authConfig);
   const response = await get(ENDPOINTS.GET_CART, authConfig);
   // console.log('CartContext: getCart response:', response);
   return response;
@@ -21,7 +23,11 @@ export const CartProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [updatingItems, setUpdatingItems] = useState(new Set());
+  const [removingItems, setRemovingItems] = useState(new Set());
   const { checkAuth, isLoggedIn } = useAuth();
+  const updateTimeouts = useRef({});
+  const removeTimeouts = useRef({});
 
   // Fetch cart items from API
   const fetchCartItems = async () => {
@@ -62,6 +68,122 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Remove cart item with debouncing and security
+  const removeCartItem = async (cartItemId) => {
+    const { isAuthenticated } = checkAuth();
+    
+    if (!isAuthenticated) {
+      setError('User not authenticated');
+      return;
+    }
+
+    // Clear existing timeout for this item
+    if (removeTimeouts.current[cartItemId]) {
+      clearTimeout(removeTimeouts.current[cartItemId]);
+    }
+
+    // Optimistically remove the item from UI
+    setCartItems(prev => prev.filter(item => 
+      !(item._id === cartItemId || item.cartItemId === cartItemId)
+    ));
+
+    // Set removing state for this item
+    setRemovingItems(prev => new Set(prev).add(cartItemId));
+
+    // Debounce the API call
+    removeTimeouts.current[cartItemId] = setTimeout(async () => {
+      try {
+        const authConfig = {
+          authRequired: true
+        };
+
+        const response = await del(`${ENDPOINTS.REMOVE_CART}/${cartItemId}`, authConfig);
+        
+        if (response.data && response.data.success) {
+          // Refresh cart from API to ensure consistency
+          await fetchCartItems();
+        } else {
+          // If remove failed, revert the optimistic update
+          await fetchCartItems();
+        }
+      } catch (error) {
+        console.error('CartContext: Failed to remove cart item:', error);
+        setError('Failed to remove cart item');
+        // Revert the optimistic update
+        await fetchCartItems();
+      } finally {
+        // Clear removing state for this item
+        setRemovingItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cartItemId);
+          return newSet;
+        });
+      }
+    }, 300); // 300ms debounce for remove (faster than update)
+  };
+
+  // Update cart item quantity with debouncing and security
+  const updateCartItem = async (cartItemId, quantity) => {
+    const { isAuthenticated } = checkAuth();
+    
+    if (!isAuthenticated) {
+      setError('User not authenticated');
+      return;
+    }
+
+    if (quantity < 1) {
+      // If quantity is 0 or negative, remove the item
+      removeCartItem(cartItemId);
+      return;
+    }
+
+    // Clear existing timeout for this item
+    if (updateTimeouts.current[cartItemId]) {
+      clearTimeout(updateTimeouts.current[cartItemId]);
+    }
+
+    // Optimistically update the UI
+    setCartItems(prev => prev.map(item => 
+      item._id === cartItemId || item.cartItemId === cartItemId
+        ? { ...item, quantity }
+        : item
+    ));
+
+    // Set updating state for this item
+    setUpdatingItems(prev => new Set(prev).add(cartItemId));
+
+    // Debounce the API call
+    updateTimeouts.current[cartItemId] = setTimeout(async () => {
+      try {
+        const authConfig = {
+          authRequired: true
+        };
+
+        const response = await put(`${ENDPOINTS.UPDATE_CART}/${cartItemId}`, { quantity }, authConfig);
+        
+        if (response.data && response.data.success) {
+          // Refresh cart from API to ensure consistency
+          await fetchCartItems();
+        } else {
+          // If update failed, revert the optimistic update
+          await fetchCartItems();
+        }
+      } catch (error) {
+        console.error('CartContext: Failed to update cart item:', error);
+        setError('Failed to update cart item');
+        // Revert the optimistic update
+        await fetchCartItems();
+      } finally {
+        // Clear updating state for this item
+        setUpdatingItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(cartItemId);
+          return newSet;
+        });
+      }
+    }, 500); // 500ms debounce
+  };
+
   // Add item to cart
   const addToCart = (item) => {
     setCartItems(prev => {
@@ -87,7 +209,7 @@ export const CartProvider = ({ children }) => {
     fetchCartItems();
   };
 
-  // Remove item from cart
+  // Remove item from cart (legacy function - use removeCartItem instead)
   const removeFromCart = (productId, varientId) => {
     setCartItems(prev => prev.filter(item => 
       !(item.productId === productId && item.varientId === varientId)
@@ -97,7 +219,7 @@ export const CartProvider = ({ children }) => {
     fetchCartItems();
   };
 
-  // Update item quantity
+  // Update item quantity (legacy function - use updateCartItem instead)
   const updateQuantity = (productId, varientId, quantity) => {
     setCartItems(prev => prev.map(item => 
       item.productId === productId && item.varientId === varientId
@@ -133,6 +255,18 @@ export const CartProvider = ({ children }) => {
     setCartCount(cartItems.length);
   }, [cartItems]);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(updateTimeouts.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout);
+      });
+      Object.values(removeTimeouts.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout);
+      });
+    };
+  }, []);
+
   return (
     <CartContext.Provider value={{
       cartItems,
@@ -141,10 +275,14 @@ export const CartProvider = ({ children }) => {
       error,
       addToCart,
       removeFromCart,
+      removeCartItem,
       updateQuantity,
+      updateCartItem,
       getCartTotal,
       fetchCartItems,
-      isInitialized
+      isInitialized,
+      updatingItems,
+      removingItems
     }}>
       {children}
     </CartContext.Provider>
