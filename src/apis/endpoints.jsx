@@ -1,12 +1,14 @@
 // Place your API base URL here
-export const API_BASE_URL = "https://api.fivlia.in";
+//export const API_BASE_URL = "https://api.fivlia.in";
+export const API_BASE_URL = "http://172.93.223.239:8080";
 
 // Define all endpoints here
 export const ENDPOINTS = {
   VERIFY_MOBILE: "/verifyMobile",
+  GET_SETTINGS: "/getSettings",
   LOGIN: "/login",
   VERIFY_OTP: "/verifyOtp",
-  REGISTER: "/auth/register",
+  REGISTER: "/register",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
   BANNERS: "/getAllBanner",
