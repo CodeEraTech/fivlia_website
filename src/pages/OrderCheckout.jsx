@@ -136,10 +136,10 @@ const OrderCheckout = () => {
                 <div className="col-12">
                   <div className="mb-8">
                     <h1 className="fw-bold mb-0">Checkout</h1>
-                    <p className="mb-0">
+                    {/* <p className="mb-0">
                       Already have an account? Click here to{" "}
                       <Link to="/MyAccountSignIn">Sign in</Link>.
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>
