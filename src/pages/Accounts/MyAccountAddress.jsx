@@ -1,276 +1,307 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MagnifyingGlass } from "react-loader-spinner";
 import ScrollToTop from "../ScrollToTop";
 import AccountLayout from "../Accounts/AccountLayout";
+import { get } from "../../apis/apiClient";
+import { ENDPOINTS } from "../../apis/endpoints";
 
 const MyAccountAddress = () => {
-  const [loaderStatus, setLoaderStatus] = useState(true);
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoaderStatus(false);
-    }, 1500);
+    fetchAddresses();
   }, []);
+
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true);
+      const response = await get(ENDPOINTS.GET_ADDRESS, { authRequired: true });
+      
+      if (response.data && response.data.addresses) {
+        setAddresses(response.data.addresses || []);
+      } else {
+        setAddresses([]);
+      }
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      setError("Failed to load addresses");
+      setAddresses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSetDefault = async (addressId) => {
+    // TODO: Implement set default address functionality
+    console.log("Set default address:", addressId);
+  };
+
+  const handleEditAddress = (addressId) => {
+    // TODO: Implement edit address functionality
+    console.log("Edit address:", addressId);
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    if (window.confirm("Are you sure you want to delete this address?")) {
+      // TODO: Implement delete address functionality
+      console.log("Delete address:", addressId);
+    }
+  };
+
+  const getAddressTypeLabel = (addressType) => {
+    switch (addressType) {
+      case 'home':
+        return 'Home';
+      case 'office':
+        return 'Office';
+      case 'other':
+        return 'Other';
+      default:
+        return 'Address';
+    }
+  };
+
+  const renderAddressCard = (address, index) => {
+    return (
+      <div key={address._id || index} className="col-12 mb-3">
+        <div className="border rounded p-4">
+          <div className="d-flex align-items-start">
+            <div className="flex-grow-1">
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 className="mb-1 fw-bold fs-5">{address.fullName}</h6>
+                  <div className="text-muted">
+                    {address.mobileNumber && <span className="fw-medium">Phone: {address.mobileNumber}</span>}
+                    {address.alternateNumber && <span className="ms-3 fw-medium">Alt: {address.alternateNumber}</span>}
+                  </div>
+                </div>
+                <div className="d-flex align-items-center">
+                  {address.default && (
+                    <span className="badge bg-success text-white me-2">Default</span>
+                  )}
+                  <span className="badge bg-primary text-white">{getAddressTypeLabel(address.addressType)}</span>
+                </div>
+              </div>
+              
+              <div className="address-details">
+                <p className="mb-0 text-dark fs-6 lh-base">
+                  {address.house_No && `${address.house_No}, `}
+                  {address.floor && `${address.floor} floor, `}
+                  {address.address}
+                  {address.landmark && `, ${address.landmark}`}
+                  {address.city && address.state && `, ${address.city}, ${address.state} ${address.pincode}`}
+                </p>
+              </div>
+              
+              {/* <div className="mt-3">
+                {!address.default && (
+                  <Link 
+                    to="#" 
+                    className="btn btn-outline-primary btn-sm me-2"
+                    onClick={() => handleSetDefault(address._id)}
+                  >
+                    Set as Default
+                  </Link>
+                )}
+                <Link 
+                  to="#" 
+                  className="btn btn-outline-secondary btn-sm me-2"
+                  onClick={() => handleEditAddress(address._id)}
+                >
+                  Edit
+                </Link>
+                <Link
+                  to="#"
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => handleDeleteAddress(address._id)}
+                >
+                  Delete
+                </Link>
+              </div> */}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
       <ScrollToTop />
-      {loaderStatus ? (
-        <div className="loader-container">
-          <MagnifyingGlass
-            visible={true}
-            height="100"
-            width="100"
-            ariaLabel="magnifying-glass-loading"
-            glassColor="#c0efff"
-            color="#0aad0a"
-          />
+      <AccountLayout activePath="address">
+        {/* Address Section */}
+        <div className="d-flex justify-content-between mb-6">
+          <h2 className="mb-0">Address</h2>
         </div>
-      ) : (
-        <AccountLayout>
-          {/* Address Section */}
-          <div className="d-flex justify-content-between mb-6">
-            <h2 className="mb-0">Address</h2>
-            <Link
-              to="#"
-              className="btn btn-outline-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#addAddressModal"
-            >
-              Add a new address
-            </Link>
-          </div>
 
-          <div className="row">
-            {/* Home Address */}
-            <div className="col-lg-5 col-xxl-4 col-12 mb-4">
-              <div className="border p-6 rounded-3">
-                <div className="form-check mb-4">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="flexRadioDefault"
-                    id="homeRadio"
-                    defaultChecked
-                  />
-                  <label
-                    className="form-check-label text-dark fw-semi-bold"
-                    htmlFor="homeRadio"
-                  >
-                    Home
-                  </label>
-                </div>
-                <p className="mb-6">
-                  Jitu Chauhan
-                  <br />
-                  4450 North Avenue Oakland, <br />
-                  Nebraska, United States,
-                  <br />
-                  402-776-1106
-                </p>
-                <Link to="#" className="btn btn-info btn-sm">
-                  Default address
-                </Link>
-                <div className="mt-4">
-                  <Link to="#" className="text-inherit">Edit</Link>
-                  <Link
-                    to="#"
-                    className="text-danger ms-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteModal"
-                  >
-                    Delete
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Office Address */}
-            <div className="col-lg-5 col-xxl-4 col-12 mb-4">
-              <div className="border p-6 rounded-3">
-                <div className="form-check mb-4">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="flexRadioDefault"
-                    id="officeRadio"
-                  />
-                  <label
-                    className="form-check-label text-dark fw-semi-bold"
-                    htmlFor="officeRadio"
-                  >
-                    Office
-                  </label>
-                </div>
-                <p className="mb-6">
-                  Nitu Chauhan
-                  <br />
-                  3853 Coal Road <br />
-                  Tannersville, Pennsylvania, 18372, United States <br />
-                  402-776-1106
-                </p>
-                <Link to="#" className="link-primary">Set as Default</Link>
-                <div className="mt-4">
-                  <Link to="#" className="text-inherit">Edit</Link>
-                  <Link
-                    to="#"
-                    className="text-danger ms-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteModal"
-                  >
-                    Delete
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Delete Modal */}
-          <div
-            className="modal fade"
-            id="deleteModal"
-            tabIndex={-1}
-            aria-labelledby="deleteModalLabel"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title" id="deleteModalLabel">
-                    Delete address
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  />
-                </div>
-                <div className="modal-body">
-                  <h6>Are you sure you want to delete this address?</h6>
-                  <p className="mb-6">
-                    Jitu Chauhan
-                    <br />
-                    4450 North Avenue Oakland, <br />
-                    Nebraska, United States,
-                    <br />
-                    402-776-1106
-                  </p>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-outline-gray-400"
-                    data-bs-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
-                  <button type="button" className="btn btn-danger">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Add Address Modal */}
-          <div
-            className="modal fade"
-            id="addAddressModal"
-            tabIndex={-1}
-            aria-labelledby="addAddressModalLabel"
-            aria-hidden="true"
-          >
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-body p-6">
-                  <div className="d-flex justify-content-between mb-5">
-                    <div>
-                      <h5 className="h6 mb-1" id="addAddressModalLabel">
-                        New Shipping Address
-                      </h5>
-                      <p className="small mb-0">
-                        Add new shipping address for your order delivery.
-                      </p>
+        {loading ? (
+          <div className="row address-shimmer">
+            <div className="col-12 mb-3">
+              <div className="border rounded p-4">
+                <div className="d-flex align-items-start">
+                  <div className="flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <div className="shimmer-name mb-1"></div>
+                        <div className="shimmer-phone"></div>
+                      </div>
+                      <div className="d-flex">
+                        <div className="shimmer-badge me-2"></div>
+                        <div className="shimmer-badge"></div>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    />
+                    <div className="shimmer-address"></div>
                   </div>
-
-                  <form>
-                    <div className="row g-3">
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="First name" required />
+                </div>
+              </div>
+            </div>
+            <div className="col-12 mb-3">
+              <div className="border rounded p-4">
+                <div className="d-flex align-items-start">
+                  <div className="flex-grow-1">
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <div className="shimmer-name mb-1"></div>
+                        <div className="shimmer-phone"></div>
                       </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="Last name" required />
-                      </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="Address Line 1" />
-                      </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="Address Line 2" />
-                      </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="City" />
-                      </div>
-                      <div className="col-12">
-                        <select className="form-select">
-                          <option selected>India</option>
-                          <option value="1">UK</option>
-                          <option value="2">USA</option>
-                          <option value="3">UAE</option>
-                        </select>
-                      </div>
-                      <div className="col-12">
-                        <select className="form-select">
-                          <option selected>Gujarat</option>
-                          <option value="1">Northern Ireland</option>
-                          <option value="2">Alaska</option>
-                          <option value="3">Abu Dhabi</option>
-                        </select>
-                      </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="Zip Code" />
-                      </div>
-                      <div className="col-12">
-                        <input type="text" className="form-control" placeholder="Business Name" />
-                      </div>
-                      <div className="col-12">
-                        <div className="form-check">
-                          <input className="form-check-input" type="checkbox" id="flexCheckDefault" />
-                          <label className="form-check-label" htmlFor="flexCheckDefault">
-                            Set as Default
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-12 text-end">
-                        <button
-                          type="button"
-                          className="btn btn-outline-primary"
-                          data-bs-dismiss="modal"
-                        >
-                          Cancel
-                        </button>
-                        <button className="btn btn-primary" type="button">
-                          Save Address
-                        </button>
+                      <div className="d-flex">
+                        <div className="shimmer-badge me-2"></div>
+                        <div className="shimmer-badge"></div>
                       </div>
                     </div>
-                  </form>
+                    <div className="shimmer-address"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </AccountLayout>
-      )}
+        ) : error ? (
+          <div className="alert alert-danger" role="alert">
+            {error}
+          </div>
+        ) : addresses.length === 0 ? (
+          <div className="text-center py-5">
+            <div className="mb-3">
+              <i className="fa fa-map-marker fa-3x text-muted"></i>
+            </div>
+            <h6 className="text-muted">No addresses found</h6>
+            <p className="text-muted small">You haven't added any addresses yet.</p>
+          </div>
+        ) : (
+          <div className="row">
+            {addresses.map((address, index) => renderAddressCard(address, index))}
+          </div>
+        )}
+
+        {/* Delete Modal */}
+        <div
+          className="modal fade"
+          id="deleteModal"
+          tabIndex={-1}
+          aria-labelledby="deleteModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="deleteModalLabel">
+                  Delete address
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                />
+              </div>
+              <div className="modal-body">
+                <h6>Are you sure you want to delete this address?</h6>
+                <p className="mb-6">
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-outline-gray-400"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button type="button" className="btn btn-danger">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AccountLayout>
     </>
   );
 };
 
 export default MyAccountAddress;
+
+// Shimmer CSS with proper scoping
+const shimmerStyles = `
+  .address-shimmer .shimmer-name {
+    height: 24px;
+    width: 60%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: address-shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+  
+  .address-shimmer .shimmer-phone {
+    height: 16px;
+    width: 40%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: address-shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+  
+  .address-shimmer .shimmer-badge {
+    width: 60px;
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: address-shimmer 1.5s infinite;
+    border-radius: 10px;
+  }
+  
+  .address-shimmer .shimmer-address {
+    height: 18px;
+    width: 90%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: address-shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+  
+  @keyframes address-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+`;
+
+// Add styles to document with unique ID to prevent conflicts
+if (typeof document !== 'undefined') {
+  // Remove existing style if it exists
+  const existingStyle = document.getElementById('address-shimmer-styles');
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+  
+  const styleElement = document.createElement('style');
+  styleElement.id = 'address-shimmer-styles';
+  styleElement.textContent = shimmerStyles;
+  document.head.appendChild(styleElement);
+}

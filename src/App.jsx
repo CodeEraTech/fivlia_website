@@ -50,6 +50,7 @@ const App = () => {
           <Route path="/Shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/OrderCheckout" element={<OrderCheckout />} />
+          <Route path="/MyAccount" element={<MyAccountSetting />} />
           
           {/* Shop pages */}
           <Route path="/ShopGridCol3" element={<ShopGridCol3 />} />
@@ -61,7 +62,6 @@ const App = () => {
           <Route path="/SingleShop" element={<SingleShop />} />
           {/* Accounts pages */}
           <Route path="/MyAccountOrder" element={<MyAccountOrder />} />
-          <Route path="/MyAccountSetting" element={<MyAccountSetting />} />
           <Route path="/MyAcconutNotification" element={<MyAcconutNotification />} />
           <Route path="/MyAcconutPaymentMethod" element={<MyAcconutPaymentMethod />} />
           <Route path="/MyAccountAddress" element={<MyAccountAddress />} />
