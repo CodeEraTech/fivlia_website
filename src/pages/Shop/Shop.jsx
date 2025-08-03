@@ -32,6 +32,8 @@ function Dropdown() {
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setSelectedProductFilter(null);
+    setAvailableFilters([]);
     let url = ENDPOINTS.PRODUCTS;
     if (categoryId) {
       url += `&id=${categoryId}`;
@@ -150,7 +152,7 @@ function Dropdown() {
   // Filtering logic
   const handleFilterChange = (filters) => {
     setSelectedFilters(filters);
-    setCurrentPage(1); // Reset to first page on filter change
+    setCurrentPage(1);
     applyFilters();
   };
 

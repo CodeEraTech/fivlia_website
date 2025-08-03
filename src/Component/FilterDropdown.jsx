@@ -8,6 +8,8 @@ const FilterDropdown = ({ filters, selectedFilter, onFilterChange, className = '
   useEffect(() => {
     if (filters && filters.length > 0) {
       setAvailableFilters(filters);
+    } else {
+      setAvailableFilters([]);
     }
   }, [filters]);
 
