@@ -93,7 +93,7 @@ function Dropdown() {
         setCategories(res.data?.result || []);
       })
       .catch((err) => {
-        console.error("Failed to load categories:", err);
+        // console.error("Failed to load categories:", err);
       });
   }, []);
 
