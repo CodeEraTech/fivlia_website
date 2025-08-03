@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints.jsx";
 
-const FilterSideBar = ({ onFilterChange }) => {
+const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,14 +12,13 @@ const FilterSideBar = ({ onFilterChange }) => {
   const [selectedSubcat, setSelectedSubcat] = useState(null);
   const [selectedSubsubcat, setSelectedSubsubcat] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState([]);
+  const [productCounts, setProductCounts] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get selected category from URL
+  // Get selected category from URL (only main category)
   const params = new URLSearchParams(location.search);
   const urlCategory = params.get("category");
-  const urlSubcat = params.get("subcat");
-  const urlSubsubcat = params.get("subsubcat");
 
   useEffect(() => {
     let isMounted = true;
@@ -42,43 +41,86 @@ const FilterSideBar = ({ onFilterChange }) => {
     };
   }, []);
 
-  // Initialize view based on URL parameters
+  // Load product counts for each category level
   useEffect(() => {
-    if (categories.length > 0) {
-      if (urlSubsubcat) {
-        // User came with subsubcat selected
-        const category = categories.find(cat => cat._id === urlCategory);
-        if (category) {
-          const subcat = category.subcat?.find(sub => sub._id === urlSubcat);
-          if (subcat) {
-            setSelectedCategory(category);
-            setSelectedSubcat(subcat);
-            setCurrentView('subsubcat');
-            setBreadcrumb([
-              { name: category.name, id: category._id, level: 'main' },
-              { name: subcat.name, id: subcat._id, level: 'subcat' }
-            ]);
-            if (onFilterChange) onFilterChange({ 
-              category: [category._id], 
-              subCategory: [subcat._id], 
-              subSubCategory: [urlSubsubcat] 
+    const loadProductCounts = async () => {
+      try {
+        const response = await get(ENDPOINTS.PRODUCTS);
+        const products = response.data?.products || response.data?.result || [];
+        
+        const counts = {
+          main: {},
+          subcat: {},
+          subsubcat: {}
+        };
+
+        products.forEach(product => {
+          // Count for main category
+          if (product.category && product.category.length > 0) {
+            const mainCatId = product.category[0]._id;
+            counts.main[mainCatId] = (counts.main[mainCatId] || 0) + 1;
+          }
+
+          // Count for subcategory
+          if (product.subCategory && product.subCategory.length > 0) {
+            product.subCategory.forEach(subCat => {
+              const subCatId = subCat._id;
+              counts.subcat[subCatId] = (counts.subcat[subCatId] || 0) + 1;
             });
           }
-        }
-      } else if (urlSubcat) {
-        // User came with subcat selected
-        const category = categories.find(cat => cat._id === urlCategory);
+
+          // Count for subsubcategory
+          if (product.subSubCategory && product.subSubCategory.length > 0) {
+            product.subSubCategory.forEach(subSubCat => {
+              const subSubCatId = subSubCat._id;
+              counts.subsubcat[subSubCatId] = (counts.subsubcat[subSubCatId] || 0) + 1;
+            });
+          }
+        });
+
+        setProductCounts(counts);
+      } catch (error) {
+        console.error("Failed to load product counts:", error);
+      }
+    };
+
+    if (categories.length > 0) {
+      loadProductCounts();
+    }
+  }, [categories]);
+
+  // Initialize view based on URL parameters and selected filters
+  useEffect(() => {
+    if (categories.length > 0) {
+      // If we have selected filters, use them to set the state
+      if (selectedFilters.category && selectedFilters.category.length > 0) {
+        const category = categories.find(cat => cat._id === selectedFilters.category[0]);
         if (category) {
           setSelectedCategory(category);
-          setCurrentView('subcat');
-          setBreadcrumb([{ name: category.name, id: category._id, level: 'main' }]);
-          if (onFilterChange) onFilterChange({ 
-            category: [category._id], 
-            subCategory: [urlSubcat] 
-          });
+          
+          if (selectedFilters.subSubCategory && selectedFilters.subSubCategory.length > 0) {
+            // User is at subsubcategory level
+            const subcat = category.subcat?.find(sub => sub._id === selectedFilters.subCategory[0]);
+            if (subcat) {
+              setSelectedSubcat(subcat);
+              setCurrentView('subsubcat');
+              setBreadcrumb([
+                { name: category.name, id: category._id, level: 'main' },
+                { name: subcat.name, id: subcat._id, level: 'subcat' }
+              ]);
+            }
+          } else if (selectedFilters.subCategory && selectedFilters.subCategory.length > 0) {
+            // User is at subcategory level
+            setCurrentView('subcat');
+            setBreadcrumb([{ name: category.name, id: category._id, level: 'main' }]);
+          } else {
+            // User is at main category level
+            setCurrentView('subcat');
+            setBreadcrumb([{ name: category.name, id: category._id, level: 'main' }]);
+          }
         }
       } else if (urlCategory) {
-        // User came with category selected
+        // Fallback to URL parameter
         const category = categories.find(cat => cat._id === urlCategory);
         if (category) {
           setSelectedCategory(category);
@@ -86,9 +128,16 @@ const FilterSideBar = ({ onFilterChange }) => {
           setBreadcrumb([{ name: category.name, id: category._id, level: 'main' }]);
           if (onFilterChange) onFilterChange({ category: [urlCategory] });
         }
+      } else {
+        // No filters selected, show main view
+        setCurrentView('main');
+        setSelectedCategory(null);
+        setSelectedSubcat(null);
+        setSelectedSubsubcat(null);
+        setBreadcrumb([]);
       }
     }
-  }, [categories, urlCategory, urlSubcat, urlSubsubcat]);
+  }, [categories, urlCategory, selectedFilters]);
 
   // Get default image for categories/subcategories that don't have images
   const getDefaultImage = () => {
@@ -100,16 +149,22 @@ const FilterSideBar = ({ onFilterChange }) => {
     e.target.src = fallbackImage;
   };
 
+  // Get product count for a specific category level
+  const getProductCount = (id, level) => {
+    return productCounts[level]?.[id] || 0;
+  };
+
   // Handle main category click
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
     setCurrentView('subcat');
     setBreadcrumb([{ name: category.name, id: category._id, level: 'main' }]);
     setSelectedSubcat(null);
+    setSelectedSubsubcat(null);
     
     if (onFilterChange) onFilterChange({ category: [category._id] });
     
-    // Update URL
+    // Update URL with only main category
     navigate(`/Shop?category=${category._id}`);
   };
 
@@ -125,10 +180,7 @@ const FilterSideBar = ({ onFilterChange }) => {
         { name: selectedCategory.name, id: selectedCategory._id, level: 'main' },
         { name: subcat.name, id: subcat._id, level: 'subcat' }
       ]);
-      if (onFilterChange) onFilterChange({ 
-        category: [selectedCategory._id], 
-        subCategory: [subcat._id] 
-      });
+      // Don't call onFilterChange here, wait for subsubcategory selection
     } else {
       // No subsubcategories, this is the final selection
       setSelectedSubsubcat(null);
@@ -136,7 +188,6 @@ const FilterSideBar = ({ onFilterChange }) => {
         category: [selectedCategory._id], 
         subCategory: [subcat._id] 
       });
-      navigate(`/Shop?category=${selectedCategory._id}&subcat=${subcat._id}`);
     }
   };
 
@@ -148,7 +199,6 @@ const FilterSideBar = ({ onFilterChange }) => {
       subCategory: [selectedSubcat._id], 
       subSubCategory: [subsubcat._id] 
     });
-    navigate(`/Shop?category=${selectedCategory._id}&subcat=${selectedSubcat._id}&subsubcat=${subsubcat._id}`);
   };
 
   // Handle breadcrumb navigation
@@ -167,7 +217,6 @@ const FilterSideBar = ({ onFilterChange }) => {
       setSelectedSubsubcat(null);
       setBreadcrumb([{ name: selectedCategory.name, id: selectedCategory._id, level: 'main' }]);
       if (onFilterChange) onFilterChange({ category: [selectedCategory._id] });
-      navigate(`/Shop?category=${selectedCategory._id}`);
     }
   };
 
@@ -182,7 +231,6 @@ const FilterSideBar = ({ onFilterChange }) => {
         category: [selectedCategory._id], 
         subCategory: [selectedSubcat._id] 
       });
-      navigate(`/Shop?category=${selectedCategory._id}&subcat=${selectedSubcat._id}`);
     } else if (currentView === 'subcat') {
       // Go back to main level
       setCurrentView('main');
@@ -197,28 +245,31 @@ const FilterSideBar = ({ onFilterChange }) => {
 
   const renderMainCategories = () => (
     <div className="category-grid">
-      {categories.map((cat) => (
-        <div
-          key={cat._id}
-          className="category-item"
-          onClick={() => handleCategoryClick(cat)}
-        >
-          <div className="category-content">
-            <img 
-              src={cat.image || getDefaultImage()} 
-              alt={cat.name}
-              className="category-image"
-              onError={(e) => handleImageError(e, getDefaultImage())}
-            />
-                         <div className="category-info">
-               <span className="category-name">{cat.name}</span>
-               <span className="category-count">
-                 {cat.subcat?.reduce((total, sub) => total + (sub.subsubcat?.length || 0), 0) || 0} items
-               </span>
-             </div>
+      {categories.map((cat) => {
+        const productCount = getProductCount(cat._id, 'main');
+        return (
+          <div
+            key={cat._id}
+            className="category-item"
+            onClick={() => handleCategoryClick(cat)}
+          >
+            <div className="category-content">
+              <img 
+                src={cat.image || getDefaultImage()} 
+                alt={cat.name}
+                className="category-image"
+                onError={(e) => handleImageError(e, getDefaultImage())}
+              />
+              <div className="category-info">
+                <span className="category-name">{cat.name}</span>
+                <span className="category-count">
+                  {productCount} {productCount === 1 ? 'product' : 'products'}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 
@@ -244,7 +295,8 @@ const FilterSideBar = ({ onFilterChange }) => {
       </div>
       <div className="subcat-grid">
         {selectedCategory?.subcat?.map((sub) => {
-          const isSelected = selectedSubcat?._id === sub._id && !sub.subsubcat?.length;
+          const isSelected = selectedSubcat?._id === sub._id;
+          const productCount = getProductCount(sub._id, 'subcat');
           return (
             <div
               key={sub._id}
@@ -261,7 +313,7 @@ const FilterSideBar = ({ onFilterChange }) => {
                 <div className="subcat-info">
                   <span className="subcat-name">{sub.name}</span>
                   <span className="subcat-count">
-                    {sub.subsubcat?.length || 0} items
+                    {productCount} {productCount === 1 ? 'product' : 'products'}
                   </span>
                 </div>
               </div>
@@ -295,25 +347,29 @@ const FilterSideBar = ({ onFilterChange }) => {
       <div className="subsubcat-grid">
         {selectedSubcat?.subsubcat?.map((subsub) => {
           const isSelected = selectedSubsubcat?._id === subsub._id;
+          const productCount = getProductCount(subsub._id, 'subsubcat');
           return (
             <div
               key={subsub._id}
               className={`subsubcat-item${isSelected ? " selected" : ""}`}
               onClick={() => handleSubsubcatClick(subsub)}
             >
-            <div className="subsubcat-content">
-              <img 
-                src={subsub.image || getDefaultImage()} 
-                alt={subsub.name}
-                className="subsubcat-image"
-                onError={(e) => handleImageError(e, getDefaultImage())}
-              />
-              <div className="subsubcat-info">
-                <span className="subsubcat-name">{subsub.name}</span>
+              <div className="subsubcat-content">
+                <img 
+                  src={subsub.image || getDefaultImage()} 
+                  alt={subsub.name}
+                  className="subsubcat-image"
+                  onError={(e) => handleImageError(e, getDefaultImage())}
+                />
+                <div className="subsubcat-info">
+                  <span className="subsubcat-name">{subsub.name}</span>
+                  <span className="subsubcat-count">
+                    {productCount} {productCount === 1 ? 'product' : 'products'}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        );
+          );
         })}
       </div>
     </div>
@@ -325,19 +381,19 @@ const FilterSideBar = ({ onFilterChange }) => {
       {loading && (
         <div className="loading-container">
           <div className="shimmer-title shimmer-bg" style={{ width: '100%', height: 70, margin: '24px 0 18px 0', borderRadius: 6 }} />
-                     <div className="category-grid">
-             {Array.from({ length: 6 }).map((_, idx) => (
-               <div className="category-item shimmer" key={idx}>
-                 <div className="shimmer-content">
-                   <div className="shimmer-image shimmer-bg" style={{ width: 60, height: 60, borderRadius: 8 }} />
-                   <div className="shimmer-info">
-                     <div className="shimmer-text shimmer-bg" style={{ width: '70%', height: 18, borderRadius: 4 }} />
-                     <div className="shimmer-text shimmer-bg" style={{ width: '50%', height: 14, marginTop: 6, borderRadius: 4 }} />
-                   </div>
-                 </div>
-               </div>
-             ))}
-           </div>
+          <div className="category-grid">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div className="category-item shimmer" key={idx}>
+                <div className="shimmer-content">
+                  <div className="shimmer-image shimmer-bg" style={{ width: 60, height: 60, borderRadius: 8 }} />
+                  <div className="shimmer-info">
+                    <div className="shimmer-text shimmer-bg" style={{ width: '70%', height: 18, borderRadius: 4 }} />
+                    <div className="shimmer-text shimmer-bg" style={{ width: '50%', height: 14, marginTop: 6, borderRadius: 4 }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       {error && <div className="text-danger py-3">{error}</div>}
@@ -347,6 +403,13 @@ const FilterSideBar = ({ onFilterChange }) => {
       {!loading && !error && currentView === 'main' && renderMainCategories()}
       {!loading && !error && currentView === 'subcat' && renderSubcategories()}
       {!loading && !error && currentView === 'subsubcat' && renderSubsubcategories()}
+      {/* Debug info */}
+      {!loading && !error && (
+        <div style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
+          Debug: Current view = {currentView}, Selected subcat = {selectedSubcat?.name || 'none'}, 
+          Subsubcat count = {selectedSubcat?.subsubcat?.length || 0}
+        </div>
+      )}
       
       <style>{`
         .sidebar-categories-container {
@@ -425,7 +488,7 @@ const FilterSideBar = ({ onFilterChange }) => {
           color: #333;
         }
         
-        .category-count, .subcat-count {
+        .category-count, .subcat-count, .subsubcat-count {
           font-size: 0.85rem;
           color: #666;
         }
@@ -522,7 +585,7 @@ const FilterSideBar = ({ onFilterChange }) => {
            .category-name, .subcat-name, .subsubcat-name {
              font-size: 0.9rem;
            }
-           .category-count, .subcat-count {
+           .category-count, .subcat-count, .subsubcat-count {
              font-size: 0.8rem;
            }
                        .breadcrumb-nav {

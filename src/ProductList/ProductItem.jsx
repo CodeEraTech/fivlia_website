@@ -184,7 +184,7 @@ const ProductItem = ({ products = [] }) => {
                       e.target.src = '/assets/img/no_image.jpg';
                     }}
                   />
-                  <div className="card-product-action" style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
+                  {/* <div className="card-product-action" style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
                     <button
                       className="btn-action"
                       data-bs-toggle="tooltip"
@@ -202,7 +202,7 @@ const ProductItem = ({ products = [] }) => {
                     >
                       <i className="fa fa-eye" />
                     </button>
-                  </div>
+                  </div> */}
                 </div>
                 {/* Category and Delivery Time Row */}
                 <div className="category-delivery-row">

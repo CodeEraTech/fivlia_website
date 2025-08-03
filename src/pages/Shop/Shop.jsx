@@ -2,17 +2,6 @@ import React, { useEffect, useState } from "react";
 import assortment from "../../images/assortment-citrus-fruits.png";
 import { Link, useLocation } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-import product1 from "../../images/category-baby-care.jpg";
-import product2 from "../../images/category-atta-rice-dal.jpg";
-import product3 from "../../images/category-bakery-biscuits.jpg";
-import product4 from "../../images/category-chicken-meat-fish.jpg";
-import product5 from "../../images/category-cleaning-essentials.jpg";
-import product6 from "../../images/category-dairy-bread-eggs.jpg";
-import product7 from "../../images/category-instant-food.jpg";
-import product8 from "../../images/category-pet-care.jpg";
-import product9 from "../../images/category-snack-munchies.jpg";
-import product10 from "../../images/category-tea-coffee-drinks.jpg";
 import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
 import { get } from "../../apis/apiClient";
@@ -32,8 +21,9 @@ function Dropdown() {
   const [error, setError] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [selectedFilters, setSelectedFilters] = useState({ category: [], subCategory: [] });
+  const [selectedFilters, setSelectedFilters] = useState({ category: [], subCategory: [], subSubCategory: [] });
   const [currentPage, setCurrentPage] = useState(1);
+  const [categories, setCategories] = useState([]);
   const PRODUCTS_PER_PAGE = 20;
 
   useEffect(() => {
@@ -58,6 +48,7 @@ function Dropdown() {
             category: prod.category && prod.category[0] && prod.category[0].name,
             category_id: prod.category && prod.category[0] && prod.category[0]._id,
             subCategory: prod.subCategory || [],
+            subSubCategory: prod.subSubCategory || [],
             brand: prod.brand_Name && prod.brand_Name.name,
             rating: prod.rating && (prod.rating.rate || prod.rating) || 0,
             review_count: prod.rating && prod.rating.users || 0,
@@ -75,17 +66,43 @@ function Dropdown() {
       .finally(() => setLoading(false));
   }, [categoryId]);
 
+  // Load categories
+  useEffect(() => {
+    get(ENDPOINTS.CATEGORIES)
+      .then((res) => {
+        setCategories(res.data?.result || []);
+      })
+      .catch((err) => {
+        console.error("Failed to load categories:", err);
+      });
+  }, []);
+
   // Filtering logic
   const handleFilterChange = (filters) => {
     setSelectedFilters(filters);
     setCurrentPage(1); // Reset to first page on filter change
     let filtered = allProducts;
+    
     if (filters.category && filters.category.length > 0) {
       filtered = filtered.filter(prod => filters.category.includes(prod.category_id));
     }
+    
     if (filters.subCategory && filters.subCategory.length > 0) {
-      filtered = filtered.filter(prod => prod.subCategory && prod.subCategory.some(sub => filters.subCategory.includes(sub._id || sub.id)));
+      filtered = filtered.filter(prod => 
+        prod.subCategory && prod.subCategory.some(sub => 
+          filters.subCategory.includes(sub._id || sub.id)
+        )
+      );
     }
+    
+    if (filters.subSubCategory && filters.subSubCategory.length > 0) {
+      filtered = filtered.filter(prod => 
+        prod.subSubCategory && prod.subSubCategory.some(subSub => 
+          filters.subSubCategory.includes(subSub._id || subSub.id)
+        )
+      );
+    }
+    
     setFilteredProducts(filtered);
   };
 
@@ -98,8 +115,33 @@ function Dropdown() {
 
   // Get current category name for banner
   let categoryName = "All Products";
-  if (filteredProducts.length > 0 && filteredProducts[0].category) {
-    categoryName = filteredProducts[0].category;
+  
+  if (selectedFilters.category && selectedFilters.category.length > 0) {
+    // Find the category name from the categories data
+    const category = categories.find(cat => cat._id === selectedFilters.category[0]);
+    if (category) {
+      // Check for subsubcategory first (highest priority)
+      if (selectedFilters.subSubCategory && selectedFilters.subSubCategory.length > 0) {
+        const subcat = category.subcat?.find(sub => sub._id === selectedFilters.subCategory[0]);
+        if (subcat) {
+          const subsubcat = subcat.subsubcat?.find(subsub => subsub._id === selectedFilters.subSubCategory[0]);
+          if (subsubcat) {
+            categoryName = subsubcat.name;
+          }
+        }
+      } 
+      // Check for subcategory
+      else if (selectedFilters.subCategory && selectedFilters.subCategory.length > 0) {
+        const subcat = category.subcat?.find(sub => sub._id === selectedFilters.subCategory[0]);
+        if (subcat) {
+          categoryName = subcat.name;
+        }
+      } 
+      // Main category
+      else {
+        categoryName = category.name;
+      }
+    }
   }
 
   return (
@@ -108,7 +150,7 @@ function Dropdown() {
       <div className="container ">
         <div className="row">
           {/* Vertical Dropdowns Column */}
-            <FilterSideBar onFilterChange={handleFilterChange} />
+            <FilterSideBar onFilterChange={handleFilterChange} selectedFilters={selectedFilters} />
           {/* Cards Column */}
           <div className="col-lg-9 col-md-8" style={{ paddingTop: '2rem', paddingRight: 0 }}>
             {/* Top banner for category name */}
