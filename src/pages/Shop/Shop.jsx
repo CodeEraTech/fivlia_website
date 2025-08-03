@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
+import FilterDropdown from "../../Component/FilterDropdown";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints.jsx";
 import ProductItem from "../../ProductList/ProductItem";
@@ -22,6 +23,8 @@ function Dropdown() {
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState({ category: [], subCategory: [], subSubCategory: [] });
+  const [selectedProductFilter, setSelectedProductFilter] = useState(null);
+  const [availableFilters, setAvailableFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState([]);
   const PRODUCTS_PER_PAGE = 20;
@@ -57,14 +60,31 @@ function Dropdown() {
             description: prod.description || '',
             productImageUrl: prod.productImageUrl,
             variants: prod.variants || [],
+            filter: prod.filter || [],
           };
         });
         setAllProducts(mapped);
         setFilteredProducts(mapped);
+        
+        // Only set filters if res.data.filter exists and is not empty
+        if (res.data.filter && Array.isArray(res.data.filter) && res.data.filter.length > 0) {
+          setAvailableFilters(res.data.filter);
+        } else {
+          setAvailableFilters([]);
+        }
       })
       .catch((err) => setError(err.message || "Failed to fetch products"))
       .finally(() => setLoading(false));
   }, [categoryId]);
+
+  // Apply filters when selectedProductFilter changes
+  useEffect(() => {
+    if (allProducts.length > 0) {
+      applyFilters();
+    }
+  }, [selectedProductFilter, allProducts]);
+
+
 
   // Load categories
   useEffect(() => {
@@ -77,33 +97,61 @@ function Dropdown() {
       });
   }, []);
 
+  // Handle product filter change
+  const handleProductFilterChange = (filterId) => {
+    setSelectedProductFilter(filterId);
+    setCurrentPage(1); // Reset to first page on filter change
+    applyFilters();
+  };
+
+  // Apply all filters
+  const applyFilters = () => {
+    let filtered = allProducts;
+    
+    // Apply category filters
+    if (selectedFilters.category && selectedFilters.category.length > 0) {
+      filtered = filtered.filter(prod => selectedFilters.category.includes(prod.category_id));
+    }
+    
+    if (selectedFilters.subCategory && selectedFilters.subCategory.length > 0) {
+      filtered = filtered.filter(prod => 
+        prod.subCategory && prod.subCategory.some(sub => 
+          selectedFilters.subCategory.includes(sub._id || sub.id)
+        )
+      );
+    }
+    
+    if (selectedFilters.subSubCategory && selectedFilters.subSubCategory.length > 0) {
+      filtered = filtered.filter(prod => 
+        prod.subSubCategory && prod.subSubCategory.some(subSub => 
+          selectedFilters.subSubCategory.includes(subSub._id || subSub.id)
+        )
+      );
+    }
+    
+    // Apply product filter
+    if (selectedProductFilter) {
+      filtered = filtered.filter(prod => {
+        if (!prod.filter || !Array.isArray(prod.filter)) {
+          return false;
+        }
+        
+        return prod.filter.some(filterItem => 
+          filterItem.selected && filterItem.selected.some(selected => 
+            selected._id === selectedProductFilter
+          )
+        );
+      });
+    }
+    
+    setFilteredProducts(filtered);
+  };
+
   // Filtering logic
   const handleFilterChange = (filters) => {
     setSelectedFilters(filters);
     setCurrentPage(1); // Reset to first page on filter change
-    let filtered = allProducts;
-    
-    if (filters.category && filters.category.length > 0) {
-      filtered = filtered.filter(prod => filters.category.includes(prod.category_id));
-    }
-    
-    if (filters.subCategory && filters.subCategory.length > 0) {
-      filtered = filtered.filter(prod => 
-        prod.subCategory && prod.subCategory.some(sub => 
-          filters.subCategory.includes(sub._id || sub.id)
-        )
-      );
-    }
-    
-    if (filters.subSubCategory && filters.subSubCategory.length > 0) {
-      filtered = filtered.filter(prod => 
-        prod.subSubCategory && prod.subSubCategory.some(subSub => 
-          filters.subSubCategory.includes(subSub._id || subSub.id)
-        )
-      );
-    }
-    
-    setFilteredProducts(filtered);
+    applyFilters();
   };
 
   // Pagination logic
@@ -156,7 +204,16 @@ function Dropdown() {
             {/* Top banner for category name */}
             <div className="card mb-4 bg-light border-0">
               <div className="card-body p-4">
-                <h1 className="mb-0">{categoryName}</h1>
+                                 <div className="d-flex justify-content-between align-items-center flex-wrap">
+                   <h1 className="mb-0 mb-md-0">{categoryName}</h1>
+                   <div className="ms-auto mt-3 mt-md-0">
+                                           <FilterDropdown
+                        filters={availableFilters}
+                        selectedFilter={selectedProductFilter}
+                        onFilterChange={handleProductFilterChange}
+                      />
+                   </div>
+                 </div>
               </div>
             </div>
             {loading ? (
