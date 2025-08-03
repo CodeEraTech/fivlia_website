@@ -1,6 +1,6 @@
 // Place your API base URL here
-//export const API_BASE_URL = "https://api.fivlia.in";
-export const API_BASE_URL = "http://172.93.223.239:8080";
+export const API_BASE_URL = "https://api.fivlia.in";
+// export const API_BASE_URL = "http://172.93.223.239:8080";
 
 // Define all endpoints here
 export const ENDPOINTS = {
