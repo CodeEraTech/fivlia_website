@@ -403,13 +403,6 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
       {!loading && !error && currentView === 'main' && renderMainCategories()}
       {!loading && !error && currentView === 'subcat' && renderSubcategories()}
       {!loading && !error && currentView === 'subsubcat' && renderSubsubcategories()}
-      {/* Debug info */}
-      {!loading && !error && (
-        <div style={{ fontSize: '12px', color: '#666', marginTop: '10px' }}>
-          Debug: Current view = {currentView}, Selected subcat = {selectedSubcat?.name || 'none'}, 
-          Subsubcat count = {selectedSubcat?.subsubcat?.length || 0}
-        </div>
-      )}
       
       <style>{`
         .sidebar-categories-container {
