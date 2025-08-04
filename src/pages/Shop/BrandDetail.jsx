@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { get } from '../../apis/apiClient';
-import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 import ProductItem from '../../ProductList/ProductItem';
 import ProductShimmer from '../../ProductList/ProductShimmer';
 import { useSearchParams } from 'react-router-dom';
@@ -13,6 +13,7 @@ const BrandDetail = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     const fetchBrandData = async () => {

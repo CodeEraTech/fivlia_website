@@ -3,12 +3,13 @@ import ProductItem from "./ProductItem";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import ProductShimmer from './ProductShimmer';
-import { getImageUrl } from "../apis/endpoints";
+import { useDynamicImageUrl } from "../apis/endpoints";
 
 const PopularProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     const fetchPopularProducts = async () => {

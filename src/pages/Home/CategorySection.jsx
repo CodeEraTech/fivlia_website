@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Zoom } from "react-awesome-reveal";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 
 const CategorySection = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     let isMounted = true;

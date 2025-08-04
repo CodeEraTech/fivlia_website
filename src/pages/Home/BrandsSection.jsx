@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
 import { get } from '../../apis/apiClient';
-import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 
 
 
@@ -10,6 +10,7 @@ const BrandsSection = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   // Fetch brands from API
   useEffect(() => {

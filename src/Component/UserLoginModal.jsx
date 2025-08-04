@@ -28,7 +28,10 @@ const UserLoginModal = () => {
       const verifyRes = await post(ENDPOINTS.VERIFY_MOBILE, { mobileNumber: formattedMobile });
       if (verifyRes.data.status === 1) {
         // User exists, send login OTP
-        const loginRes = await post(ENDPOINTS.LOGIN, { mobileNumber: formattedMobile });
+      const loginRes = await post(ENDPOINTS.LOGIN, {
+  mobileNumber: formattedMobile,
+  website: true
+});
         if (loginRes.data.message?.toLowerCase().includes("otp sent")) {
           localStorage.setItem("mobile", formattedMobile);
           // Close modal

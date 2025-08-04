@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
 import { get } from "../../apis/apiClient";
-import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 import ProductItem from "../../ProductList/ProductItem";
 import ProductShimmer from '../../ProductList/ProductShimmer';
 
@@ -25,6 +25,7 @@ function Dropdown() {
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState([]);
   const PRODUCTS_PER_PAGE = 20;
+  const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     setLoading(true);

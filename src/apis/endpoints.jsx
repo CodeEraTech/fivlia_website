@@ -3,10 +3,23 @@ export const API_BASE_URL = "https://api.fivlia.in";
 // export const API_BASE_URL = "http://172.93.223.239:8080";
 
 // Image Base Path for S3 bucket
-export const IMAGE_BASE_URL = "https://fivliaproject.s3.eu-north-1.amazonaws.com";
-export const getImageUrl = (path) => {
-  if (!path) return "/assets/img/no_image.jpg"; // fallback
-  return path.startsWith("http") ? path : `${IMAGE_BASE_URL}${path}`;
+// src/utils/getImageUrl.jsx
+import { useSettings } from './SettingsContext.jsx'; // ✅ Will now work
+
+
+const fallbackUrl = "/assets/img/no_image.jpg";
+
+export const useDynamicImageUrl = () => {
+  const { settings } = useSettings();
+
+  const getImageUrl = (path) => {
+    if (!path) return fallbackUrl;
+
+    const base = settings?.imageLink || ""; // fallback to static
+    return path.startsWith("http") ? path : `${base}${path}`;
+  };
+
+  return getImageUrl;
 };
 
 
