@@ -3,6 +3,7 @@ import ProductItem from "./ProductItem";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import ProductShimmer from './ProductShimmer';
+import { getImageUrl } from "../apis/endpoints";
 
 const PopularProducts = () => {
   const [products, setProducts] = useState([]);
@@ -22,7 +23,7 @@ const PopularProducts = () => {
             id: product._id,
             name: product.productName,
             description: product.description,
-            image: product.productImageUrl?.[0] || '',
+            image: getImageUrl(product.productImageUrl?.[0]),
             price: product.sell_price,
             mrp: product.mrp,
             category: product.category?.[0]?.name || 'Category',

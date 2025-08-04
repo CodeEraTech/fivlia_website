@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
 import { get } from '../../apis/apiClient';
-import { ENDPOINTS } from '../../apis/endpoints';
+import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
+
+
 
 const BrandsSection = () => {
   const [brands, setBrands] = useState([]);
@@ -332,26 +334,30 @@ const BrandsSection = () => {
             <p>We're working on adding more brands. Check back soon!</p>
           </div>
         ) : (
-          <Slider {...settings2}>
-            {brands.map((brand) => (
-              <div className="m-1" key={brand._id}>
-                <div className="partner-list">
-                  <img
-                    src={brand.brandLogo}
-                    style={{ objectFit: "contain" }}
-                    className="img-fluid"
-                    alt={brand.brandName}
-                    onError={(e) => {
-                      e.target.src = '/assets/img/no_image.jpg';
-                    }}
-                  />
-                  <h6 className="card-title">
-                    <div>{brand.brandName}</div>
-                  </h6>
-                </div>
-              </div>
-            ))}
-          </Slider>
+        <Slider {...settings2}>
+      {brands.map((brand) => (
+        <div className="m-1" key={brand._id}>
+          <Link
+            to={`/brand?id=${brand._id}`}
+            className="text-inherit"
+            aria-label={`Go to ${brand.brandName} brand`}
+          >
+            <div className="partner-list text-center">
+              <img
+                src={getImageUrl(brand.brandLogo)}
+                alt={brand.brandName}
+                className="img-fluid"
+                style={{ objectFit: "contain", maxHeight: "80px" }}
+                onError={(e) => {
+                  e.target.src = "/assets/img/no_image.jpg";
+                }}
+              />
+              <h6 className="card-title mt-2">{brand.brandName}</h6>
+            </div>
+          </Link>
+        </div>
+      ))}
+    </Slider>
         )}
       </div>
     </div>

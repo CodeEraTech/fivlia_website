@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS } from "../../apis/endpoints.jsx";
+import { ENDPOINTS, getImageUrl } from '../../apis/endpoints';
 
 // Responsive breakpoints/settings for the banner carousel
 const bannerCarouselSettings = {
@@ -152,7 +152,8 @@ const TopBannerSection = () => {
                 >
                   <div
                     style={{
-                      background: `url(${banner.image}) no-repeat`,
+                      background: `url(${getImageUrl(banner.image)}) no-repeat`,
+
                       backgroundSize: "cover",
                       borderRadius: ".5rem",
                       backgroundPosition: "center",
