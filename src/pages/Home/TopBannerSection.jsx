@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS } from "../../apis/endpoints.jsx";
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 
 // Responsive breakpoints/settings for the banner carousel
 const bannerCarouselSettings = {
@@ -74,6 +74,7 @@ const TopBannerSection = () => {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const bannerHeight = useResponsiveBannerHeight();
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     let isMounted = true;
@@ -152,7 +153,8 @@ const TopBannerSection = () => {
                 >
                   <div
                     style={{
-                      background: `url(${banner.image}) no-repeat`,
+                      background: `url(${getImageUrl(banner.image)}) no-repeat`,
+
                       backgroundSize: "cover",
                       borderRadius: ".5rem",
                       backgroundPosition: "center",

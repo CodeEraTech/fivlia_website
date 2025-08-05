@@ -39,6 +39,7 @@ import Careers from "./pages/FooterElements/Careers";
 import HelpCenter from "./pages/FooterElements/HelpCenter";
 import OtpVerification from "./pages/Accounts/OtpVerification";
 import ProductDetails from './ProductList/ProductDetails';
+import BrandDetail from "./pages/Shop/BrandDetail";
 
 const App = () => {
   return (
@@ -57,6 +58,7 @@ const App = () => {
           <Route path="/ShopListCol" element={<ShopListCol />} />
           <Route path="/ShopWishList" element={<ShopWishList />} />
           <Route path="/ShopCart" element={<ShopCart />} />
+          <Route path="/brand" element={<BrandDetail />} />
           {/* Store pages */}
           <Route path="/StoreList" element={<StoreList />} />
           <Route path="/SingleShop" element={<SingleShop />} />

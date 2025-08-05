@@ -3,11 +3,13 @@ import ProductItem from "./ProductItem";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import ProductShimmer from './ProductShimmer';
+import { useDynamicImageUrl } from "../apis/endpoints";
 
 const PopularProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     const fetchPopularProducts = async () => {
@@ -22,7 +24,7 @@ const PopularProducts = () => {
             id: product._id,
             name: product.productName,
             description: product.description,
-            image: product.productImageUrl?.[0] || '',
+            image: getImageUrl(product.productImageUrl?.[0]),
             price: product.sell_price,
             mrp: product.mrp,
             category: product.category?.[0]?.name || 'Category',

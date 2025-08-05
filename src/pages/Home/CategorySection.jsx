@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Zoom } from "react-awesome-reveal";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS } from "../../apis/endpoints.jsx";
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 
 const CategorySection = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+   const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     let isMounted = true;
@@ -95,7 +96,8 @@ const CategorySection = () => {
                     <div className="text-center mb-10">
                       <Link to={`/Shop?category=${cat.id || cat._id || idx}`} aria-label={`Go to ${cat.name} category`}>
                         <img
-                          src={cat.image}
+                        src={getImageUrl(cat.image)}
+
                           alt={cat.name}
                           className="card-image rounded-circle"
                           style={{ objectFit: "cover", width: 100, height: 100 }}

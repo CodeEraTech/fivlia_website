@@ -6,7 +6,7 @@ import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
 import FilterDropdown from "../../Component/FilterDropdown";
 import { get } from "../../apis/apiClient";
-import { ENDPOINTS } from "../../apis/endpoints.jsx";
+import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
 import ProductItem from "../../ProductList/ProductItem";
 import ProductShimmer from '../../ProductList/ProductShimmer';
 
@@ -28,6 +28,7 @@ function Dropdown() {
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState([]);
   const PRODUCTS_PER_PAGE = 20;
+  const getImageUrl = useDynamicImageUrl();
 
   useEffect(() => {
     setLoading(true);
@@ -46,7 +47,8 @@ function Dropdown() {
           return {
             id: prod._id,
             name: prod.productName || prod.name,
-            image: prod.productImageUrl && prod.productImageUrl[0],
+            image: getImageUrl(prod.productImageUrl && prod.productImageUrl[0]),
+
             price: variant.sell_price || prod.sell_price || prod.price,
             mrp: variant.mrp || prod.mrp,
             discount_percentage: variant.discountValue || prod.discount_percentage || 0,
