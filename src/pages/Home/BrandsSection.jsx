@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
 import { get } from '../../apis/apiClient';
-import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS } from '../../apis/endpoints';
+import { useImageUrl } from '../../utils/getSettingsValue';
 
 
 
 const BrandsSection = () => {
   const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-   const getImageUrl = useDynamicImageUrl();
-
+  const getImageUrl = useImageUrl();
+  
   // Fetch brands from API
   useEffect(() => {
     const fetchBrands = async () => {

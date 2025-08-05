@@ -6,7 +6,8 @@ import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
 import FilterDropdown from "../../Component/FilterDropdown";
 import { get } from "../../apis/apiClient";
-import { ENDPOINTS, useDynamicImageUrl } from '../../apis/endpoints';
+import { ENDPOINTS } from '../../apis/endpoints';
+import { useImageUrl } from '../../utils/getSettingsValue';
 import ProductItem from "../../ProductList/ProductItem";
 import ProductShimmer from '../../ProductList/ProductShimmer';
 
@@ -26,10 +27,10 @@ function Dropdown() {
   const [selectedProductFilter, setSelectedProductFilter] = useState(null);
   const [availableFilters, setAvailableFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
   const PRODUCTS_PER_PAGE = 20;
-  const getImageUrl = useDynamicImageUrl();
-
+  const getImageUrl = useImageUrl();
+  
   useEffect(() => {
     setLoading(true);
     setError(null);

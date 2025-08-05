@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { post } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
-import { useAuth } from './AuthContext';
-import { useCart } from './CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import Swal from 'sweetalert2';
 
 const AddToCartButton = ({ 

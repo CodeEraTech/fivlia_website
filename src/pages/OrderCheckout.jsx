@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from '../Component/CartContext';
-import { useAuth } from '../Component/AuthContext';
+import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import { get } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
 import { MagnifyingGlass } from 'react-loader-spinner'

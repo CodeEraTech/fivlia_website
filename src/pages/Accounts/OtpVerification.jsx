@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { post } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints";
-import { useAuth } from "../../Component/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 const OtpVerification = () => {
   const [otp, setOtp] = useState("");
