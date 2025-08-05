@@ -4,6 +4,7 @@ import { ENDPOINTS } from "../apis/endpoints.jsx";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import ProductItem from "./ProductItem";
 import ProductShimmer from './ProductShimmer';
+import { useImageUrl } from "../utils/getSettingsValue";
 
 const RelatedProducts = ({ productId }) => {
   const [related, setRelated] = useState([]);
@@ -12,6 +13,7 @@ const RelatedProducts = ({ productId }) => {
   const [modalProduct, setModalProduct] = useState(null);
   const [pendingProduct, setPendingProduct] = useState(null);
   const [modalKey, setModalKey] = useState(0);
+  const getImageUrl = useImageUrl();
 
   useEffect(() => {
     setLoading(true);
@@ -26,9 +28,11 @@ const RelatedProducts = ({ productId }) => {
 
   // Map product to robust structure for modal
   const mapProductForModal = (prod) => ({
+    
     id: prod._id,
     name: prod.productName || prod.name,
-    image: prod.productImageUrl && prod.productImageUrl[0],
+   image:getImageUrl(prod.productImageUrl?.[0]),
+ sku: prod.sku,
     price: prod.sell_price || prod.price,
     mrp: prod.mrp,
     brand: prod.brand_Name && prod.brand_Name.name,
@@ -40,7 +44,7 @@ const RelatedProducts = ({ productId }) => {
     is_hot: prod.is_hot || false,
     is_new: prod.is_new || false,
     description: prod.description || '',
-    productImageUrl: prod.productImageUrl,
+    productImageUrl: getImageUrl(prod.productImageUrl?.[0]),
     variants: prod.variants || [],
   });
 
@@ -77,7 +81,8 @@ const RelatedProducts = ({ productId }) => {
     id: product._id,
     name: product.productName,
     description: product.description,
-    image: (product.productImageUrl && product.productImageUrl[0]) || '',
+    image: getImageUrl(product.productImageUrl?.[0]),
+
     price: (product.variants && product.variants[0] && product.variants[0].sell_price) || product.sell_price || product.price,
     mrp: (product.variants && product.variants[0] && product.variants[0].mrp) || product.mrp,
     category: (product.category && product.category[0] && product.category[0].name) || 'Category',

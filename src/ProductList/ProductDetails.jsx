@@ -73,7 +73,7 @@ const ProductDetails = () => {
           <div className="pqv-product-meta">
             <span className="pqv-category">{product.category?.[0]?.name || (product.category && product.category.name) || ''}</span>
             {(product.brand_Name?.name || product.brand) && (
-              <span className="pqv-brand">Brand: {product.brand_Name?.name || product.brand}</span>
+              <><span className="pqv-brand">Brand: {product.brand_Name?.name || product.brand}</span><span className="pqv-brand">SKU: { product.sku}</span></>
             )}
           </div>
           {/* Variant Selector */}

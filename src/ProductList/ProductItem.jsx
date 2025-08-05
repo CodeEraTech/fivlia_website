@@ -213,9 +213,11 @@ const ProductItem = ({ products = [] }) => {
                   </div>
                 </div>
                 {product.brand && (
-                  <div className="text-small mb-1">
+                  <><div className="text-small mb-1">
                     <span className="text-muted">Brand: {product.brand}</span>
-                  </div>
+                  </div><div className="text-small mb-1">
+                      <span className="text-muted">SKU: {product.sku}</span>
+                    </div></>
                 )}
                 <h2 className="fs-6">
                   <span
