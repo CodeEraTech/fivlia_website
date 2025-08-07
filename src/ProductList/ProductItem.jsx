@@ -209,7 +209,15 @@ const ProductItem = ({ products = [] }) => {
                   <span className="text-muted small">{product.category}</span>
                   <div className="delivery-time-display">
                     <i className="fa fa-clock-o" style={{ marginRight: '4px', color: '#0AAD0A' }}></i>
-                    <span className="delivery-time-text">{getDeliveryTime(product)} min</span>
+                    <span className="delivery-time-text">
+                    <svg width="14" height="14" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="32" cy="32" r="28" stroke="#0AAD0A" stroke-width="4" fill="none"/>
+                      <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" stroke-width="4" stroke-linecap="round"/>
+                      <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" stroke-width="4" stroke-linecap="round"/>
+                      <rect x="28" y="4" width="8" height="8" fill="#0AAD0A" rx="2"/>
+                    </svg>&nbsp;&nbsp;
+                      {getDeliveryTime(product)} min
+                    </span>
                   </div>
                 </div>
                 {product.brand && (
@@ -304,6 +312,8 @@ const ProductItem = ({ products = [] }) => {
             align-items: center;
           }
           .delivery-time-text {
+            display: flex;
+            align-items: center;
             font-size: 0.75rem;
             color: #0AAD0A;
             font-weight: 600;
