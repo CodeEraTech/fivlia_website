@@ -25,9 +25,12 @@ const Header = () => {
   const [catLoading, setCatLoading] = useState(true);
   const [catError, setCatError] = useState(null);
   const searchWrapperRef = useRef();
-   const { isLoggedIn, logout } = useAuth();
-   const { cartCount, isInitialized } = useCart();
-const getImageUrl = useImageUrl();
+  const { isLoggedIn, logout } = useAuth();
+  const { cartCount, isInitialized } = useCart();
+  const [topBrands, setTopBrands] = useState([]);
+  const [brandLoading, setBrandLoading] = useState(true);
+  const [brandError, setBrandError] = useState(null);
+  const getImageUrl = useImageUrl();
   
   const handleClick = () => {
     setIsOpen(!isOpen);
@@ -103,6 +106,21 @@ const getImageUrl = useImageUrl();
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    setBrandLoading(true);
+    get(ENDPOINTS.BRANDS)
+      .then((res) => {
+        setTopBrands(res.data?.featuredBrands || []);
+        setBrandError(null);
+      })
+      .catch((err) => {
+        setBrandError("Failed to load top brands");
+      })
+      .finally(() => {
+        setBrandLoading(false);
+      });
   }, []);
 
   return (
@@ -358,7 +376,7 @@ const getImageUrl = useImageUrl();
                     onClick={() => handleSuggestionClick(product)}
                   >
                     <img src={getImageUrl(product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || product.image)}
-alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
+                      alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: '1rem', color: '#30574e' }}>{product.productName || product.name}</div>
                       <div style={{ fontSize: '0.95em', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.category?.[0]?.name || (product.category && product.category.name) || ''}</div>
@@ -598,10 +616,58 @@ alt={product.productName || product.name} style={{ width: 48, height: 48, object
                   ))}
                 </div>
               </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/Shop">
-                  Shop
+              <li className="nav-item dmenu dropdown">
+                <Link
+                  className="nav-link dropdown-toggle"
+                  to=""
+                  id="navbarDropdown"
+                  role="button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span className="me-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="feather feather-grid"
+                    >
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                  </span>{" "}
+                  Top Brands
                 </Link>
+                <div
+                  className="dropdown-menu sm-menu"
+                  aria-labelledby="navbarDropdown"
+                  style={{ minWidth: 220 }}
+                >
+                  {brandLoading && <div className="dropdown-item text-muted">Loading...</div>}
+                  {brandError && <div className="dropdown-item text-danger">{brandError}</div>}
+                  {!brandLoading && !brandError && topBrands.length === 0 && (
+                    <div className="dropdown-item text-muted">No categories found</div>
+                  )}
+                  {!brandLoading && !brandError && topBrands.map((brand, idx) => (
+                    <Link
+                      to={`/brand?id=${brand.id || brand._id || idx}`}
+                      key={brand.id || brand._id || idx}
+                      aria-label={`Go to ${brand.brandName} brand`}
+                      className="dropdown-item"
+                    >
+                      {brand.brandName}
+                    </Link>
+                  ))}
+                </div>
               </li>
             </ul>
           </div>

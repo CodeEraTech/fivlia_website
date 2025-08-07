@@ -228,7 +228,7 @@ function Dropdown() {
               <div className="card-body p-4">
                 <div className="d-flex justify-content-between align-items-center flex-wrap">
                   <h1 className="mb-0 mb-md-0">{categoryName}</h1>
-                  <div className="ms-auto mt-3 mt-md-0 d-flex align-items-center gap-3">
+                  <div className="ms-auto mt-3 mt-md-0 d-flex align-items-center gap-3 flex-wrap">
                     <PriceFilter 
                       onPriceChange={setPriceRange} 
                       maxPrice={10000} 
