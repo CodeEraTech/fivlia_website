@@ -13,12 +13,9 @@ export const SettingsProvider = ({ children }) => {
     const fetchSettings = async () => {
       try {
         const res = await get(ENDPOINTS.GET_SETTINGS);
-//        const imagePath = res.data?.settings?.imageLink;
-// console.log("Image base path:", imagePath); 
-           console.log("Fetched settings:", res?.data?.settings);
         setSettings(res?.data?.settings || {});
       } catch (error) {
-        console.error("Error fetching settings:", error);
+        // console.error("Error fetching settings:", error);
       } finally {
         setLoading(false);
       }

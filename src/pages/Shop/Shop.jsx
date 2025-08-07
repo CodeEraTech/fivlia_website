@@ -19,7 +19,6 @@ function useQuery() {
 function Dropdown() {
   const query = useQuery();
   const categoryId = query.get("category");
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
@@ -38,7 +37,8 @@ function Dropdown() {
     setError(null);
     setSelectedProductFilter(null);
     setAvailableFilters([]);
-    setPriceRange([0, 10000]); // Reset price range when category changes
+    setPriceRange([0, 10000]);
+    handleFilterChange({ category: [], subCategory: [], subSubCategory: [] });
     let url = ENDPOINTS.PRODUCTS;
     if (categoryId) {
       url += `&id=${categoryId}`;
@@ -52,7 +52,6 @@ function Dropdown() {
             id: prod._id,
             name: prod.productName || prod.name,
             image: getImageUrl(prod.productImageUrl && prod.productImageUrl[0]),
-
             price: variant.sell_price || prod.sell_price || prod.price,
             mrp: variant.mrp || prod.mrp,
             discount_percentage: variant.discountValue || prod.discount_percentage || 0,

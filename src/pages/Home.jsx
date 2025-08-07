@@ -261,9 +261,7 @@ const Home = () => {
                                 Welcome to Fivlia
                               </h1>
                               <span>
-                                Download the app get free food &amp;{" "}
-                                <span className="text-primary">30%</span> off on
-                                your first order.
+                              Download the app and explore everything you need in one place.
                               </span>
                             </div>
                           </div>
@@ -279,111 +277,6 @@ const Home = () => {
                   </div>
                 </div>
               </section>
-            </>
-            <>
-              {/* section */}
-              <section className="mt-8">
-                <div className="container">
-                  {/* row */}
-                  <div className="row">
-                    <div className="col-lg-4 col-md-6 col-12 fade-in-left">
-                      <Slide direction="left">
-                        <div className=" banner mb-3">
-                          {/* Banner Content */}
-                          <div className="position-relative">
-                            {/* Banner Image */}
-                            <img
-                              src={adbanner1}
-                              alt="ad-banner"
-                              className="img-fluid rounded-3 w-100"
-                            />
-                            <div className="banner-text">
-                              <h3 className="mb-0 fw-bold">
-                                10% cashback on <br />
-                                personal care{" "}
-                              </h3>
-                              <div className="mt-4 mb-5 fs-5">
-                                <p className="mb-0">Max cashback: $12</p>
-                                <span>
-                                  Code:{" "}
-                                  <span className="fw-bold text-dark">
-                                    CARE12
-                                  </span>
-                                </span>
-                              </div>
-                              <Link to="#" className="btn btn-dark">
-                                Shop Now
-                              </Link>
-                            </div>
-                            {/* Banner Content */}
-                          </div>
-                        </div>
-                      </Slide>
-                    </div>
-
-                    <div className="col-lg-4 col-md-6  col-12 slide-in-top">
-                      <Zoom>
-                        <div className="banner mb-3 ">
-                          {/* Banner Content */}
-                          <div className="position-relative">
-                            {/* Banner Image */}
-                            <img
-                              src={adbanner2}
-                              alt="ad-banner-2"
-                              className="img-fluid rounded-3 w-100"
-                            />
-                            <div className="banner-text">
-                              {/* Banner Content */}
-                              <h3 className=" fw-bold mb-2">
-                                Say yes to <br />
-                                season’s fresh{" "}
-                              </h3>
-                              <p className="fs-5">
-                                Refresh your day <br />
-                                the fruity way
-                              </p>
-                              <Link to="#" className="btn btn-dark mt-2">
-                                Shop Now
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </Zoom>
-                    </div>
-                    <div className="col-lg-4 col-12 fade-in-left ">
-                      <Slide direction="right">
-                        <div className="banner mb-3">
-                          <div className="banner-img">
-                            {/* Banner Image */}
-                            <img
-                              src={adbanner3}
-                              alt="ad-banner-3"
-                              className="img-fluid rounded-3 w-100"
-                            />
-                            {/* Banner Content */}
-                            <div className="banner-text">
-                              <h3 className="fs-2 fw-bold lh-1 mb-2">
-                                When in doubt,
-                                <br />
-                                eat ice cream{" "}
-                              </h3>
-                              <p className="fs-5">
-                                Enjoy a scoop of
-                                <br />
-                                summer today
-                              </p>
-                              <Link to="#" className="btn btn-dark">
-                                Shop Now
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </Slide>
-                    </div>
-                  </div>
-                </div>
-              </section>
-              {/* section */}
             </>
             <>
               {/* section category */}
@@ -453,7 +346,13 @@ const Home = () => {
               </section>
             </>
             <>
+              <BrandsSection />
+            </>
+            <>
               <PopularProducts />
+            </>
+            <>
+              <FeaturedProducts />
             </>
             <>
               {/* cta section */}
@@ -529,112 +428,7 @@ const Home = () => {
               </section>
             </>
             <>
-              {/* <FeaturedProducts /> */}
-            </>
-            <>
-              {/* <section className="my-lg-14 my-8">
-                <div className="container" style={{ marginTop: 50 }}>
-                  <div
-                    className="row justify-content-center  g-4"
-                    style={{ textAlign: "center" }}
-                  >
-                    <div className="col-md-3 col-sm-6 fade-zoom ">
-                      <Zoom>
-                        <div className="shadow-effect">
-                          <div className="wt-icon-box-wraper center p-a25 p-b50 m-b30 bdr-1 bdr-gray bdr-solid corner-radius step-icon-box bg-white v-icon-effect">
-                            <div className="icon-lg m-b20">
-                              <div className="mb-6">
-                                <img src={refresh} alt="refresh" />
-                              </div>
-                            </div>
-                            <div className="icon-content">
-                              <h3 className="h5 mb-3">Easy Returns</h3>
-                              <p>
-                                Not satisfied with a product? Return it at the
-                                doorstep & get a refund within hours. No
-                                questions asked
-                                <span><Link to="#!">policy</Link>.</span>
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </Zoom>
-                    </div>
-                    <div className="col-md-3 col-sm-12 fade-zoom">
-                      <Zoom>
-                        <div className="shadow-effect">
-                          <div className="wt-icon-box-wraper center p-a25 p-b50 m-b30 bdr-1 bdr-gray bdr-solid corner-radius step-icon-box bg-white v-icon-effect">
-                            <div className="icon-lg m-b20">
-                              <div className="mb-6">
-                                <img src={package1} alt="package" />
-                              </div>
-                            </div>
-                            <div className="icon-content">
-                              <h3 className="h5 mb-3">Wide Assortment</h3>
-                              <p>
-                                Choose from 5000+ products across food, personal
-                                care, household, bakery, veg and non-veg &amp;
-                                other categories.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </Zoom>
-                    </div>
-                    <div className="col-md-3 col-sm-12 fade-zoom">
-                      <Zoom>
-                        <div className="shadow-effect">
-                          <div className="wt-icon-box-wraper center p-a25 p-b50 m-b30 bdr-1 bdr-gray bdr-solid corner-radius step-icon-box bg-white v-icon-effect">
-                            <div className="icon-lg m-b20">
-                              <div className="mb-6">
-                                <img src={gift} alt="gift" />
-                              </div>
-                            </div>
-                            <div className="icon-content">
-                              <h3 className="h5 mb-3">
-                                Best Prices &amp; Offers
-                              </h3>
-                              <p>
-                                Cheaper prices than your local supermarket,
-                                great cashback offers to top it off. Get best
-                                pricess &amp; offers.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </Zoom>
-                    </div>
-                    <div className="col-md-3 col-sm-12 fade-zoom">
-                      <Zoom>
-                        <div className="shadow-effect">
-                          <div className="wt-icon-box-wraper center p-a25 p-b50 m-b30 bdr-1 bdr-gray bdr-solid corner-radius step-icon-box bg-white v-icon-effect">
-                            <div className="icon-lg m-b20">
-                              <div className="mb-6">
-                                <img src={clock} alt="clock" />
-                              </div>
-                            </div>
-                            <div className="icon-content">
-                              <h4 className="wt-tilte">Reports</h4>
-                              <h3 className="h5 mb-3">10 minute grocery now</h3>
-                              <p>
-                                Get your order delivered to your doorstep at the
-                                earliest from FreshCart pickup
-                                <span> stores near you.</span>
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </Zoom>
-                    </div>
-                  </div>
-                </div>
-              </section> */}
-            </>
-            <>
             {/* <FAQ/> */}
-            </>
-            <>
-              <BrandsSection />
             </>
           </>
         )}

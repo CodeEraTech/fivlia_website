@@ -7,7 +7,7 @@ import { useImageUrl } from "../utils/getSettingsValue";
 
 const PopularProducts = () => {
   const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const getImageUrl = useImageUrl();
   
@@ -25,8 +25,8 @@ const PopularProducts = () => {
             name: product.productName,
             description: product.description,
             image: getImageUrl(product.productImageUrl?.[0]),
-            price: product.sell_price,
-            mrp: product.mrp,
+            price: product.sell_price || product.variants[0].sell_price,
+            mrp: product.mrp || product.variants[0].mrp,
             category: product.category?.[0]?.name || 'Category',
             category_id: product.category?.[0]?._id || '',
             brand: product.brand_Name?.name || 'Brand',
@@ -49,7 +49,7 @@ const PopularProducts = () => {
           setError('Failed to fetch popular products');
         }
       } catch (err) {
-        console.error('Error fetching popular products:', err);
+        //console.error('Error fetching popular products:', err);
         setError(err.message || 'Failed to fetch popular products');
       } finally {
         setLoading(false);
