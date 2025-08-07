@@ -573,7 +573,7 @@ const Header = () => {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <span className="me-1">
+                  {/* <span className="me-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
@@ -591,7 +591,7 @@ const Header = () => {
                       <rect x="14" y="14" width="7" height="7"></rect>
                       <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                  </span>{" "}
+                  </span>{" "} */}
                   Categories
                 </Link>
                 <div
@@ -626,7 +626,7 @@ const Header = () => {
                   aria-haspopup="true"
                   aria-expanded="false"
                 >
-                  <span className="me-1">
+                  {/* <span className="me-1">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
@@ -644,7 +644,7 @@ const Header = () => {
                       <rect x="14" y="14" width="7" height="7"></rect>
                       <rect x="3" y="14" width="7" height="7"></rect>
                     </svg>
-                  </span>{" "}
+                  </span>{" "} */}
                   Top Brands
                 </Link>
                 <div
