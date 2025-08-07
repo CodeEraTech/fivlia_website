@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints.jsx";
+import { useImageUrl } from "../../utils/getSettingsValue.jsx";
 
 const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
   const [categories, setCategories] = useState([]);
@@ -15,6 +16,7 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
   const [productCounts, setProductCounts] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
+  const getImageUrl = useImageUrl();
 
   // Get selected category from URL (only main category)
   const params = new URLSearchParams(location.search);
@@ -138,16 +140,7 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
       }
     }
   }, [categories, urlCategory, selectedFilters]);
-
-  // Get default image for categories/subcategories that don't have images
-  const getDefaultImage = () => {
-    return '/assets/img/no_image.jpg';
-  };
-
-  // Handle image error
-  const handleImageError = (e, fallbackImage) => {
-    e.target.src = fallbackImage;
-  };
+ 
 
   // Get product count for a specific category level
   const getProductCount = (id, level) => {
@@ -255,10 +248,10 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
           >
             <div className="category-content">
               <img 
-                src={cat.image || getDefaultImage()} 
+                src={getImageUrl(cat.image)} 
                 alt={cat.name}
                 className="category-image"
-                onError={(e) => handleImageError(e, getDefaultImage())}
+                onError={(e) => handleImageError(e)}
               />
               <div className="category-info">
                 <span className="category-name">{cat.name}</span>
@@ -305,10 +298,10 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
             >
               <div className="subcat-content">
                 <img 
-                  src={sub.image || getDefaultImage()} 
+                  src={getImageUrl(sub.image)} 
                   alt={sub.name}
                   className="subcat-image"
-                  onError={(e) => handleImageError(e, getDefaultImage())}
+                  onError={(e) => handleImageError(e)}
                 />
                 <div className="subcat-info">
                   <span className="subcat-name">{sub.name}</span>
@@ -356,10 +349,10 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
             >
               <div className="subsubcat-content">
                 <img 
-                  src={subsub.image || getDefaultImage()} 
+                  src={getImageUrl(subsub.image)} 
                   alt={subsub.name}
                   className="subsubcat-image"
-                  onError={(e) => handleImageError(e, getDefaultImage())}
+                  onError={(e) => handleImageError(e)}
                 />
                 <div className="subsubcat-info">
                   <span className="subsubcat-name">{subsub.name}</span>

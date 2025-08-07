@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
-import FilterDropdown from "../../Component/FilterDropdown";
+import FilterDropdown from "./FilterDropdown";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from '../../apis/endpoints';
 import { useImageUrl } from '../../utils/getSettingsValue';
@@ -212,7 +212,7 @@ function Dropdown() {
                                  <div className="d-flex justify-content-between align-items-center flex-wrap">
                    <h1 className="mb-0 mb-md-0">{categoryName}</h1>
                    <div className="ms-auto mt-3 mt-md-0">
-                                           <FilterDropdown
+                      <FilterDropdown
                         filters={availableFilters}
                         selectedFilter={selectedProductFilter}
                         onFilterChange={handleProductFilterChange}
