@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import ScrollToTop from "../ScrollToTop";
 import FilterSideBar from "./FilterSideBar";
 import FilterDropdown from "./FilterDropdown";
+import PriceFilter from "./PriceFilter";
 import { get } from "../../apis/apiClient";
 import { ENDPOINTS } from '../../apis/endpoints';
 import { useImageUrl } from '../../utils/getSettingsValue';
@@ -27,7 +28,8 @@ function Dropdown() {
   const [selectedProductFilter, setSelectedProductFilter] = useState(null);
   const [availableFilters, setAvailableFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-    const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
   const PRODUCTS_PER_PAGE = 20;
   const getImageUrl = useImageUrl();
   
@@ -36,6 +38,7 @@ function Dropdown() {
     setError(null);
     setSelectedProductFilter(null);
     setAvailableFilters([]);
+    setPriceRange([0, 10000]); // Reset price range when category changes
     let url = ENDPOINTS.PRODUCTS;
     if (categoryId) {
       url += `&id=${categoryId}`;
@@ -82,14 +85,17 @@ function Dropdown() {
       .finally(() => setLoading(false));
   }, [categoryId]);
 
-  // Apply filters when selectedProductFilter changes
+  // Apply filters when selectedProductFilter or priceRange changes
   useEffect(() => {
     if (allProducts.length > 0) {
       applyFilters();
     }
-  }, [selectedProductFilter, allProducts]);
+  }, [selectedProductFilter, priceRange, allProducts]);
 
-
+  // Reset price range when category changes
+  useEffect(() => {
+    setPriceRange([0, 10000]);
+  }, [selectedFilters.category]);
 
   // Load categories
   useEffect(() => {
@@ -132,6 +138,17 @@ function Dropdown() {
           selectedFilters.subSubCategory.includes(subSub._id || subSub.id)
         )
       );
+    }
+    
+    // Apply price filter
+    if (priceRange && priceRange.length === 2) {
+      const [minPrice, maxPrice] = priceRange;
+      if (minPrice > 0 || maxPrice < 10000) {
+        filtered = filtered.filter(prod => {
+          const productPrice = prod.price || 0;
+          return productPrice >= minPrice && productPrice <= maxPrice;
+        });
+      }
     }
     
     // Apply product filter
@@ -209,18 +226,24 @@ function Dropdown() {
             {/* Top banner for category name */}
             <div className="card mb-4 bg-light border-0">
               <div className="card-body p-4">
-                                 <div className="d-flex justify-content-between align-items-center flex-wrap">
-                   <h1 className="mb-0 mb-md-0">{categoryName}</h1>
-                   <div className="ms-auto mt-3 mt-md-0">
-                      <FilterDropdown
-                        filters={availableFilters}
-                        selectedFilter={selectedProductFilter}
-                        onFilterChange={handleProductFilterChange}
-                      />
-                   </div>
-                 </div>
+                <div className="d-flex justify-content-between align-items-center flex-wrap">
+                  <h1 className="mb-0 mb-md-0">{categoryName}</h1>
+                  <div className="ms-auto mt-3 mt-md-0 d-flex align-items-center gap-3">
+                    <PriceFilter 
+                      onPriceChange={setPriceRange} 
+                      maxPrice={10000} 
+                      currentPriceRange={priceRange}
+                    />
+                    <FilterDropdown
+                      filters={availableFilters}
+                      selectedFilter={selectedProductFilter}
+                      onFilterChange={handleProductFilterChange}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
+            
             {loading ? (
               <ProductShimmer count={12} />
             ) : error ? (
