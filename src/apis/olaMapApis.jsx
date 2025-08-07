@@ -1,5 +1,7 @@
 const OLA_MAPS_API_KEY = 'YHGoHrZHMgUpEeCA1CNKTg4iUePHYU2T8Upv6xdM';
 const BASE_URL = 'https://api.olamaps.io';
+import { get } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
 
 const callOlaApi = async (endpoint, params = {}) => {
   const url = new URL(`${BASE_URL}${endpoint}`);
@@ -95,12 +97,27 @@ export const getAddressFromCoords = async (lat, lng) => {
 };
 
 // 5. Mock delivery time function
-export const calculateDeliveryTime = (lat, lng) => {
-  const baseTime = 15;
-  const randomTime = Math.floor(Math.random() * 30);
-  return baseTime + randomTime;
-};
+export const calculateDeliveryTime = async (lat, lng) => {
+  try {
+    const response = await get(
+      `${ENDPOINTS.GET_DELIVERY_ESTIMATE}?lat=${lat}&lng=${lng}`
+    );
 
+    console.log("Full response:", response.data);
+
+    if (response.data?.status && response.data.filtered?.length) {
+      const duration = response.data.filtered[0].duration || "Unavailable";
+      console.log("🚚 Delivery Duration:", duration); // 👈 Console output
+      return duration;
+    } else {
+      console.warn("⚠️ No delivery data available");
+      return "Unavailable";
+    }
+  } catch (error) {
+    console.error("❌ Error fetching delivery time:", error);
+    return "Error";
+  }
+};
 // 6. Store location in localStorage
 export const storeLocation = (locationData) => {
   try {

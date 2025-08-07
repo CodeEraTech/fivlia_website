@@ -7,6 +7,7 @@ import { useCart } from "../contexts/CartContext";
 import LocationDeliveryInfo from "./LocationDeliveryInfo";
 import UserLoginModal from "./UserLoginModal";
 import CartCanvas from "./CartCanvas";
+import { useImageUrl } from '../utils/getSettingsValue';
 
 
 
@@ -26,8 +27,8 @@ const Header = () => {
   const searchWrapperRef = useRef();
    const { isLoggedIn, logout } = useAuth();
    const { cartCount, isInitialized } = useCart();
-
-   
+const getImageUrl = useImageUrl();
+  
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
@@ -58,7 +59,7 @@ const Header = () => {
     setError(null);
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(() => {
-      get(`${ENDPOINTS.SEARCH_PRODUCTS}&search=${encodeURIComponent(searchQuery)}`)
+      get(`${ENDPOINTS.SEARCH_PRODUCTS}&name=${encodeURIComponent(searchQuery)}`)
         .then((res) => {
           setSuggestions(res.data?.products || []);
           setLoading(false);
@@ -338,6 +339,7 @@ const Header = () => {
                   maxHeight: 400,
                   width: '100%',
                   overflowY: 'auto',
+                  overflowx:'hidden',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
                   borderRadius: '0 0 8px 8px',
                   transition: 'width 0.2s',
@@ -355,7 +357,8 @@ const Header = () => {
                     style={{ cursor: 'pointer', borderBottom: '1px solid #f0f0f0', transition: 'background 0.2s' }}
                     onClick={() => handleSuggestionClick(product)}
                   >
-                    <img src={product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || product.image || ''} alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
+                    <img src={getImageUrl(product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || product.image)}
+alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: '1rem', color: '#30574e' }}>{product.productName || product.name}</div>
                       <div style={{ fontSize: '0.95em', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.category?.[0]?.name || (product.category && product.category.name) || ''}</div>
@@ -491,6 +494,7 @@ const Header = () => {
                   maxHeight: 400,
                   width: '100%',
                   overflowY: 'auto',
+                  overflowx:'hidden',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
                   borderRadius: '0 0 8px 8px',
                   transition: 'width 0.2s',
@@ -509,7 +513,7 @@ const Header = () => {
                     style={{ cursor: 'pointer', borderBottom: '1px solid #f0f0f0', transition: 'background 0.2s' }}
                     onClick={() => handleSuggestionClick(product)}
                   >
-                    <img src={product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || product.image || ''} alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
+                    <img src={getImageUrl(product.productThumbnailUrl || (product.productImageUrl && product.productImageUrl[0]) || product.image || '')} alt={product.productName || product.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6, marginRight: 16, background: '#f8f8f8' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: '1rem', color: '#30574e' }}>{product.productName || product.name}</div>
                       <div style={{ fontSize: '0.95em', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.category?.[0]?.name || (product.category && product.category.name) || ''}</div>

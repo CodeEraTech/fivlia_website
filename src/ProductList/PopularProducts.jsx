@@ -39,6 +39,7 @@ const PopularProducts = () => {
             is_new: false, // Default since not in API
             sku: product.sku,
             status: product.status,
+            productImageUrl: product.productImageUrl,
             inCart: product.inCart?.status || false,
             variants: product.variants || [],
           }));

@@ -115,7 +115,8 @@ const LocationDeliveryInfo = () => {
     try {
       const coords = await getCurrentLocation();
       const addressData = await getAddressFromCoords(coords.lat, coords.lng);
-      const deliveryTime = calculateDeliveryTime(coords.lat, coords.lng);
+      const deliveryTime = await  calculateDeliveryTime(coords.lat, coords.lng);
+      console.log("deliveryTime",deliveryTime);
       
       const locationData = {
         lat: coords.lat,
@@ -126,7 +127,7 @@ const LocationDeliveryInfo = () => {
       
       storeLocation(locationData);
       setLocation(addressData.address);
-      setDeliveryTime(`${deliveryTime} minutes`);
+      setDeliveryTime(`${deliveryTime}`);
       setShowModal(false);
       setIsInitialSetup(false);
     } catch (error) {
@@ -172,7 +173,7 @@ const LocationDeliveryInfo = () => {
       
       storeLocation(locationData);
       setLocation(placeDetails.address);
-      setDeliveryTime(`${deliveryTime} minutes`);
+      setDeliveryTime(`${deliveryTime} `);
       setShowModal(false);
       setSearchInput('');
       setSuggestions([]);

@@ -2,10 +2,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
 import RelatedProducts from "./RelatedProducts";
 import AddToCartButton from "../Component/AddToCartButton";
+import { useImageUrl } from "../utils/getSettingsValue";
 
 const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
+   const getImageUrl = useImageUrl();
   const product = location.state?.product;
 
   if (!product) return (
@@ -44,7 +46,7 @@ const ProductDetails = () => {
         <div className="pqv-modal-left">
           <div className="pqv-main-image-wrapper">
             <img
-              src={selectedImage || '/assets/img/no_image.jpg'}
+              src={getImageUrl(selectedImage || '/assets/img/no_image.jpg')}
               alt={product.productName || product.name}
               className="pqv-main-image"
               onError={(e) => {
@@ -57,7 +59,7 @@ const ProductDetails = () => {
               {images.map((img, idx) => (
                 <img
                   key={img + idx}
-                  src={img || '/assets/img/no_image.jpg'}
+                  src={getImageUrl(img || '/assets/img/no_image.jpg')}
                   alt={`Thumbnail ${idx + 1}`}
                   className={`pqv-thumbnail${selectedImage === img ? ' selected' : ''}`}
                   onClick={() => setSelectedImage(img)}

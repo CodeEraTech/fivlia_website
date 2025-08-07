@@ -20,33 +20,14 @@ const RelatedProducts = ({ productId }) => {
     setError(null);
     get(`${ENDPOINTS.RELATED_PRODUCTS}&productId=${productId}`)
       .then((res) => {
+        console.log("response fetch:", res.data.relatedProducts )
         setRelated(res.data.relatedProducts || []);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [productId]);
 
-  // Map product to robust structure for modal
-  const mapProductForModal = (prod) => ({
-    
-    id: prod._id,
-    name: prod.productName || prod.name,
-   image:getImageUrl(prod.productImageUrl?.[0]),
- sku: prod.sku,
-    price: prod.sell_price || prod.price,
-    mrp: prod.mrp,
-    brand: prod.brand_Name && prod.brand_Name.name,
-    category: prod.category && prod.category[0] && prod.category[0].name,
-    category_id: prod.category && prod.category[0] && prod.category[0]._id,
-    rating: prod.rating || 0,
-    review_count: prod.review_count || 0,
-    discount_percentage: prod.discount_percentage || 0,
-    is_hot: prod.is_hot || false,
-    is_new: prod.is_new || false,
-    description: prod.description || '',
-    productImageUrl: getImageUrl(prod.productImageUrl?.[0]),
-    variants: prod.variants || [],
-  });
+ 
 
   // When modal closes, if a pending product exists, open it
   useEffect(() => {
@@ -97,6 +78,7 @@ const RelatedProducts = ({ productId }) => {
     is_new: false, // Default since not in API
     sku: product.sku,
     status: product.status,
+     productImageUrl: product.productImageUrl,
     inCart: product.inCart?.status || false,
     variants: product.variants || [],
   }));
