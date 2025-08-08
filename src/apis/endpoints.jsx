@@ -24,6 +24,6 @@ export const ENDPOINTS = {
   REMOVE_CART: "/removeCart",
   GET_ADDRESS: "/getAddress",
   ADD_ADDRESS: "/address",
-    // Delivery estimate
   GET_DELIVERY_ESTIMATE: "/getDeliveryEstimateForWebsite",
+  PLACE_ORDER: "/placeOrder",
 }; 
