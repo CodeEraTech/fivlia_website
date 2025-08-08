@@ -53,6 +53,7 @@ import { MagnifyingGlass } from "react-loader-spinner";
 import FAQ from "./FooterElements/Faq";
 import CategorySection from "./Home/CategorySection";
 import TopBannerSection from "./Home/TopBannerSection";
+import OfferBannerSection from "./Home/OfferBannerSection";
 import BrandsSection from "./Home/BrandsSection";
 import FeaturedProducts from "../ProductList/FeaturedProducts";
 const Home = () => {
@@ -347,6 +348,9 @@ const Home = () => {
             </>
             <>
               <BrandsSection />
+            </>
+            <>
+              <OfferBannerSection />
             </>
             <>
               <PopularProducts />

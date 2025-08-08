@@ -53,15 +53,15 @@ const bannerCarouselSettings = {
 };
 
 const useResponsiveBannerHeight = () => {
-  const [height, setHeight] = useState(500);
+  const [height, setHeight] = useState(300);
   useEffect(() => {
     const updateHeight = () => {
-      if (window.innerWidth < 480) setHeight(180);
-      else if (window.innerWidth < 600) setHeight(220);
-      else if (window.innerWidth < 768) setHeight(300);
-      else if (window.innerWidth < 900) setHeight(350);
-      else if (window.innerWidth < 1200) setHeight(400);
-      else setHeight(500);
+      if (window.innerWidth < 480) setHeight(150);
+      else if (window.innerWidth < 600) setHeight(180);
+      else if (window.innerWidth < 768) setHeight(200);
+      else if (window.innerWidth < 900) setHeight(250);
+      else if (window.innerWidth < 1200) setHeight(280);
+      else setHeight(300);
     };
     updateHeight();
     window.addEventListener("resize", updateHeight);
@@ -70,20 +70,22 @@ const useResponsiveBannerHeight = () => {
   return height;
 };
 
-const TopBannerSection = () => {
+const OfferBannerSection = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-    const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const bannerHeight = useResponsiveBannerHeight();
   const getImageUrl = useImageUrl();
   
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    get(ENDPOINTS.BANNERS)
+    // Add type=offer parameter to get offer banners
+    const offerBannerEndpoint = `${ENDPOINTS.BANNERS}&type=offer`;
+    get(offerBannerEndpoint)
       .then((res) => {
-        console.log(ENDPOINTS.BANNERS, res);
+        console.log('Offer banners response:', res);
         if (isMounted) {
           // The response structure is: { message, count, data: [...] }
           setBanners(res?.data?.data || []);
@@ -91,7 +93,7 @@ const TopBannerSection = () => {
         }
       })
       .catch(() => {
-        if (isMounted) setError("Failed to load banners");
+        if (isMounted) setError("Failed to load offer banners");
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -114,11 +116,16 @@ const TopBannerSection = () => {
   const goToPrev = () => setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
   const goToNext = () => setActiveIndex((prev) => (prev + 1) % banners.length);
 
+  // Don't render anything if no banners
+  if (!loading && !error && banners.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="hero-section">
-      <div className="container mt-8">
+    <section className="offer-banner-section">
+      <div className="container mt-4">
         {loading && (
-          <div className="banner-shimmer-wrapper text-center py-5">
+          <div className="banner-shimmer-wrapper text-center py-3">
             <div
               className="banner-shimmer shimmer-bg"
               style={{
@@ -142,10 +149,10 @@ const TopBannerSection = () => {
             `}</style>
           </div>
         )}
-        {error && <div className="text-center text-danger py-5">{error}</div>}
+        {error && <div className="text-center text-danger py-3">{error}</div>}
         {!loading && !error && banners.length > 0 && (
           <div
-            id="carouselExampleFade"
+            id="offerCarouselExampleFade"
             className="carousel slide carousel-fade"
             data-bs-ride="carousel"
           >
@@ -157,7 +164,7 @@ const TopBannerSection = () => {
                 >
                   <Link 
                     to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ''}`}
-                    aria-label={`Go to ${banner.title} banner`}
+                    aria-label={`Go to ${banner.title} offer`}
                     style={{ textDecoration: 'none' }}
                   >
                     <div
@@ -178,47 +185,30 @@ const TopBannerSection = () => {
                 </div>
               ))}
             </div>
-            <button
-              className="carousel-control-prev"
-              onClick={goToPrev}
-              type="button"
-              aria-label="Previous"
-              style={{ background: "none", border: "none" }}
-            >
-              <span className="carousel-control-prev-icon" aria-hidden="true" />
-              <span className="visually-hidden">Previous</span>
-            </button>
-            <button
-              className="carousel-control-next"
-              onClick={goToNext}
-              type="button"
-              aria-label="Next"
-              style={{ background: "none", border: "none" }}
-            >
-              <span className="carousel-control-next-icon" aria-hidden="true" />
-              <span className="visually-hidden">Next</span>
-            </button>
-            <div className="carousel-indicators">
-              {banners.map((banner, idx) => (
+            {banners.length > 1 && (
+              <>
                 <button
-                  key={banner._id || idx}
+                  className="carousel-control-prev"
                   type="button"
-                  className={idx === activeIndex ? "active" : ""}
-                  aria-current={idx === activeIndex}
-                  aria-label={`Slide ${idx + 1}`}
-                  onClick={() => goToSlide(idx)}
-                  style={{
-                    border: 0,
-                    background: idx === activeIndex ? "#0aad0a" : "#888",
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    margin: 2,
-                    transition: "background 0.3s"
-                  }}
-                />
-              ))}
-            </div>
+                  data-bs-target="#offerCarouselExampleFade"
+                  data-bs-slide="prev"
+                  onClick={goToPrev}
+                >
+                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Previous</span>
+                </button>
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#offerCarouselExampleFade"
+                  data-bs-slide="next"
+                  onClick={goToNext}
+                >
+                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="visually-hidden">Next</span>
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -226,4 +216,4 @@ const TopBannerSection = () => {
   );
 };
 
-export default TopBannerSection; 
+export default OfferBannerSection;
