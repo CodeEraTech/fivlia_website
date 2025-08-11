@@ -1,10 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS } from '../../apis/endpoints';
-import { useImageUrl } from '../../utils/getSettingsValue';
+import { ENDPOINTS } from "../../apis/endpoints";
+import { useImageUrl } from "../../utils/getSettingsValue";
 import { Link } from "react-router-dom";
 
-// Responsive breakpoints/settings for the banner carousel
+// Responsive height hook (inline in this file)
+const useResponsiveBannerHeight = () => {
+ const [height, setHeight] = useState(140);  // default tall
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (window.innerWidth < 480) setHeight(220);
+      else if (window.innerWidth < 600) setHeight(260);
+      else if (window.innerWidth < 768) setHeight(300);
+      else if (window.innerWidth < 900) setHeight(340);
+      else setHeight(380);
+    };
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
+
+  return height;
+};
+
 const bannerCarouselSettings = {
   dots: true,
   infinite: true,
@@ -12,62 +31,7 @@ const bannerCarouselSettings = {
   slidesToShow: 1,
   slidesToScroll: 1,
   autoplay: true,
-  autoplaySpeed: 7000, 
-  responsive: [
-    {
-      breakpoint: 1200,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-    {
-      breakpoint: 900,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-    {
-      breakpoint: 768,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-    {
-      breakpoint: 600,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-    {
-      breakpoint: 480,
-      settings: {
-        slidesToShow: 1,
-        slidesToScroll: 1,
-      },
-    },
-  ],
-};
-
-const useResponsiveBannerHeight = () => {
-  const [height, setHeight] = useState(300);
-  useEffect(() => {
-    const updateHeight = () => {
-      if (window.innerWidth < 480) setHeight(150);
-      else if (window.innerWidth < 600) setHeight(180);
-      else if (window.innerWidth < 768) setHeight(200);
-      else if (window.innerWidth < 900) setHeight(250);
-      else if (window.innerWidth < 1200) setHeight(280);
-      else setHeight(300);
-    };
-    updateHeight();
-    window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
-  return height;
+  autoplaySpeed: 7000
 };
 
 const OfferBannerSection = () => {
@@ -77,17 +41,14 @@ const OfferBannerSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const bannerHeight = useResponsiveBannerHeight();
   const getImageUrl = useImageUrl();
-  
+
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    // Add type=offer parameter to get offer banners
     const offerBannerEndpoint = `${ENDPOINTS.BANNERS}&type=offer`;
     get(offerBannerEndpoint)
       .then((res) => {
-        console.log('Offer banners response:', res);
         if (isMounted) {
-          // The response structure is: { message, count, data: [...] }
           setBanners(res?.data?.data || []);
           setError(null);
         }
@@ -103,7 +64,6 @@ const OfferBannerSection = () => {
     };
   }, []);
 
-  // Auto-slide effect (like carousel)
   useEffect(() => {
     if (!banners.length) return;
     const interval = setInterval(() => {
@@ -112,14 +72,12 @@ const OfferBannerSection = () => {
     return () => clearInterval(interval);
   }, [banners]);
 
-  const goToSlide = (idx) => setActiveIndex(idx);
-  const goToPrev = () => setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  const goToNext = () => setActiveIndex((prev) => (prev + 1) % banners.length);
+  const goToPrev = () =>
+    setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  const goToNext = () =>
+    setActiveIndex((prev) => (prev + 1) % banners.length);
 
-  // Don't render anything if no banners
-  if (!loading && !error && banners.length === 0) {
-    return null;
-  }
+  if (!loading && !error && banners.length === 0) return null;
 
   return (
     <section className="offer-banner-section">
@@ -129,11 +87,9 @@ const OfferBannerSection = () => {
             <div
               className="banner-shimmer shimmer-bg"
               style={{
-                width: '100%',
+                width: "100%",
                 minHeight: bannerHeight,
-                borderRadius: '.5rem',
-                margin: '0 auto',
-                maxWidth: '100%',
+                borderRadius: ".5rem"
               }}
             />
             <style>{`
@@ -149,12 +105,13 @@ const OfferBannerSection = () => {
             `}</style>
           </div>
         )}
+
         {error && <div className="text-center text-danger py-3">{error}</div>}
+
         {!loading && !error && banners.length > 0 && (
           <div
             id="offerCarouselExampleFade"
             className="carousel slide carousel-fade"
-            data-bs-ride="carousel"
           >
             <div className="carousel-inner">
               {banners.map((banner, idx) => (
@@ -162,49 +119,39 @@ const OfferBannerSection = () => {
                   className={`carousel-item${idx === activeIndex ? " active" : ""}`}
                   key={banner._id || idx}
                 >
-                  <Link 
+                  <Link
                     to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ''}`}
-                    aria-label={`Go to ${banner.title} offer`}
-                    style={{ textDecoration: 'none' }}
+                    style={{ textDecoration: "none" }}
                   >
                     <div
                       style={{
-                        background: `url(${getImageUrl(banner.image)}) no-repeat`,
-                        backgroundSize: "cover",
+                        background: `url(${getImageUrl(banner.image)}) no-repeat center / cover`,
                         borderRadius: ".5rem",
-                        backgroundPosition: "center",
                         minHeight: bannerHeight,
-                        width: "100%",
-                        transition: "min-height 0.3s",
-                        cursor: "pointer",
+                        width: "100%"
                       }}
-                    >
-                      {/* Only image for now, overlay content can be added later */}
-                    </div>
+                    />
                   </Link>
                 </div>
               ))}
             </div>
+
             {banners.length > 1 && (
               <>
                 <button
                   className="carousel-control-prev"
                   type="button"
-                  data-bs-target="#offerCarouselExampleFade"
-                  data-bs-slide="prev"
                   onClick={goToPrev}
                 >
-                  <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span className="carousel-control-prev-icon"></span>
                   <span className="visually-hidden">Previous</span>
                 </button>
                 <button
                   className="carousel-control-next"
                   type="button"
-                  data-bs-target="#offerCarouselExampleFade"
-                  data-bs-slide="next"
                   onClick={goToNext}
                 >
-                  <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span className="carousel-control-next-icon"></span>
                   <span className="visually-hidden">Next</span>
                 </button>
               </>

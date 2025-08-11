@@ -284,7 +284,7 @@ const Home = () => {
               <CategorySection />
               {/* section */}
             </>
-            <>
+            {/* <>
               <section>
                 <div className="container ">
                   <div className="row">
@@ -345,13 +345,14 @@ const Home = () => {
                   </div>
                 </div>
               </section>
+            </> */}
+              <>
+              <OfferBannerSection />
             </>
             <>
               <BrandsSection />
             </>
-            <>
-              <OfferBannerSection />
-            </>
+          
             <>
               <PopularProducts />
             </>
