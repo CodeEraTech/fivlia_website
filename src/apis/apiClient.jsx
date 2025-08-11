@@ -4,7 +4,7 @@ import { API_BASE_URL, ENDPOINTS } from './endpoints.jsx';
 // Create axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 50000,
 });
 
 // Get token from localStorage

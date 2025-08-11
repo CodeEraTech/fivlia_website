@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { get } from '../apis/apiClient';
+import { get, post } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
 import { MagnifyingGlass } from 'react-loader-spinner'
 import ScrollToTop from "./ScrollToTop";
 import AddAddressModal from '../Component/AddAddressModal';
 import AddressShimmer from '../Component/AddressShimmer';
+import launchRazorpay from '../utils/launchRazorpay';
 
 const OrderCheckout = () => {
-  const { cartItems, getCartTotal, isInitialized } = useCart();
+  const { cartItems, getCartTotal, getShippingCharge, isInitialized, storeId } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [loaderStatus, setLoaderStatus] = useState(true);
@@ -18,6 +19,7 @@ const OrderCheckout = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [addressLoading, setAddressLoading] = useState(true);
   const [addressError, setAddressError] = useState(null);
+  const [paymentMode, setPaymentMode] = useState("online");
   
   useEffect(() => {
     setTimeout(() => {
@@ -76,41 +78,52 @@ const OrderCheckout = () => {
     setSelectedAddress(addressId);
   };
 
-  const handlePlaceOrder = () => {
-    if (!selectedAddress) {
+  const handlePlaceOrder = async () => {
+    if (paymentMode === 'online' && !selectedAddress) {
       alert('Please select a delivery address');
       return;
     }
-    // TODO: Implement order placement logic
-    alert('Order placed successfully!');
-    navigate('/');
-  };
+  
+    try {
+      const orderPayload = {
+        addressId: selectedAddress,
+        cartIds: cartItems.map(item => item._id),
+        paymentMode: paymentMode === 'cod' ? true : 'online',
+        totalAmount: getCartTotal() + getShippingCharge(),
+        storeId: storeId,
+      };
+  
+      const response = await post(ENDPOINTS.PLACE_ORDER, orderPayload,{authRequired:true});
+      const { order, tempOrder, tempOrderId } = response.data || {};
+       // ✅ Case 1: COD — handle directly
+      if (order && order.cashOnDelivery === true && order.paymentStatus === "Successful") {
+        alert("Order placed successfully with Cash on Delivery!");
+        navigate('/');
+        return;
+      }
+      // ✅ Case 2: Online payment — proceed to Razorpay
+      if (tempOrder && tempOrderId && tempOrder.totalPrice) {
+        const amountInPaisa = Math.round(tempOrder.totalPrice * 100);
 
-  const formatAddress = (address) => {
-    const parts = [
-      address.fullName,
-      address.house_No,
-      address.address,
-      address.city,
-      address.state,
-      address.pincode
-    ].filter(Boolean);
-    
-    return parts.join(', ');
-  };
-
-  const getAddressTypeLabel = (addressType) => {
-    switch (addressType) {
-      case 'home':
-        return 'Home';
-      case 'office':
-        return 'Office';
-      case 'other':
-        return 'Other';
-      default:
-        return 'Address';
+        launchRazorpay({
+          tempOrderId,
+          amount: amountInPaisa,
+          onSuccess: () => {
+            alert("Payment successful and order confirmed!");
+            navigate('/MyAccountOrder');
+          },
+          onFailure: () => {
+            alert("Payment verification failed or cancelled.");
+          }
+        });
+      } else {
+        alert("Invalid order response. Please try again.");
+      }
+    } catch (error) {
+      console.error('Order placement error:', error);
+      alert('Something went wrong!');
     }
-  };
+  };  
 
   return (
     <div>
@@ -261,7 +274,8 @@ const OrderCheckout = () => {
                                       type="radio"
                                       name="paymentRadio"
                                       id="payOnline"
-                                      defaultChecked
+                                      checked={paymentMode === 'online'}
+                                      onChange={() => setPaymentMode('online')}
                                     />
                                     <label className="form-check-label ms-2" htmlFor="payOnline"></label>
                                   </div>
@@ -286,6 +300,8 @@ const OrderCheckout = () => {
                                       type="radio"
                                       name="paymentRadio"
                                       id="cashonDelivery"
+                                      checked={paymentMode === 'cod'}
+                                      onChange={() => setPaymentMode('cod')}
                                     />
                                     <label className="form-check-label ms-2" htmlFor="cashonDelivery"></label>
                                   </div>
@@ -347,13 +363,13 @@ const OrderCheckout = () => {
                               Service Fee{" "}
                               <i className="feather-icon icon-info text-muted" data-bs-toggle="tooltip" title="Default tooltip" />
                             </div>
-                            <div className="fw-bold">₹3.00</div>
+                            <div className="fw-bold">₹{getShippingCharge()}</div>
                           </div>
                         </li>
                         <li className="list-group-item px-4 py-3">
                           <div className="d-flex align-items-center justify-content-between fw-bold">
                             <div>Total</div>
-                            <div>₹{getCartTotal() + 3}</div>
+                            <div>₹{getCartTotal() + getShippingCharge()}</div>
                           </div>
                         </li>
                       </ul>

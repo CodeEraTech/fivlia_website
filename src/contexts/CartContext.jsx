@@ -20,6 +20,7 @@ const getCart = async () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
+  const [storeId, setStoreId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -53,6 +54,7 @@ export const CartProvider = ({ children }) => {
         //console.log('CartContext: Setting cart items:', response.data.items);
         setCartItems(response.data.items);
         setCartCount(response.data.items.length);
+        setStoreId(response.data.StoreID);
       } else {
         //console.log('CartContext: No items in response, clearing cart');
         setCartItems([]);
@@ -238,6 +240,14 @@ export const CartProvider = ({ children }) => {
     }, 0);
   };
 
+  // Calculate shipping charge (3% of total)
+  const getShippingCharge = () => {
+    const total = getCartTotal();
+    return parseFloat((total * 0.03).toFixed(2));
+  };
+
+
+
   // Initialize cart on mount and when authentication state changes
   useEffect(() => {
     //console.log('CartContext: useEffect triggered, isLoggedIn:', isLoggedIn);
@@ -279,10 +289,12 @@ export const CartProvider = ({ children }) => {
       updateQuantity,
       updateCartItem,
       getCartTotal,
+      getShippingCharge, 
       fetchCartItems,
       isInitialized,
       updatingItems,
-      removingItems
+      removingItems,
+      storeId,
     }}>
       {children}
     </CartContext.Provider>

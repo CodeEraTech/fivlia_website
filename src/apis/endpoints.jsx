@@ -27,4 +27,6 @@ export const ENDPOINTS = {
   ADD_ADDRESS: "/address",
   GET_DELIVERY_ESTIMATE: "/getDeliveryEstimateForWebsite",
   PLACE_ORDER: "/placeOrder",
+  VERIFY_PAYMENT: '/verifyPayment',
+  GET_ORDERS: "/orders",
 }; 

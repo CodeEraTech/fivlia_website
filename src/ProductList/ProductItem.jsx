@@ -245,9 +245,9 @@ const ProductItem = ({ products = [] }) => {
                     <i className="fa fa-clock-o" style={{ marginRight: '4px', color: '#0AAD0A' }}></i>
                     <span className="delivery-time-text">
                     <svg width="14" height="14" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="32" cy="32" r="28" stroke="#0AAD0A" stroke-width="4" fill="none"/>
-                      <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" stroke-width="4" stroke-linecap="round"/>
-                      <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" stroke-width="4" stroke-linecap="round"/>
+                      <circle cx="32" cy="32" r="28" stroke="#0AAD0A" strokeWidth="4" fill="none"/>
+                      <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round"/>
+                      <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round"/>
                       <rect x="28" y="4" width="8" height="8" fill="#0AAD0A" rx="2"/>
                     </svg>&nbsp;&nbsp;
                       {getDeliveryTime(product)} min
