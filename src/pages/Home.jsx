@@ -53,6 +53,7 @@ import { MagnifyingGlass } from "react-loader-spinner";
 import FAQ from "./FooterElements/Faq";
 import CategorySection from "./Home/CategorySection";
 import TopBannerSection from "./Home/TopBannerSection";
+import OfferBannerSection from "./Home/OfferBannerSection";
 import BrandsSection from "./Home/BrandsSection";
 import FeaturedProducts from "../ProductList/FeaturedProducts";
 const Home = () => {
@@ -283,7 +284,7 @@ const Home = () => {
               <CategorySection />
               {/* section */}
             </>
-            <>
+            {/* <>
               <section>
                 <div className="container ">
                   <div className="row">
@@ -344,10 +345,14 @@ const Home = () => {
                   </div>
                 </div>
               </section>
+            </> */}
+              <>
+              <OfferBannerSection />
             </>
             <>
               <BrandsSection />
             </>
+          
             <>
               <PopularProducts />
             </>

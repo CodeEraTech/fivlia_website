@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { get } from "../../apis/apiClient.jsx";
 import { ENDPOINTS } from '../../apis/endpoints';
 import { useImageUrl } from '../../utils/getSettingsValue';
+import { Link } from "react-router-dom";
 
 // Responsive breakpoints/settings for the banner carousel
 const bannerCarouselSettings = {
@@ -82,8 +83,10 @@ const TopBannerSection = () => {
     setLoading(true);
     get(ENDPOINTS.BANNERS)
       .then((res) => {
+        console.log(ENDPOINTS.BANNERS, res);
         if (isMounted) {
-          setBanners(res?.data || []);
+          // The response structure is: { message, count, data: [...] }
+          setBanners(res?.data?.data || []);
           setError(null);
         }
       })
@@ -150,22 +153,28 @@ const TopBannerSection = () => {
               {banners.map((banner, idx) => (
                 <div
                   className={`carousel-item${idx === activeIndex ? " active" : ""}`}
-                  key={banner.id || idx}
+                  key={banner._id || idx}
                 >
-                  <div
-                    style={{
-                      background: `url(${getImageUrl(banner.image)}) no-repeat`,
-
-                      backgroundSize: "cover",
-                      borderRadius: ".5rem",
-                      backgroundPosition: "center",
-                      minHeight: bannerHeight,
-                      width: "100%",
-                      transition: "min-height 0.3s",
-                    }}
+                  <Link 
+                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ''}`}
+                    aria-label={`Go to ${banner.title} banner`}
+                    style={{ textDecoration: 'none' }}
                   >
-                    {/* Only image for now, overlay content can be added later */}
-                  </div>
+                    <div
+                      style={{
+                        background: `url(${getImageUrl(banner.image)}) no-repeat`,
+                        backgroundSize: "cover",
+                        borderRadius: ".5rem",
+                        backgroundPosition: "center",
+                        minHeight: bannerHeight,
+                        width: "100%",
+                        transition: "min-height 0.3s",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {/* Only image for now, overlay content can be added later */}
+                    </div>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -192,7 +201,7 @@ const TopBannerSection = () => {
             <div className="carousel-indicators">
               {banners.map((banner, idx) => (
                 <button
-                  key={banner.id || idx}
+                  key={banner._id || idx}
                   type="button"
                   className={idx === activeIndex ? "active" : ""}
                   aria-current={idx === activeIndex}

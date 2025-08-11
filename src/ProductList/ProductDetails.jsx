@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import RelatedProducts from "./RelatedProducts";
 import AddToCartButton from "../Component/AddToCartButton";
 import { useImageUrl } from "../utils/getSettingsValue";
+import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStock } from "../utils/stockUtils";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -38,6 +39,12 @@ const ProductDetails = () => {
     setQuantity(1);
     setSelectedVariantIdx(0);
   }, [product]);
+
+  // Check stock status
+  const outOfStock = isOutOfStock(product, selectedVariant);
+  const stockStatusText = getStockStatusText(product, selectedVariant);
+  const stockStatusColor = getStockStatusColor(product, selectedVariant);
+  const availableStock = getAvailableStock(product, selectedVariant);
 
   return (
     <div className="container-fluid pqv-modal-content" style={{margin: '2rem auto', background: 'transparent', boxShadow: 'none', borderRadius: 0, border: 'none', overflowX: 'hidden'}}>
@@ -129,6 +136,30 @@ const ProductDetails = () => {
               <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
             )}
           </div>
+          
+          {/* Stock Information */}
+          <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
+            <div className="d-flex align-items-center">
+              <span 
+                className="badge" 
+                style={{ 
+                  backgroundColor: stockStatusColor,
+                  color: 'white',
+                  fontSize: '0.8rem',
+                  padding: '0.5rem 0.75rem'
+                }}
+              >
+                {stockStatusText}
+              </span>
+              {!outOfStock && availableStock < 10 && (
+                <small className="text-warning ms-2">
+                  <i className="fa fa-exclamation-triangle me-1"></i>
+                  Only {availableStock} left!
+                </small>
+              )}
+            </div>
+          </div>
+          
           <div className="pqv-qty-add-row">
             <div className="pqv-qty-row">
               <div className="pqv-qty-box">
@@ -136,18 +167,22 @@ const ProductDetails = () => {
                   className="pqv-qty-btn"
                   onClick={() => setQuantity(q => Math.max(1, q - 1))}
                   aria-label="Decrease quantity"
+                  disabled={outOfStock}
                 >-</button>
                 <input
                   type="number"
                   min="1"
+                  max={outOfStock ? 0 : availableStock}
                   value={quantity}
-                  onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={e => setQuantity(Math.max(1, Math.min(availableStock, parseInt(e.target.value) || 1)))}
                   className="pqv-qty-input"
+                  disabled={outOfStock}
                 />
                 <button
                   className="pqv-qty-btn"
-                  onClick={() => setQuantity(q => q + 1)}
+                  onClick={() => setQuantity(q => Math.min(availableStock, q + 1))}
                   aria-label="Increase quantity"
+                  disabled={outOfStock || quantity >= availableStock}
                 >+</button>
               </div>
             </div>

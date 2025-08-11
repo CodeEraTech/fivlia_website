@@ -2,6 +2,8 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import CartShimmer from "./CartShimmer";
+import { isOutOfStock, getStockStatusText } from "../utils/stockUtils";
+import Swal from 'sweetalert2';
 
 const CartCanvas = () => {
   const { 
@@ -44,7 +46,36 @@ const CartCanvas = () => {
     return updatingItems.size > 0 || removingItems.size > 0;
   };
 
+  // Check if any items in cart are out of stock
+  const getOutOfStockItems = () => {
+    return cartItems.filter(item => {
+      const product = {
+        stock: item.stock,
+        variants: item.variants || [],
+        inventory: item.inventory || [] // Add inventory data
+      };
+      const selectedVariant = item.varientId ? 
+        product.variants.find(v => v._id === item.varientId) : null;
+      
+      return isOutOfStock(product, selectedVariant);
+    });
+  };
+
+  const outOfStockItems = getOutOfStockItems();
+  const hasOutOfStockItems = outOfStockItems.length > 0;
+
   const handleCheckout = () => {
+    if (hasOutOfStockItems) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Out of Stock Items',
+        text: `You have ${outOfStockItems.length} item(s) that are out of stock. Please remove them before proceeding to checkout.`,
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
     const offcanvas = document.getElementById('offcanvasRight');
     if (offcanvas) {
       const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
@@ -129,10 +160,20 @@ const CartCanvas = () => {
                   const isRemoving = isItemRemoving(cartItemId);
                   const isProcessing = isUpdating || isRemoving;
                   
+                  // Check if item is out of stock
+                  const product = {
+                    stock: item.stock,
+                    variants: item.variants || [],
+                    inventory: item.inventory || [] // Add inventory data
+                  };
+                  const selectedVariant = item.varientId ? 
+                    product.variants.find(v => v._id === item.varientId) : null;
+                  const itemOutOfStock = isOutOfStock(product, selectedVariant);
+                  
                   return (
                     <li key={`${item.productId}-${item.varientId}-${index}`} className="list-group-item py-3 px-0">
                       <div className="row align-items-center g-2">
-                        <div className="col-3 col-sm-2">
+                        <div className="col-3 col-sm-2 position-relative">
                           <img
                             src={item.image || '/assets/img/no_image.jpg'}
                             alt={item.name}
@@ -141,12 +182,25 @@ const CartCanvas = () => {
                               e.target.src = '/assets/img/no_image.jpg';
                             }}
                           />
+                          {itemOutOfStock && (
+                            <span className="badge bg-danger position-absolute top-0 start-0" style={{ fontSize: '0.7rem' }}>
+                              Out of Stock
+                            </span>
+                          )}
                         </div>
                         <div className="col-6 col-sm-5">
                           <h6 className="mb-0 text-truncate">{item.name}</h6>
                           <span>
                             <small className="text-muted">₹{item.price} / unit</small>
                           </span>
+                          {itemOutOfStock && (
+                            <div className="mt-1">
+                              <small className="text-danger">
+                                <i className="fa fa-exclamation-triangle me-1"></i>
+                                This item is out of stock
+                              </small>
+                            </div>
+                          )}
                           <div className="mt-2 small">
                             <button
                               onClick={() => handleRemoveItem(cartItemId)}
@@ -167,7 +221,7 @@ const CartCanvas = () => {
                               type="button"
                               className="cart-qty-btn"
                               onClick={() => handleQuantityChange(cartItemId, item.quantity - 1)}
-                              disabled={isProcessing}
+                              disabled={isProcessing || itemOutOfStock}
                               aria-label="Decrease quantity"
                             >
                               -
@@ -178,13 +232,13 @@ const CartCanvas = () => {
                               value={item.quantity}
                               onChange={(e) => handleQuantityChange(cartItemId, parseInt(e.target.value) || 1)}
                               className="cart-qty-input"
-                              disabled={isProcessing}
+                              disabled={isProcessing || itemOutOfStock}
                             />
                             <button
                               type="button"
                               className="cart-qty-btn"
                               onClick={() => handleQuantityChange(cartItemId, item.quantity + 1)}
-                              disabled={isProcessing}
+                              disabled={isProcessing || itemOutOfStock}
                               aria-label="Increase quantity"
                             >
                               +
@@ -221,17 +275,22 @@ const CartCanvas = () => {
             </div>
             <button 
               onClick={handleCheckout}
-              className={`btn btn-success w-100 ${isAnyItemProcessing() ? 'disabled' : ''}`}
+              className={`btn w-100 ${hasOutOfStockItems ? 'btn-warning' : 'btn-success'} ${isAnyItemProcessing() ? 'disabled' : ''}`}
               style={{ 
-                pointerEvents: isAnyItemProcessing() ? 'none' : 'auto',
-                opacity: isAnyItemProcessing() ? 0.6 : 1
+                pointerEvents: (isAnyItemProcessing() || hasOutOfStockItems) ? 'none' : 'auto',
+                opacity: (isAnyItemProcessing() || hasOutOfStockItems) ? 0.6 : 1
               }}
-              disabled={isAnyItemProcessing()}
+              disabled={isAnyItemProcessing() || hasOutOfStockItems}
             >
               {isAnyItemProcessing() ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                   Updating...
+                </>
+              ) : hasOutOfStockItems ? (
+                <>
+                  <i className="fa fa-exclamation-triangle me-2"></i>
+                  Remove Out of Stock Items
                 </>
               ) : (
                 'Proceed to Checkout'

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddToCartButton from "../Component/AddToCartButton";
+import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStock } from "../utils/stockUtils";
 
 const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   // Move all hooks to the top before any conditional returns
@@ -29,6 +30,12 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
 
   // Early returns after hooks
   if (!product || !isOpen) return null;
+
+  // Check stock status (moved after early return)
+  const outOfStock = isOutOfStock(product, selectedVariant);
+  const stockStatusText = getStockStatusText(product, selectedVariant);
+  const stockStatusColor = getStockStatusColor(product, selectedVariant);
+  const availableStock = getAvailableStock(product, selectedVariant);
 
   return (
     <div className="pqv-modal-overlay" onClick={onClose}>
@@ -124,6 +131,30 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
                 )}
               </div>
+              
+              {/* Stock Information */}
+              <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
+                <div className="d-flex align-items-center">
+                  <span 
+                    className="badge" 
+                    style={{ 
+                      backgroundColor: stockStatusColor,
+                      color: 'white',
+                      fontSize: '0.8rem',
+                      padding: '0.5rem 0.75rem'
+                    }}
+                  >
+                    {stockStatusText}
+                  </span>
+                  {!outOfStock && availableStock < 10 && (
+                    <small className="text-warning ms-2">
+                      <i className="fa fa-exclamation-triangle me-1"></i>
+                      Only {availableStock} left!
+                    </small>
+                  )}
+                </div>
+              </div>
+              
               <div className="pqv-qty-add-row">
                 <div className="pqv-qty-row">
                   <div className="pqv-qty-box">
@@ -141,14 +172,16 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                       }}
                       aria-label="Decrease quantity"
                       type="button"
+                      disabled={outOfStock}
                     >-</button>
                     <input
                       type="number"
                       min="1"
+                      max={outOfStock ? 0 : availableStock}
                       value={quantity}
                       onChange={(e) => {
                         e.preventDefault();
-                        const newValue = Math.max(1, parseInt(e.target.value) || 1);
+                        const newValue = Math.max(1, Math.min(availableStock, parseInt(e.target.value) || 1));
                         console.log('Input changed, new value:', newValue);
                         setQuantity(newValue);
                       }}
@@ -158,6 +191,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                         }
                       }}
                       className="pqv-qty-input"
+                      disabled={outOfStock}
                     />
                     <button
                       className="pqv-qty-btn"
@@ -166,13 +200,14 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                         e.stopPropagation();
                         console.log('Increase clicked, current quantity:', quantity);
                         setQuantity(prev => {
-                          const newQty = prev + 1;
+                          const newQty = Math.min(availableStock, prev + 1);
                           console.log('New quantity after increase:', newQty);
                           return newQty;
                         });
                       }}
                       aria-label="Increase quantity"
                       type="button"
+                      disabled={outOfStock || quantity >= availableStock}
                     >+</button>
                   </div>
                 </div>

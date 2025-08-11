@@ -81,6 +81,7 @@ const RelatedProducts = ({ productId }) => {
      productImageUrl: product.productImageUrl,
     inCart: product.inCart?.status || false,
     variants: product.variants || [],
+    inventory: product.inventory || [], // Add inventory data
   }));
 
   return (

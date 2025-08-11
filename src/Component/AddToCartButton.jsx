@@ -3,6 +3,7 @@ import { post } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
+import { isOutOfStock, canAddToCart, getAvailableStock } from '../utils/stockUtils';
 import Swal from 'sweetalert2';
 
 const AddToCartButton = ({ 
@@ -17,6 +18,11 @@ const AddToCartButton = ({
   const [loading, setLoading] = useState(false);
   const { checkAuth } = useAuth();
   const { fetchCartItems } = useCart();
+
+  // Check if product is out of stock (with null check)
+  const outOfStock = product ? isOutOfStock(product, selectedVariant) : false;
+  const canAdd = product ? canAddToCart(product, selectedVariant, quantity) : false;
+  const availableStock = product ? getAvailableStock(product, selectedVariant) : 999;
 
   // Add to cart function using post method from apiClient
   const addToCart = async (productData) => {
@@ -45,6 +51,29 @@ const AddToCartButton = ({
   };
 
   const handleAddToCart = async () => {
+    // Check stock first
+    if (outOfStock) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Out of Stock',
+        text: 'This product is currently out of stock.',
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
+    if (!canAdd) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Insufficient Stock',
+        text: `Only ${availableStock} items available in stock.`,
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+
     // Use common authentication check
     const { isAuthenticated, token, isLoggedIn } = checkAuth();
     
@@ -149,14 +178,28 @@ const AddToCartButton = ({
     }
   };
 
+  // Determine button text and disabled state
+  const getButtonText = () => {
+    if (outOfStock) {
+      return 'Out of Stock';
+    }
+    if (!canAdd) {
+      return `Only ${availableStock} left`;
+    }
+    return children;
+  };
+
+  const isDisabled = loading || outOfStock || !canAdd;
+
   return (
     <button
       className={className}
       onClick={handleAddToCart}
-      disabled={loading}
+      disabled={isDisabled}
       style={{
-        opacity: loading ? 0.7 : 1,
-        cursor: loading ? 'not-allowed' : 'pointer'
+        opacity: isDisabled ? 0.7 : 1,
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
+        backgroundColor: outOfStock ? '#6c757d' : undefined
       }}
     >
       {loading ? (
@@ -167,7 +210,7 @@ const AddToCartButton = ({
       ) : (
         <>
           <i className="fa fa-shopping-cart" style={{ marginRight: 8 }} />
-          {children}
+          {getButtonText()}
         </>
       )}
     </button>

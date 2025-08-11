@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { calculateDeliveryTime } from "../apis/googleMapsApi";
+import { isOutOfStock, getStockStatusText, getStockStatusColor } from "../utils/stockUtils";
 
 const ProductItem = ({ products = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -61,6 +62,16 @@ const ProductItem = ({ products = [] }) => {
 
   // Helper function to render badge
   const renderBadge = (product) => {
+    // Check for null/undefined product first
+    if (!product) {
+      return null;
+    }
+    
+    // Check for out of stock first
+    if (isOutOfStock(product)) {
+      return <span className="badge bg-danger">Out of Stock</span>;
+    }
+    
     if (product.discount_percentage > 0) {
       return <span className="badge bg-danger">{product.discount_percentage}% OFF</span>;
     }
@@ -76,9 +87,32 @@ const ProductItem = ({ products = [] }) => {
   // Helper function to get delivery time
   const getDeliveryTime = (product) => {
     // Use product ID or a random seed to generate consistent delivery time
-    const seed = product.id || Math.random();
+    const seed = product?.id || Math.random();
     const deliveryTime = calculateDeliveryTime(seed, seed);
     return deliveryTime;
+  };
+
+  // Helper function to handle add to cart click
+  const handleAddToCartClick = (product, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!product) {
+      return;
+    }
+    
+    if (isOutOfStock(product)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Out of Stock',
+        text: 'This product is currently out of stock.',
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+      });
+      return;
+    }
+    
+    handleQuickView(product);
   };
 
   if (!products || products.length === 0) {
@@ -257,7 +291,7 @@ const ProductItem = ({ products = [] }) => {
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      onClick={() => handleQuickView(product)}
+                      onClick={(e) => handleAddToCartClick(product, e)}
                     >
                       <i className="fa fa-plus" />{' '}
                       Add

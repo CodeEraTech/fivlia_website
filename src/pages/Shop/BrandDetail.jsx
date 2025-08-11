@@ -47,6 +47,7 @@ const BrandDetail = () => {
           status: prod.status,
           inCart: prod.inCart?.status || false,
           variants: prod.variants || [],
+          inventory: prod.inventory || [], // Add inventory data
         }));
 
         setBrand(brandData);
