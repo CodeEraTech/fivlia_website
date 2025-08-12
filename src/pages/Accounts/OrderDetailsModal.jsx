@@ -5,6 +5,10 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
   if (!order || !isOpen) return null;
   const getImageUrl = useImageUrl();
 
+  // Calculate subtotal & Platform Fee
+  const subtotal = order.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const platformFeeAmount = subtotal * (order.platformFee / 100);
+
   return (
     <div className="order-modal-overlay" onClick={onClose}>
       <div className="order-modal" onClick={(e) => e.stopPropagation()}>
@@ -30,11 +34,34 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
                   <div className="order-item-details">
                     <span><strong>Qty:</strong> {item.quantity}</span>
                     <span><strong>Price:</strong> ₹{item.price}</span>
-                    <span><strong>GST:</strong> {item.gst}</span>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Order Summary */}
+          <hr />
+          <div className="order-summary">
+            <div className="summary-item">
+              <strong>Subtotal:</strong> ₹{subtotal}
+            </div>
+            <div className="summary-item">
+              <strong >Delivery Charges:</strong> ₹{order.deliveryCharges}
+            </div>
+            <div className="summary-item">
+              <strong>Platform Fee:</strong> ₹{platformFeeAmount}
+            </div>
+            <hr />
+            <div className="summary-item">
+              <strong>Total Amount:</strong> ₹{order.totalPrice}
+            </div>
+            <div className="">
+              <strong style={{color:'#000', fontSize:'0.9rem'}}>Delivery Address:</strong> <br />
+              {order.addressId.fullName}, <br />
+              {order.addressId.fullAddress}, <br />
+              {order.addressId.moibleNumber}
+            </div>
           </div>
         </div>
 
@@ -89,22 +116,24 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
           .order-items {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 14px;
           }
 
           .order-item {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             background: #f9f9f9;
-            padding: 14px;
+            padding: 6px;
             border-radius: 10px;
             align-items: center;
             border: 1px solid #e0e0e0;
+            max-height: 150px;
+            overflow: hidden;
           }
 
           .order-item-img {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
             background: #fff;
@@ -115,22 +144,33 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
           }
 
           .order-item-name {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 3px;
             color: #333;
+            max-width: 100%; 
           }
 
           .order-item-details {
             display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
+            flex-direction: column;
             font-size: 0.95rem;
             color: #555;
           }
 
-          .order-item-details span {
-            min-width: 100px;
+          .summary-item {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .order-summary {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #555;
           }
 
           @media (max-width: 600px) {

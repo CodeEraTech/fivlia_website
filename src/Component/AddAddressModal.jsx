@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { post } from '../apis/apiClient';
 import { ENDPOINTS } from '../apis/endpoints';
+import AreaAutocompleteInput from "./AreaAutocompleteInput"; 
 
 const AddAddressModal = ({ onAddressAdded }) => {
   const [formData, setFormData] = useState({
@@ -97,8 +98,8 @@ const AddAddressModal = ({ onAddressAdded }) => {
 
   return (
     <div className="modal fade" id="addAddressModal" tabIndex={-1} aria-labelledby="addAddressModalLabel" aria-hidden="true">
-      <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div className="modal-content">
+      <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" style={{justifyContent:"center"}}>
+        <div className="modal-content" style={{width:"600px"}}>
           <div className="modal-header">
             <h5 className="modal-title" id="addAddressModalLabel">Add New Address</h5>
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -204,17 +205,7 @@ const AddAddressModal = ({ onAddressAdded }) => {
               </div>
 
               {/* Area - Full Width */}
-              <div className="mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  name="area"
-                  value={formData.area}
-                  onChange={handleInputChange}
-                  placeholder="Area *"
-                  required
-                />
-              </div>
+              <AreaAutocompleteInput formData={formData} setFormData={setFormData} />
 
               {/* Pincode - Full Width */}
               <div className="mb-3">

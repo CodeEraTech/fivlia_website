@@ -9,9 +9,10 @@ import ScrollToTop from "./ScrollToTop";
 import AddAddressModal from '../Component/AddAddressModal';
 import AddressShimmer from '../Component/AddressShimmer';
 import launchRazorpay from '../utils/launchRazorpay';
+import {useSettingValue, useImageUrl} from '../utils/getSettingsValue';
 
 const OrderCheckout = () => {
-  const { cartItems, getCartTotal, getShippingCharge, isInitialized, storeId } = useCart();
+  const { cartItems, getCartTotal, getShippingCharge, isInitialized, storeId, fetchCartItems } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [loaderStatus, setLoaderStatus] = useState(true);
@@ -20,6 +21,8 @@ const OrderCheckout = () => {
   const [addressLoading, setAddressLoading] = useState(true);
   const [addressError, setAddressError] = useState(null);
   const [paymentMode, setPaymentMode] = useState("online");
+  const getSetting = useSettingValue();
+  const getImageUrl = useImageUrl();
   
   useEffect(() => {
     setTimeout(() => {
@@ -67,7 +70,7 @@ const OrderCheckout = () => {
         setAddressError('Failed to load addresses');
       }
     } catch (error) {
-      console.error('Error fetching addresses:', error);
+      // console.error('Error fetching addresses:', error);
       setAddressError('Failed to load addresses. Please try again.');
     } finally {
       setAddressLoading(false);
@@ -83,13 +86,18 @@ const OrderCheckout = () => {
       alert('Please select a delivery address');
       return;
     }
+
+    if (paymentMode === 'cod' && getSetting('codLimit') < getCartTotal() + getShippingCharge() + getSetting('Delivery_Charges')) {
+      alert('Order amount is greater than the COD limit. Use Online Payment instead.');
+      return;
+    }
   
     try {
       const orderPayload = {
         addressId: selectedAddress,
         cartIds: cartItems.map(item => item._id),
         paymentMode: paymentMode === 'cod' ? true : 'online',
-        totalAmount: getCartTotal() + getShippingCharge(),
+        totalAmount: getCartTotal() + getShippingCharge() + getSetting('Delivery_Charges'),
         storeId: storeId,
       };
   
@@ -97,18 +105,19 @@ const OrderCheckout = () => {
       const { order, tempOrder, tempOrderId } = response.data || {};
        // ✅ Case 1: COD — handle directly
       if (order && order.cashOnDelivery === true && order.paymentStatus === "Successful") {
+        fetchCartItems();
         alert("Order placed successfully with Cash on Delivery!");
-        navigate('/');
+        navigate('/MyAccountOrder');
         return;
       }
       // ✅ Case 2: Online payment — proceed to Razorpay
       if (tempOrder && tempOrderId && tempOrder.totalPrice) {
         const amountInPaisa = Math.round(tempOrder.totalPrice * 100);
-
         launchRazorpay({
           tempOrderId,
           amount: amountInPaisa,
           onSuccess: () => {
+            fetchCartItems();
             alert("Payment successful and order confirmed!");
             navigate('/MyAccountOrder');
           },
@@ -332,7 +341,7 @@ const OrderCheckout = () => {
                             <div className="row align-items-center">
                               <div className="col-2 col-md-2">
                                 <img 
-                                  src={item.image || '/assets/img/no_image.jpg'} 
+                                  src={getImageUrl(item.image)} 
                                   alt={item.name} 
                                   className="img-fluid"
                                   onError={(e) => {
@@ -360,16 +369,23 @@ const OrderCheckout = () => {
                           </div>
                           <div className="d-flex align-items-center justify-content-between">
                             <div>
-                              Service Fee{" "}
+                              Platform Fee{" "}
                               <i className="feather-icon icon-info text-muted" data-bs-toggle="tooltip" title="Default tooltip" />
                             </div>
                             <div className="fw-bold">₹{getShippingCharge()}</div>
+                          </div>
+                          <div className="d-flex align-items-center justify-content-between">
+                          <div>
+                              Delivery Charges{" "}
+                              <i className="feather-icon icon-info text-muted" data-bs-toggle="tooltip" title="Default tooltip" />
+                            </div>
+                            <div className="fw-bold">₹{getSetting('Delivery_Charges')}</div>
                           </div>
                         </li>
                         <li className="list-group-item px-4 py-3">
                           <div className="d-flex align-items-center justify-content-between fw-bold">
                             <div>Total</div>
-                            <div>₹{getCartTotal() + getShippingCharge()}</div>
+                            <div>₹{getCartTotal() + getShippingCharge() + getSetting('Delivery_Charges')}</div>
                           </div>
                         </li>
                       </ul>

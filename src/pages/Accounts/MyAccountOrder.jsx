@@ -11,6 +11,8 @@ const MyAccountOrder = () => {
   const [loaderStatus, setLoaderStatus] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -20,7 +22,6 @@ const MyAccountOrder = () => {
         });
         setOrders(response.data?.orders || []);
       } catch (error) {
-        //console.error("Error fetching orders:", error);
         alert("Failed to load orders.");
       } finally {
         setLoaderStatus(false);
@@ -45,6 +46,19 @@ const MyAccountOrder = () => {
         return <span className="badge bg-success">Completed</span>;
       default:
         return <span className="badge bg-secondary">{status}</span>;
+    }
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(orders.length / rowsPerPage);
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  const handlePageChange = (pageNum) => {
+    if (pageNum >= 1 && pageNum <= totalPages) {
+      setCurrentPage(pageNum);
     }
   };
 
@@ -74,31 +88,34 @@ const MyAccountOrder = () => {
                     <th>Items</th>
                     <th>Status</th>
                     <th>Amount</th>
+                    <th>Payment Mode</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.length === 0 ? (
+                  {paginatedOrders.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-4">
+                      <td colSpan="7" className="text-center py-4">
                         No orders found.
                       </td>
                     </tr>
                   ) : (
-                    orders.map((order) => (
+                    paginatedOrders.map((order) => (
                       <tr key={order._id}>
                         <td>#{order.orderId}</td>
                         <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td>{order.items.length}</td>
                         <td>{renderOrderStatusBadge(order.orderStatus)}</td>
                         <td>₹{order.totalPrice?.toFixed(2)}</td>
+                        <td>{order.cashOnDelivery ? 'Cash on Delivery (COD)' : 'Online'}</td>
                         <td>
                           <button
                             className="btn btn-sm btn-outline-primary"
                             onClick={() => openModal(order)}
+                            title="Order Details"
                           >
                             <i className="fas fa-eye me-1" />
-                            View Details
+                            View
                           </button>
                         </td>
                       </tr>
@@ -107,12 +124,41 @@ const MyAccountOrder = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <nav className="d-flex justify-content-center mt-4">
+                <ul className="pagination">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                      Previous
+                    </button>
+                  </li>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <li
+                      key={i}
+                      className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
+                    >
+                      <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                        {i + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
           </div>
-        <OrderDetailsModal
-          order={selectedOrder}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
+
+          <OrderDetailsModal
+            order={selectedOrder}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </AccountLayout>
       )}
     </>

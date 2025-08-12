@@ -4,6 +4,7 @@ import { useCart } from "../contexts/CartContext";
 import CartShimmer from "./CartShimmer";
 import { isOutOfStock, getStockStatusText } from "../utils/stockUtils";
 import Swal from 'sweetalert2';
+import { useImageUrl } from "../utils/getSettingsValue";
 
 const CartCanvas = () => {
   const { 
@@ -20,6 +21,7 @@ const CartCanvas = () => {
   } = useCart();
 
   const navigate = useNavigate();
+  const getImageUrl = useImageUrl();
 
   const handleQuantityChange = (cartItemId, newQuantity) => {
     if (newQuantity > 0) {
@@ -175,7 +177,7 @@ const CartCanvas = () => {
                       <div className="row align-items-center g-2">
                         <div className="col-3 col-sm-2 position-relative">
                           <img
-                            src={item.image || '/assets/img/no_image.jpg'}
+                            src={getImageUrl(item.image)}
                             alt={item.name}
                             className="img-fluid rounded"
                             onError={(e) => {

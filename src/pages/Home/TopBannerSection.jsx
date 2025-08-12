@@ -83,7 +83,7 @@ const TopBannerSection = () => {
     setLoading(true);
     get(ENDPOINTS.BANNERS)
       .then((res) => {
-        console.log(ENDPOINTS.BANNERS, res);
+        // console.log(ENDPOINTS.BANNERS, res);
         if (isMounted) {
           // The response structure is: { message, count, data: [...] }
           setBanners(res?.data?.data || []);

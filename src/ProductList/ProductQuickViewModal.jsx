@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddToCartButton from "../Component/AddToCartButton";
 import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStock } from "../utils/stockUtils";
+import { useImageUrl } from "../utils/getSettingsValue";
 
 const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   // Move all hooks to the top before any conditional returns
@@ -8,6 +9,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   const [selectedImage, setSelectedImage] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
+  const getImageUrl = useImageUrl();
 
   // Gather all images (main + variants)
   const images = product?.productImageUrl && Array.isArray(product.productImageUrl)
@@ -50,7 +52,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
             <div className="pqv-modal-left">
               <div className="pqv-main-image-wrapper">
                 <img
-                  src={selectedImage || '/assets/img/no_image.jpg'}
+                  src={getImageUrl(selectedImage)}
                   alt={product.name}
                   className="pqv-main-image"
                   onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
@@ -61,7 +63,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   {images.map((img, idx) => (
                     <img
                       key={img + idx}
-                      src={img || '/assets/img/no_image.jpg'}
+                      src={getImageUrl(img)}
                       alt={`Thumbnail ${idx + 1}`}
                       className={`pqv-thumbnail${selectedImage === img ? ' selected' : ''}`}
                       onClick={() => setSelectedImage(img)}

@@ -1,40 +1,43 @@
 import { useSettings } from '../contexts/SettingsContext.jsx';
 
-// Non-hook version for utility functions (used internally)
-const getSettingsValueSync = (settings, key, fallback = null) => {
-  try {
-    // If no settings available, return fallback
-    if (!settings) {
-      console.warn(`Settings not available, using fallback for key: ${key}`);
+/**
+ * Hook to get a single setting value from context with fallback.
+ */
+export const useSettingValue = () => {
+  const { settings } = useSettings();
+
+  return (key, fallback = null) => {
+    try {
+      if (!settings) {
+        console.warn(`Settings not available, using fallback for key: ${key}`);
+        return fallback;
+      }
+
+      const value = settings[key];
+      if (value === undefined || value === null) {
+        console.warn(`Key "${key}" not found in settings, using fallback`);
+        return fallback;
+      }
+
+      return value;
+    } catch (error) {
+      console.error(`Error getting setting for key "${key}":`, error);
       return fallback;
     }
-
-    // Get the value from settings
-    const value = settings[key];
-
-    // If value is undefined or null, return fallback
-    if (value === undefined || value === null) {
-      console.warn(`Key "${key}" not found in settings, using fallback`);
-      return fallback;
-    }
-
-    return value;
-  } catch (error) {
-    console.error(`Error getting value for key "${key}":`, error);
-    return fallback;
-  }
+  };
 };
 
-// Hook-based image URL function for use inside components
+/**
+ * Hook to generate image URLs using base path from settings.
+ */
 export const useImageUrl = () => {
-  const { settings } = useSettings();
-  
-  const getImageUrl = (path) => {
-    const fallbackUrl = "/assets/img/no_image.jpg"; 
+  const getSettingValue = useSettingValue();
+
+  return (path) => {
+    const fallbackUrl = "/assets/img/no_image.jpg";
     if (!path) return fallbackUrl;
-    const base = getSettingsValueSync(settings, 'imageLink', "");
+
+    const base = getSettingValue('imageLink', '');
     return path.startsWith("http") ? path : `${base}${path}`;
   };
-
-  return getImageUrl;
 };
