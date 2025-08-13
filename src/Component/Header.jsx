@@ -112,7 +112,10 @@ const Header = () => {
     setBrandLoading(true);
     get(ENDPOINTS.BRANDS)
       .then((res) => {
-        setTopBrands(res.data?.featuredBrands || []);
+        const sortedBrands = res.data?.featuredBrands.sort((a, b) => {
+          return a.brandName.localeCompare(b.brandName);
+        });
+        setTopBrands(sortedBrands || []);
         setBrandError(null);
       })
       .catch((err) => {

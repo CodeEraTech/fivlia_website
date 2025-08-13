@@ -3,11 +3,10 @@ import { get } from "../../apis/apiClient.jsx";
 import { ENDPOINTS } from "../../apis/endpoints";
 import { useImageUrl } from "../../utils/getSettingsValue";
 import { Link } from "react-router-dom";
+import { Slide } from "react-awesome-reveal";
 
-// Responsive height hook (inline in this file)
 const useResponsiveBannerHeight = () => {
- const [height, setHeight] = useState(140);  // default tall
-
+  const [height, setHeight] = useState(300);
   useEffect(() => {
     const updateHeight = () => {
       if (window.innerWidth < 480) setHeight(220);
@@ -20,32 +19,30 @@ const useResponsiveBannerHeight = () => {
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
-
   return height;
 };
 
-const bannerCarouselSettings = {
-  dots: true,
-  infinite: true,
-  speed: 1000,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 7000
+// Group banners into chunks of 2
+const chunkArray = (arr, size) => {
+  const result = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
 };
 
 const OfferBannerSection = () => {
   const [banners, setBanners] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const bannerHeight = useResponsiveBannerHeight();
   const getImageUrl = useImageUrl();
 
   useEffect(() => {
     let isMounted = true;
-    setLoading(true);
     const offerBannerEndpoint = `${ENDPOINTS.BANNERS}&type=offer`;
+
     get(offerBannerEndpoint)
       .then((res) => {
         if (isMounted) {
@@ -59,106 +56,80 @@ const OfferBannerSection = () => {
       .finally(() => {
         if (isMounted) setLoading(false);
       });
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  useEffect(() => {
-    if (!banners.length) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % banners.length);
-    }, bannerCarouselSettings.autoplaySpeed);
-    return () => clearInterval(interval);
-  }, [banners]);
+  const groupedBanners = chunkArray(banners, 2);
 
-  const goToPrev = () =>
-    setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  const goToNext = () =>
-    setActiveIndex((prev) => (prev + 1) % banners.length);
+  useEffect(() => {
+    if (!groupedBanners.length) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % groupedBanners.length);
+    }, 7000); // change slide every 7s
+    return () => clearInterval(interval);
+  }, [groupedBanners]);
 
   if (!loading && !error && banners.length === 0) return null;
 
   return (
-    <section className="offer-banner-section">
-      <div className="container mt-4">
+    <section className="offer-banner-section py-3">
+      <div className="container">
         {loading && (
-          <div className="banner-shimmer-wrapper text-center py-3">
-            <div
-              className="banner-shimmer shimmer-bg"
-              style={{
-                width: "100%",
-                minHeight: bannerHeight,
-                borderRadius: ".5rem"
-              }}
-            />
-            <style>{`
-              .shimmer-bg {
-                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
-                background-size: 400% 100%;
-                animation: shimmer 1.2s ease-in-out infinite;
-              }
-              @keyframes shimmer {
-                0% { background-position: -400px 0; }
-                100% { background-position: 400px 0; }
-              }
-            `}</style>
-          </div>
+          <div className="text-center shimmer-bg" style={{ minHeight: bannerHeight }} />
         )}
+        {error && <div className="text-danger text-center py-2">{error}</div>}
 
-        {error && <div className="text-center text-danger py-3">{error}</div>}
-
-        {!loading && !error && banners.length > 0 && (
-          <div
-            id="offerCarouselExampleFade"
-            className="carousel slide carousel-fade"
-          >
-            <div className="carousel-inner">
-              {banners.map((banner, idx) => (
-                <div
-                  className={`carousel-item${idx === activeIndex ? " active" : ""}`}
-                  key={banner._id || idx}
-                >
+        {!loading && !error && groupedBanners.length > 0 && (
+          <div className="row">
+            {groupedBanners[activeIndex].map((banner, idx) => (
+              <div className="col-12 col-lg-6 mb-3 fade-in-left" key={banner._id || idx}>
+                <Slide direction={idx % 2 === 0 ? "left" : "right"}>
                   <Link
-                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ''}`}
+                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ""}`}
                     style={{ textDecoration: "none" }}
                   >
                     <div
+                      className="py-10 px-8 rounded-3 text-white"
                       style={{
-                        background: `url(${getImageUrl(banner.image)}) no-repeat center / cover`,
-                        borderRadius: ".5rem",
-                        minHeight: bannerHeight,
-                        width: "100%"
+                        backgroundImage: `url(${getImageUrl(banner.image)})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: "contain",
+                        backgroundPosition: "center",
+                        height: 180,
+                        borderRadius: "1rem",
                       }}
-                    />
+                    >
+                      {/* <div>
+                        <h3 className="fw-bold mb-1">{banner.title || "Offer Title"}</h3>
+                        {banner.subtitle && (
+                          <p className="mb-4">{banner.subtitle}</p>
+                        )}
+                        <span className="btn btn-dark">Shop Now</span>
+                      </div> */}
+                    </div>
                   </Link>
-                </div>
-              ))}
-            </div>
-
-            {banners.length > 1 && (
-              <>
-                <button
-                  className="carousel-control-prev"
-                  type="button"
-                  onClick={goToPrev}
-                >
-                  <span className="carousel-control-prev-icon"></span>
-                  <span className="visually-hidden">Previous</span>
-                </button>
-                <button
-                  className="carousel-control-next"
-                  type="button"
-                  onClick={goToNext}
-                >
-                  <span className="carousel-control-next-icon"></span>
-                  <span className="visually-hidden">Next</span>
-                </button>
-              </>
-            )}
+                </Slide>
+              </div>
+            ))}
           </div>
         )}
       </div>
+
+      <style>{`
+        .shimmer-bg {
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+          background-size: 400% 100%;
+          animation: shimmer 1.2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+          0% { background-position: -400px 0; }
+          100% { background-position: 400px 0; }
+        }
+      `}</style>
     </section>
   );
 };
