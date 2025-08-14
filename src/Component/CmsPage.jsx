@@ -9,10 +9,16 @@ function CmsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper function to decode HTML entities
+  const decodeHTML = (html) => {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  };
+
   useEffect(() => {
     setLoading(true);
 
-    // 1. Get all active pages first
     get(ENDPOINTS.PAGES)
       .then(res => {
         const allPages = Array.isArray(res.data?.getPage)
@@ -27,12 +33,13 @@ function CmsPage() {
           return;
         }
 
-        // 2. Get page content using ID
         return get(`${ENDPOINTS.PAGES}?id=${matched._id}`);
       })
       .then(res => {
         if (res?.data?.getPage) {
-          setPage(res.data.getPage);
+          // Decode before setting state
+          const decodedContent = decodeHTML(res.data.getPage.pageContent);
+          setPage({ ...res.data.getPage, pageContent: decodedContent });
         } else {
           setError("Page content not found");
         }
