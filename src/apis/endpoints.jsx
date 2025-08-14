@@ -29,4 +29,5 @@ export const ENDPOINTS = {
   PLACE_ORDER: "/placeOrder",
   VERIFY_PAYMENT: '/verifyPayment',
   GET_ORDERS: "/orders",
+  PAGES:"/getPage",
 }; 

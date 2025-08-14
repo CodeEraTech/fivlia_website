@@ -36,6 +36,8 @@ import HelpCenter from "./pages/FooterElements/HelpCenter";
 import OtpVerification from "./pages/Accounts/OtpVerification";
 import ProductDetails from './ProductList/ProductDetails';
 import BrandDetail from "./pages/Shop/BrandDetail";
+import CmsPage from "./Component/CmsPage.jsx";
+
 
 const App = () => {
   return (
@@ -66,12 +68,13 @@ const App = () => {
           <Route path="/Blog" element={<Blog />} />
           <Route path="/BlogCategory" element={<BlogCategory />} />
           <Route path="/Contact" element={<Contact />} />
-          <Route path="/AboutUs" element={<AboutUs />} />
+          {/* <Route path="/about-us" element={<AboutUs />} /> */}
           {/* Footer Elements */}
           <Route path="/Faq" element={<FAQ />} />
           <Route path="/Coupons" element={<Coupons />} />
           <Route path="/Careers" element={<Careers />} />
           <Route path="/helpcenter" element={<HelpCenter />} />
+             <Route path="/:pageSlug" element={<CmsPage />} />
         </Routes>
         <Footer/>
       </Router>
