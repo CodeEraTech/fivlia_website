@@ -31,8 +31,8 @@ const Header = () => {
   const [brandLoading, setBrandLoading] = useState(true);
   const [brandError, setBrandError] = useState(null);
   const getImageUrl = useImageUrl();
-    const [pages, setPages] = useState([]);
-     const activePages = pages.filter(p => p.status && p.pageSlug && p.pageTitle);
+  const [pages, setPages] = useState([]);
+  const activePages = pages.filter(p => p.status && p.pageSlug && p.pageTitle);
   
   const handleClick = () => {
     setIsOpen(!isOpen);
@@ -110,9 +110,8 @@ const Header = () => {
     };
   }, []);
 
-   // API se pages fetch karna
   useEffect(() => {
-    get(ENDPOINTS.PAGES) // apne API endpoint ka name yahan lagana
+    get(ENDPOINTS.PAGES)
       .then((res) => {
         setPages(res.data?.getPage || []);
       })

@@ -1,0 +1,197 @@
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { MagnifyingGlass } from "react-loader-spinner";
+import ScrollToTop from "../ScrollToTop";
+
+const BecomeADeliveryPartner = () => {
+  const [loaderStatus, setLoaderStatus] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoaderStatus(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    Swal.fire({
+      icon: "success",
+      title: "Thank you!",
+      text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
+      confirmButtonColor: "#0aad0a"
+    });
+  };
+
+  return (
+    <div>
+      {loaderStatus ? (
+        <div className="loader-container d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+          <MagnifyingGlass
+            visible={true}
+            height="100"
+            width="100"
+            ariaLabel="magnifying-glass-loading"
+            wrapperStyle={{}}
+            wrapperClassName="magnifying-glass-wrapper"
+            glassColor="#c0efff"
+            color="#0aad0a"
+          />
+        </div>
+      ) : (
+        <>
+          <ScrollToTop />
+          <section className="my-lg-14 my-8">
+            <div className="container">
+              <div className="row">
+                <div className="offset-lg-2 col-lg-8 col-12">
+                  <div className="mb-8">
+                    <h1 className="h3">Become a Delivery Partner</h1>
+                    <p className="lead mb-0">
+                      Want to deliver with us? Fill out the form below, and our team will review your application.
+                    </p>
+                  </div>
+                  <form className="row" onSubmit={handleSubmit}>
+                    {/* First Name */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        First Name<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Your First Name"
+                        required
+                      />
+                    </div>
+
+                    {/* Last Name */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Last Name<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Your Last Name"
+                        required
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Email<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        placeholder="Your Email"
+                        required
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Phone<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        placeholder="Your Phone Number"
+                        required
+                      />
+                    </div>
+
+                    {/* Vehicle Type */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Vehicle Type</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Bike, Scooter, Car, Van, etc."
+                      />
+                    </div>
+
+                    {/* Vehicle Reg No */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Vehicle Registration Number<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="e.g., DL01AB1234"
+                        required
+                      />
+                    </div>
+
+                    {/* Driving License Number */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Driving License Number<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter DL Number"
+                        required
+                      />
+                    </div>
+
+                    {/* Upload Driving License */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Upload Driving License<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        required
+                      />
+                    </div>
+
+                    {/* Upload ID Proof */}
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        Upload ID Proof<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        required
+                      />
+                    </div>
+
+                    {/* Additional Comments */}
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">Additional Information</label>
+                      <textarea
+                        rows={3}
+                        className="form-control"
+                        placeholder="Any additional comments or availability notes"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="col-md-12">
+                      <button type="submit" className="btn btn-primary">
+                        Submit
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default BecomeADeliveryPartner;

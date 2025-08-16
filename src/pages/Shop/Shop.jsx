@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import assortment from "../../images/assortment-citrus-fruits.png";
 import { Link, useLocation } from "react-router-dom";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ScrollToTop from "../ScrollToTop";

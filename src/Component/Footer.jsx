@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import amazonpay from "../images/amazonpay.svg";
@@ -6,10 +6,25 @@ import american from "../images/american-express.svg";
 import mastercard from "../images/mastercard.svg";
 import paypal from "../images/paypal.svg";
 import visa from "../images/visa.svg";
+import { get } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
 
 const Footer = () => {
   let date = new Date();
   let year = date.getFullYear();
+  const [pages, setPages] = useState([]);
+  
+  useEffect(() => {
+    get(ENDPOINTS.PAGES)
+      .then((res) => {
+        let activePages = res.data?.getPage;
+        activePages = activePages.filter(p => p.status && p.pageSlug && p.pageTitle);
+        setPages(activePages || []);
+      })
+      .catch((err) => {
+        // console.error("Error fetching pages:", err);
+      });
+  }, []);
   return (
     <div>
       <style>{`
@@ -171,22 +186,25 @@ const Footer = () => {
             <div className="footer-section">
               <div className="footer-title">For Consumers</div>
               <ul className="footer-link-list">
-                <li><Link to="/Careers">Careers</Link></li>
-                <li><Link to="/Coupons">Promos &amp; Coupons</Link></li>
-                <li><Link to="/MyAccountOrder">Shipping</Link></li>
-                <li><Link to="/MyAccountOrder">Product Returns</Link></li>
-                <li><Link to="/MyAcconutPaymentMethod">Payments</Link></li>
-                <li><Link to="/Faq">FAQ</Link></li>
+              {pages.map((page, index) => (
+                  <React.Fragment key={page._id}>
+                    <li>
+                      <Link
+                        to={`/${page.pageSlug}`}
+                        className="text-decoration-none text-muted"
+                      >
+                        {page.pageTitle}
+                      </Link>
+                    </li>
+                  </React.Fragment>
+                ))}
               </ul>
             </div>
             <div className="footer-section">
-              <div className="footer-title">Get to know us</div>
+              <div className="footer-title">Careers</div>
               <ul className="footer-link-list">
-                <li><Link to="/AboutUs">Company</Link></li>
-                <li><Link to="/AboutUs">About</Link></li>
-                <li><Link to="/Blog">Blog</Link></li>
-                <li><Link to="/helpcenter">Help Center</Link></li>
-                <li><Link to="/Blog">Our Value</Link></li>
+                <li><Link to="/become-a-seller">Become A Seller</Link></li>
+                <li><Link to="/become-a-delivery-partner">Become A Delivery Partner</Link></li>
               </ul>
             </div>
             <div className="footer-section">
