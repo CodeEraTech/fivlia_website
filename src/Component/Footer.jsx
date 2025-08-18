@@ -8,11 +8,14 @@ import paypal from "../images/paypal.svg";
 import visa from "../images/visa.svg";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
+import { useAuth } from "../contexts/AuthContext";
+
 
 const Footer = () => {
   let date = new Date();
   let year = date.getFullYear();
   const [pages, setPages] = useState([]);
+  const { isLoggedIn, logout } = useAuth();
   
   useEffect(() => {
     get(ENDPOINTS.PAGES)
@@ -201,11 +204,50 @@ const Footer = () => {
               </ul>
             </div>
             <div className="footer-section">
-              <div className="footer-title">Careers</div>
-              <ul className="footer-link-list">
-                <li><Link to="/become-a-seller">Become A Seller</Link></li>
-                <li><Link to="/become-a-delivery-partner">Become A Delivery Partner</Link></li>
-              </ul>
+              <div className="footer-title">Usefull Links</div>
+             <ul className="footer-link-list">
+  <li>
+    <Link to="/become-a-seller">Seller App</Link>
+  </li>
+  <li>
+    <Link to="/become-a-delivery-partner">Delivery Partner</Link>
+  </li>
+
+  {isLoggedIn ? (
+    <>
+      <li>
+        <Link to="/MyAccountOrder">Track Orders</Link>
+      </li>
+      <li>
+        <Link to="/MyAccountOrder">My Accounts</Link>
+      </li>
+    </>
+  ) : (
+    <>
+      <li>
+        <a
+          href="#"
+          data-bs-toggle="modal"
+          data-bs-target="#userModal"
+          className="text-muted"
+        >
+          Track Orders
+        </a>
+      </li>
+      <li>
+        <a
+          href="#"
+          data-bs-toggle="modal"
+          data-bs-target="#userModal"
+          className="text-muted"
+        >
+          My Accounts
+        </a>
+      </li>
+    </>
+  )}
+</ul>
+
             </div>
             <div className="footer-section">
               <div className="footer-title">Stay Connected</div>

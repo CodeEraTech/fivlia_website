@@ -28,6 +28,6 @@ export const ENDPOINTS = {
   GET_DELIVERY_ESTIMATE: "/getDeliveryEstimateForWebsite",
   PLACE_ORDER: "/placeOrder",
   VERIFY_PAYMENT: '/verifyPayment',
-  GET_ORDERS: "/orders",
+  GET_ORDERS: "/getOrderDetails",
   PAGES:"/getPage",
 }; 

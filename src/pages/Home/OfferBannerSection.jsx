@@ -3,7 +3,7 @@ import { get } from "../../apis/apiClient.jsx";
 import { ENDPOINTS } from "../../apis/endpoints";
 import { useImageUrl } from "../../utils/getSettingsValue";
 import { Link } from "react-router-dom";
-import { Slide } from "react-awesome-reveal";
+import { CSSTransition, TransitionGroup } from "react-transition-group"; // ✅ for fade animations
 
 const useResponsiveBannerHeight = () => {
   const [height, setHeight] = useState(300);
@@ -68,7 +68,7 @@ const OfferBannerSection = () => {
     if (!groupedBanners.length) return;
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % groupedBanners.length);
-    }, 7000); // change slide every 7s
+    }, 5000); // every 5s
     return () => clearInterval(interval);
   }, [groupedBanners]);
 
@@ -78,57 +78,92 @@ const OfferBannerSection = () => {
     <section className="offer-banner-section py-3">
       <div className="container">
         {loading && (
-          <div className="text-center shimmer-bg" style={{ minHeight: bannerHeight }} />
+          <div
+            className="text-center shimmer-bg"
+            style={{ minHeight: bannerHeight }}
+          />
         )}
         {error && <div className="text-danger text-center py-2">{error}</div>}
 
         {!loading && !error && groupedBanners.length > 0 && (
-          <div className="row">
-            {groupedBanners[activeIndex].map((banner, idx) => (
-              <div className="col-12 col-lg-6 mb-3 fade-in-left" key={banner._id || idx}>
-                <Slide direction={idx % 2 === 0 ? "left" : "right"}>
-                  <Link
-                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ""}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <div
-                      className="py-10 px-8 rounded-3 text-white"
-                      style={{
-                        backgroundImage: `url(${getImageUrl(banner.image)})`,
-                        backgroundRepeat: "no-repeat",
-                        backgroundSize: "contain",
-                        backgroundPosition: "center",
-                        height: 180,
-                        borderRadius: "1rem",
-                      }}
+          <TransitionGroup className="row position-relative">
+            <CSSTransition
+              key={activeIndex}
+              timeout={800}
+              classNames="fade-banner"
+            >
+              <div className="row w-100 m-0">
+                {groupedBanners[activeIndex].map((banner, idx) => (
+                  <div className="col-12 col-lg-6 mb-3" key={banner._id || idx}>
+                    <Link
+                      to={`/Shop?category=${
+                        banner.mainCategory?._id || banner.mainCategory || ""
+                      }`}
+                      style={{ textDecoration: "none" }}
                     >
-                      {/* <div>
-                        <h3 className="fw-bold mb-1">{banner.title || "Offer Title"}</h3>
-                        {banner.subtitle && (
-                          <p className="mb-4">{banner.subtitle}</p>
-                        )}
-                        <span className="btn btn-dark">Shop Now</span>
-                      </div> */}
-                    </div>
-                  </Link>
-                </Slide>
+                      <div
+                        className="py-10 px-8 rounded-3 text-white shadow-lg"
+                        style={{
+                          backgroundImage: `url(${getImageUrl(banner.image)})`,
+                          backgroundRepeat: "no-repeat",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          height: 200,
+                          borderRadius: "1rem",
+                          transition: "transform 0.4s ease",
+                        }}
+                      />
+                    </Link>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </CSSTransition>
+          </TransitionGroup>
         )}
       </div>
 
+      {/* ✅ CSS inside the same file */}
       <style>{`
-        .shimmer-bg {
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
-          background-size: 400% 100%;
-          animation: shimmer 1.2s ease-in-out infinite;
-        }
+      /* modern fade animation for banners */
+.fade-banner-enter {
+  opacity: 0;
+  transform: scale(0.95) translateY(20px);
+}
+.fade-banner-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: all 600ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.fade-banner-exit {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+.fade-banner-exit-active {
+  opacity: 0;
+  transform: scale(0.95) translateY(-20px);
+  transition: all 600ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 
-        @keyframes shimmer {
-          0% { background-position: -400px 0; }
-          100% { background-position: 400px 0; }
-        }
+/* shimmer loader */
+.shimmer-bg {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* hover effect */
+.offer-banner-section .col-lg-6 div {
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.offer-banner-section .col-lg-6 div:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+
       `}</style>
     </section>
   );

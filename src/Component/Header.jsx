@@ -124,7 +124,7 @@ const Header = () => {
     setBrandLoading(true);
     get(ENDPOINTS.BRANDS)
       .then((res) => {
-        const sortedBrands = res.data?.featuredBrands.sort((a, b) => {
+        const sortedBrands = res.data?.allBrands.sort((a, b) => {
           return a.brandName.localeCompare(b.brandName);
         });
         setTopBrands(sortedBrands || []);
@@ -340,7 +340,7 @@ const Header = () => {
             <input
               ref={inputRef}
               className="form-control responsivesearch px-3"
-              style={{ width: '100%', minWidth: 120, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
+              style={{ width: '100%', minWidth: 250, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
               id="product-search-input"
               placeholder="Search for products..."
               value={searchQuery}
@@ -491,7 +491,7 @@ const Header = () => {
             <input
               ref={inputRef}
               className="form-control responsivesearch"
-              style={{ width: '100%', minWidth: 300, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
+              style={{ width: '100%', minWidth: 520, paddingRight: 40, borderRadius: 12, fontSize: '1rem', boxShadow: '0 2px 8px rgba(48,87,78,0.06)' }}
               id="product-search-input-desktop"
               placeholder="Search for products..."
               value={searchQuery}
