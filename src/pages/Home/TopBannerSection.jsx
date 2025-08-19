@@ -81,7 +81,8 @@ const TopBannerSection = () => {
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
-    get(ENDPOINTS.BANNERS)
+    const BannerEndpoint = `${ENDPOINTS.BANNERS}&type=normal`;
+    get(BannerEndpoint)
       .then((res) => {
         // console.log(ENDPOINTS.BANNERS, res);
         if (isMounted) {
