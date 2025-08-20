@@ -11,6 +11,7 @@ import MyAccountOrder from "./pages/Accounts/MyAccountOrder";
 import MyAccountSetting from "./pages/Accounts/MyAcconutSetting";
 import MyAccountAddress from "./pages/Accounts/MyAccountAddress";
 import OtpVerification from "./pages/Accounts/OtpVerification";
+import DeleteAccount from "./pages/Accounts/DeleteAccount";
 import ProductDetails from './ProductList/ProductDetails';
 import BrandDetail from "./pages/Shop/BrandDetail";
 import CmsPage from "./Component/CmsPage.jsx";
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="/become-a-seller" element={<BecomeASeller />} />
           <Route path="/become-a-delivery-partner" element={<BecomeADeliveryPartner />} />
           <Route path="/:pageSlug" element={<CmsPage />} />
+          <Route path="/delete-account" element={<DeleteAccount  />} />
         </Routes>
         <Footer/>
       </Router>
