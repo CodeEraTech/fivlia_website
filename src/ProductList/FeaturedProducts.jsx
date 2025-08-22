@@ -29,6 +29,7 @@ const FeaturedProducts = () => {
             category: product.category?.[0]?.name || 'Category',
             category_id: product.category?.[0]?._id || '',
             brand: product.brand_Name?.name || 'Brand',
+            brandId: product.brand_Name?._id || '',
             unit: product.unit?.name || '',
             tax: product.tax,
             rating: 4.5, // Default rating since not in API

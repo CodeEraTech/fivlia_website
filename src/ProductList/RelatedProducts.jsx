@@ -63,12 +63,12 @@ const RelatedProducts = ({ productId }) => {
     name: product.productName,
     description: product.description,
     image: getImageUrl(product.productImageUrl?.[0]),
-
     price: (product.variants && product.variants[0] && product.variants[0].sell_price) || product.sell_price || product.price,
     mrp: (product.variants && product.variants[0] && product.variants[0].mrp) || product.mrp,
     category: (product.category && product.category[0] && product.category[0].name) || 'Category',
     category_id: (product.category && product.category[0] && product.category[0]._id) || '',
     brand: (product.brand_Name && product.brand_Name.name) || 'Brand',
+    brandId: product.brand_Name?._id || '',
     unit: (product.unit && product.unit.name) || '',
     tax: product.tax,
     rating: 4.5, // Default rating since not in API

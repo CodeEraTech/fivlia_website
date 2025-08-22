@@ -59,6 +59,7 @@ function Dropdown() {
             subCategory: prod.subCategory || [],
             subSubCategory: prod.subSubCategory || [],
             brand: prod.brand_Name && prod.brand_Name.name,
+            brandId: prod.brand_Name?._id || '',
             rating: prod.rating && (prod.rating.rate || prod.rating) || 0,
             review_count: prod.rating && prod.rating.users || 0,
             is_hot: prod.is_hot || prod.feature_product || false,

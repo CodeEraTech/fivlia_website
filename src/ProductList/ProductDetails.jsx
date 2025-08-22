@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
 import RelatedProducts from "./RelatedProducts";
 import AddToCartButton from "../Component/AddToCartButton";
@@ -8,13 +8,13 @@ import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStoc
 const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-   const getImageUrl = useImageUrl();
+  const getImageUrl = useImageUrl();
   const product = location.state?.product;
 
   if (!product) return (
-    <div style={{padding: '2rem', textAlign: 'center'}}>
-      <div style={{fontSize: '1.2rem', color: '#e53935', marginBottom: 16}}>No product data provided.<br/>Please access this page via the product search or product list.</div>
-      <button onClick={() => navigate('/')} style={{padding: '0.5rem 1.5rem', background: '#0aad0a', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer'}}>Go to Home</button>
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <div style={{ fontSize: '1.2rem', color: '#e53935', marginBottom: 16 }}>No product data provided.<br />Please access this page via the product search or product list.</div>
+      <button onClick={() => navigate('/')} style={{ padding: '0.5rem 1.5rem', background: '#0aad0a', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}>Go to Home</button>
     </div>
   );
 
@@ -47,7 +47,7 @@ const ProductDetails = () => {
   const availableStock = getAvailableStock(product, selectedVariant);
 
   return (
-    <div className="container-fluid pqv-modal-content" style={{margin: '2rem auto', background: 'transparent', boxShadow: 'none', borderRadius: 0, border: 'none', overflowX: 'hidden'}}>
+    <div className="container-fluid pqv-modal-content" style={{ margin: '2rem auto', background: 'transparent', boxShadow: 'none', borderRadius: 0, border: 'none', overflowX: 'hidden' }}>
       <div className="pqv-details-row">
         {/* Left: Images */}
         <div className="pqv-modal-left">
@@ -82,7 +82,14 @@ const ProductDetails = () => {
           <div className="pqv-product-meta">
             <span className="pqv-category">{product.category?.[0]?.name || (product.category && product.category.name) || ''}</span>
             {(product.brand_Name?.name || product.brand) && (
-              <><span className="pqv-brand">Brand: {product.brand_Name?.name || product.brand}</span><span className="pqv-brand">SKU: { product.sku}</span></>
+              <>
+                <span className="pqv-brand">
+                  Brand: <Link to={`/brand?id=${product.brandId}`}>
+                    {product.brand}
+                  </Link>
+                </span>
+                <span className="pqv-brand">SKU: {product.sku}</span>
+              </>
             )}
           </div>
           {/* Variant Selector */}
@@ -136,13 +143,13 @@ const ProductDetails = () => {
               <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
             )}
           </div>
-          
+
           {/* Stock Information */}
           <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
             <div className="d-flex align-items-center">
-              <span 
-                className="badge" 
-                style={{ 
+              <span
+                className="badge"
+                style={{
                   backgroundColor: stockStatusColor,
                   color: 'white',
                   fontSize: '0.8rem',
@@ -159,7 +166,7 @@ const ProductDetails = () => {
               )}
             </div>
           </div>
-          
+
           <div className="pqv-qty-add-row">
             <div className="pqv-qty-row">
               <div className="pqv-qty-box">
