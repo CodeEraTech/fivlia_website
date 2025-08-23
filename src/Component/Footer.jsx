@@ -176,7 +176,8 @@ const Footer = () => {
                 </Link>
               </div>
               <p style={{ marginBottom: 24 }}>
-                We deliver more than your expectations and help you to grow your business exponentially by providing customized applications. So, don’t just think, get ready to convert your ideas into reality.
+                FIVLIA is fast delivery platform within minutes that facilitates the delivery of various items, including groceries, food, personal care items. We connects users with local stores and
+restaurants for quick delivery.
               </p>
               <div className="payment-icons" style={{ marginTop: 16 }}>
                 <img src={amazonpay} alt="Amazon Pay" />
