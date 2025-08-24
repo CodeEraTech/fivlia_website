@@ -104,7 +104,7 @@ const AddToCartButton = ({
       return;
     }
 
-    console.log('User is logged in, proceeding with add to cart');
+    //console.log('User is logged in, proceeding with add to cart');
     try {
       setLoading(true);
       

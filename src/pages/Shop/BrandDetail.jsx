@@ -36,6 +36,7 @@ const BrandDetail = () => {
           category: prod.category?.[0]?.name || 'Category',
           category_id: prod.category?.[0]?._id || '',
           brand: prod.brand_Name?.name || brandData?.brandName || '',
+          brandId: prod.brand_Name?._id || '',
           unit: prod.unit?.name || '',
           tax: prod.tax || 0,
           rating: 4.5,
@@ -47,7 +48,8 @@ const BrandDetail = () => {
           status: prod.status,
           inCart: prod.inCart?.status || false,
           variants: prod.variants || [],
-          inventory: prod.inventory || [], // Add inventory data
+          inventory: prod.inventory || [],
+          isVeg: prod.isVeg,
         }));
 
         setBrand(brandData);

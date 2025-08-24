@@ -68,7 +68,8 @@ function Dropdown() {
             productImageUrl: prod.productImageUrl,
             variants: prod.variants || [],
             filter: prod.filter || [],
-            inventory: prod.inventory || [], // Add inventory data
+            inventory: prod.inventory || [],
+            isVeg: prod.isVeg,
           };
         });
         setAllProducts(mapped);

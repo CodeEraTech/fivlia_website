@@ -78,10 +78,17 @@ const ProductDetails = () => {
         </div>
         {/* Right: Info */}
         <div className="pqv-modal-right">
-          <h2 className="pqv-product-name">{product.productName || product.name}</h2>
+          <h2 className="pqv-product-name">{product.name}</h2>
           <div className="pqv-product-meta">
-            <span className="pqv-category">{product.category?.[0]?.name || (product.category && product.category.name) || ''}</span>
-            {(product.brand_Name?.name || product.brand) && (
+            <span className="pqv-category">{product.category || ''}
+              <span style={{
+                color: product.isVeg == 0 ? 'green' : 'red',
+                fontWeight: 'bold'
+              }}>
+                &nbsp;({product.isVeg == 0 ? 'Veg' : 'NonVeg'})
+              </span>
+            </span>
+            {product.brand && (
               <>
                 <span className="pqv-brand">
                   Brand: <Link to={`/brand?id=${product.brandId}`}>
@@ -204,7 +211,7 @@ const ProductDetails = () => {
       </div>
       <div className="pqv-related-section">
         <hr className="pqv-separator" />
-        <RelatedProducts productId={product._id || product.id} />
+        <RelatedProducts productId={product.id} />
       </div>
       <style>{`
 .pqv-details-row {
