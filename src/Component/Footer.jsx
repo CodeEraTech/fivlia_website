@@ -254,6 +254,35 @@ restaurants for quick delivery.
 
             </div>
             <div className="footer-section">
+  <div className="footer-title">Our Apps</div>
+  <ul className="footer-link-list">
+    
+
+    {/* Play Store Links */}
+    <li>
+      <a
+        href="https://play.google.com/store/apps/details?id=com.fivlia.user"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="d-flex align-items-center"
+      >
+        <i className="fab fa-google-play me-2"></i> Download User App
+      </a>
+    </li>
+    <li>
+      <a
+        href="https://play.google.com/store/apps/details?id=com.fivlia.delivery.fivliadelivery"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="d-flex align-items-center"
+      >
+        <i className="fab fa-google-play me-2"></i> Download Delivery App
+      </a>
+    </li>
+  </ul>
+</div>
+
+            <div className="footer-section">
               <div className="footer-title">Stay Connected</div>
               <form className="newsletter-item" onSubmit={e => e.preventDefault()}>
                 <input type="email" id="email" placeholder="Your Email" className="form-control form-control-lg" required />
