@@ -30,4 +30,5 @@ export const ENDPOINTS = {
   VERIFY_PAYMENT: '/verifyPayment',
   GET_ORDERS: "/getOrderDetails",
   PAGES:"/getPage",
+  SAVE_CONTACT_US:"/save-contact-us"
 }; 

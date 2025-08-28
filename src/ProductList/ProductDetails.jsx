@@ -81,12 +81,16 @@ const ProductDetails = () => {
           <h2 className="pqv-product-name">{product.name}</h2>
           <div className="pqv-product-meta">
             <span className="pqv-category">{product.category || ''}
-              <span style={{
-                color: product.isVeg == 0 ? 'green' : 'red',
-                fontWeight: 'bold'
-              }}>
-                &nbsp;({product.isVeg == 0 ? 'Veg' : 'NonVeg'})
-              </span>
+              {product.isVeg !== 0 && (
+                <span
+                  style={{
+                    color: product.isVeg === 1 ? 'green' : 'red',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  &nbsp;({product.isVeg === 1 ? 'Veg' : 'NonVeg'})
+                </span>
+              )}
             </span>
             {product.brand && (
               <>

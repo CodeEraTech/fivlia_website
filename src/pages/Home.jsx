@@ -4,7 +4,7 @@ import iphone from "../images/fivliaWebsite.png";
 import googleplay from "../images/googleplay-btn.svg";
 import appstore from "../images/appstore-btn.svg";
 import { Link } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
 import PopularProducts from "../ProductList/PopularProducts";
 import { Slide } from "react-awesome-reveal";
 import { useEffect } from "react";
@@ -285,7 +285,7 @@ const Home = () => {
                               {/* list item */}
                               <li className="list-inline-item">
                                 {/* img */}
-                                <Link to="https://testflight.apple.com/join/Wz9jYACY">
+                                <Link to="https://apps.apple.com/in/app/fivlia-delivery-in-minutes/id6748902989">
                                   {" "}
                                   <img
                                     src={appstore}

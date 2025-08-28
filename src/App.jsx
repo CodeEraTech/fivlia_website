@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from './Component/Header';
 import Footer from "./Component/Footer";
 import Home from "./pages/Home";
-import Contact from "./pages/careers/BecomeASeller.jsx";
+import Contact from "./pages/careers/ContactUs.jsx";
 import Shop from "./pages/Shop/Shop";
 import OrderCheckout from "./pages/OrderCheckout";
 import MyAccountOrder from "./pages/Accounts/MyAccountOrder";
@@ -36,8 +36,9 @@ const App = () => {
           <Route path="/otp-verification" element={<OtpVerification />} />
           <Route path="/become-a-seller" element={<BecomeASeller />} />
           <Route path="/become-a-delivery-partner" element={<BecomeADeliveryPartner />} />
-          <Route path="/:pageSlug" element={<CmsPage />} />
           <Route path="/delete-account" element={<DeleteAccount  />} />
+          <Route path="/contact-us" element={<Contact  />} />
+          <Route path="/:pageSlug" element={<CmsPage />} />
         </Routes>
         <Footer/>
       </Router>

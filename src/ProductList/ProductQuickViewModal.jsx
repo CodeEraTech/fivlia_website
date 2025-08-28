@@ -77,10 +77,22 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
             <div className="pqv-modal-right">
               <h2 className="pqv-product-name">{product.name}</h2>
               <div className="pqv-product-meta">
-                <span className="pqv-category">{product.category}</span>
+                <span className="pqv-category">{product.category || ''}
+                  {product.isVeg !== 0 && (
+                    <span
+                      style={{
+                        color: product.isVeg === 1 ? 'green' : 'red',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      &nbsp;({product.isVeg === 1 ? 'Veg' : 'NonVeg'})
+                    </span>
+                  )}
+                </span>
                 {product.brand && product.brand.toLowerCase() !== "unbranded" && (
                   <span className="pqv-brand">Brand: {product.brand}</span>
                 )}
+                <span className="pqv-brand">SKU: {product.sku}</span>
               </div>
               {/* Variant Selector */}
               {variants.length > 0 && (
@@ -133,13 +145,13 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
                 )}
               </div>
-              
+
               {/* Stock Information */}
               <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
                 <div className="d-flex align-items-center">
-                  <span 
-                    className="badge" 
-                    style={{ 
+                  <span
+                    className="badge"
+                    style={{
                       backgroundColor: stockStatusColor,
                       color: 'white',
                       fontSize: '0.8rem',
@@ -156,7 +168,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   )}
                 </div>
               </div>
-              
+
               <div className="pqv-qty-add-row">
                 <div className="pqv-qty-row">
                   <div className="pqv-qty-box">

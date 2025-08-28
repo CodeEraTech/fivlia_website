@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import amazonpay from "../images/amazonpay.svg";
-import american from "../images/american-express.svg";
-import mastercard from "../images/mastercard.svg";
-import paypal from "../images/paypal.svg";
-import visa from "../images/visa.svg";
+import payFooter from "../images/payment_footer.png";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
 import { useAuth } from "../contexts/AuthContext";
@@ -16,7 +12,7 @@ const Footer = () => {
   let year = date.getFullYear();
   const [pages, setPages] = useState([]);
   const { isLoggedIn, logout } = useAuth();
-  
+
   useEffect(() => {
     get(ENDPOINTS.PAGES)
       .then((res) => {
@@ -177,20 +173,16 @@ const Footer = () => {
               </div>
               <p style={{ marginBottom: 24 }}>
                 FIVLIA is fast delivery platform within minutes that facilitates the delivery of various items, including groceries, food, personal care items. We connects users with local stores and
-restaurants for quick delivery.
+                restaurants for quick delivery.
               </p>
               <div className="payment-icons" style={{ marginTop: 16 }}>
-                <img src={amazonpay} alt="Amazon Pay" />
-                <img src={american} alt="American Express" />
-                <img src={mastercard} alt="Mastercard" />
-                <img src={paypal} alt="Paypal" />
-                <img src={visa} alt="Visa" />
+                <img src={payFooter} alt="" />
               </div>
             </div>
             <div className="footer-section">
               <div className="footer-title">For Consumers</div>
               <ul className="footer-link-list">
-              {pages.map((page, index) => (
+                {pages.map((page, index) => (
                   <React.Fragment key={page._id}>
                     <li>
                       <Link
@@ -206,51 +198,51 @@ restaurants for quick delivery.
             </div>
             <div className="footer-section">
               <div className="footer-title">Usefull Links</div>
-             <ul className="footer-link-list">
-  <li>
-    <Link to="/become-a-seller">Seller App</Link>
-  </li>
-  <li>
-    <Link to="/become-a-delivery-partner">Delivery Partner</Link>
-  </li>
+              <ul className="footer-link-list">
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/become-a-seller">Seller App</Link>
+                </li>
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/become-a-delivery-partner">Delivery Partner</Link>
+                </li>
 
-  {isLoggedIn ? (
-    <>
-      <li>
-        <Link to="/MyAccountOrder">Track Orders</Link>
-      </li>
-      <li>
-        <Link to="/MyAccountOrder">My Accounts</Link>
-      </li>
-    </>
-  ) : (
-    <>
-      <li>
-        <a
-          href="#"
-          data-bs-toggle="modal"
-          data-bs-target="#userModal"
-          className="text-muted"
-        >
-          Track Orders
-        </a>
-      </li>
-      <li>
-        <a
-          href="#"
-          data-bs-toggle="modal"
-          data-bs-target="#userModal"
-          className="text-muted"
-        >
-          My Accounts
-        </a>
-      </li>
-    </>
-  )}
-    <li>
-    <Link to="/delete-account">Delete Account</Link>
-  </li>
-</ul>
+                {isLoggedIn ? (
+                  <>
+                    <li>
+                      <Link className="text-decoration-none text-muted" to="/MyAccountOrder">Track Orders</Link>
+                    </li>
+                    <li>
+                      <Link className="text-decoration-none text-muted" to="/MyAccountOrder">My Accounts</Link>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li>
+                      <a
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#userModal"
+                        className="text-muted"
+                      >
+                        Track Orders
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#userModal"
+                        className="text-muted"
+                      >
+                        My Accounts
+                      </a>
+                    </li>
+                  </>
+                )}
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/delete-account">Delete Account</Link>
+                </li>
+              </ul>
 
             </div>
             <div className="footer-section">

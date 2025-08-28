@@ -66,12 +66,12 @@ const ProductItem = ({ products = [] }) => {
     if (!product) {
       return null;
     }
-    
+
     // Check for out of stock first
     if (isOutOfStock(product)) {
       return <span className="badge bg-danger">Out of Stock</span>;
     }
-    
+
     if (product.discount_percentage > 0) {
       return <span className="badge bg-danger">{product.discount_percentage}% OFF</span>;
     }
@@ -96,11 +96,11 @@ const ProductItem = ({ products = [] }) => {
   const handleAddToCartClick = (product, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!product) {
       return;
     }
-    
+
     if (isOutOfStock(product)) {
       Swal.fire({
         icon: 'warning',
@@ -111,7 +111,7 @@ const ProductItem = ({ products = [] }) => {
       });
       return;
     }
-    
+
     handleQuickView(product);
   };
 
@@ -244,12 +244,12 @@ const ProductItem = ({ products = [] }) => {
                   <div className="delivery-time-display">
                     <i className="fa fa-clock-o" style={{ marginRight: '4px', color: '#0AAD0A' }}></i>
                     <span className="delivery-time-text">
-                    <svg width="14" height="14" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="32" cy="32" r="28" stroke="#0AAD0A" strokeWidth="4" fill="none"/>
-                      <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round"/>
-                      <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round"/>
-                      <rect x="28" y="4" width="8" height="8" fill="#0AAD0A" rx="2"/>
-                    </svg>&nbsp;&nbsp;
+                      <svg width="14" height="14" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="28" stroke="#0AAD0A" strokeWidth="4" fill="none" />
+                        <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round" />
+                        <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round" />
+                        <rect x="28" y="4" width="8" height="8" fill="#0AAD0A" rx="2" />
+                      </svg>&nbsp;&nbsp;
                       {getDeliveryTime(product)} min
                     </span>
                   </div>
@@ -304,9 +304,9 @@ const ProductItem = ({ products = [] }) => {
         ))}
         <style>{`
           .product-flex-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-evenly;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 12px;
             margin-top: 2rem;
             margin-bottom: 2rem;
           }

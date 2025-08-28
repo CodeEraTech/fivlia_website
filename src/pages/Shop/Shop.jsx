@@ -70,6 +70,7 @@ function Dropdown() {
             filter: prod.filter || [],
             inventory: prod.inventory || [],
             isVeg: prod.isVeg,
+            sku: prod.sku,
           };
         });
         setAllProducts(mapped);
