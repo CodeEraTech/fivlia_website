@@ -175,9 +175,9 @@ const Footer = () => {
                 FIVLIA is fast delivery platform within minutes that facilitates the delivery of various items, including groceries, food, personal care items. We connects users with local stores and
                 restaurants for quick delivery.
               </p>
-              <div className="payment-icons" style={{ marginTop: 16 }}>
+              {/* <div className="payment-icons" style={{ marginTop: 16 }}>
                 <img src={payFooter} alt=""/>
-              </div>
+              </div> */}
             </div>
             <div className="footer-section">
               <div className="footer-title">For Consumers</div>
@@ -246,7 +246,7 @@ const Footer = () => {
 
             </div>
             <div className="footer-section">
-  <div className="footer-title">Our Apps</div>
+  <div className="footer-title">Download App</div>
   <ul className="footer-link-list">
     
 
@@ -258,9 +258,20 @@ const Footer = () => {
         rel="noopener noreferrer"
         className="d-flex align-items-center"
       >
-        <i className="fab fa-google-play me-2"></i> Download User App
+       <i className="fab fa-google-play me-2"></i> User App
       </a>
     </li>
+    <li>
+  <a
+    href="https://apps.apple.com/in/app/fivlia-delivery-in-minutes/id6748902989"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="d-flex align-items-center"
+  >
+    <i className="fab fa-apple me-2"></i>User App (iOS)
+  </a>
+</li>
+
     <li>
       <a
         href="https://play.google.com/store/apps/details?id=com.fivlia.delivery.fivliadelivery"
@@ -268,7 +279,7 @@ const Footer = () => {
         rel="noopener noreferrer"
         className="d-flex align-items-center"
       >
-        <i className="fab fa-google-play me-2"></i> Download Delivery App
+         <i className="fab fa-google-play me-2"></i>Delivery App
       </a>
     </li>
   </ul>
@@ -284,7 +295,7 @@ const Footer = () => {
                 <Link to="https://www.facebook.com/profile.php?id=100090157863841" className="facebook"><i className="fab fa-facebook-f"></i></Link>
                 <Link to="https://www.youtube.com/channel/UCnX8Bt9yXNWUY7xWAycLGVw" className="twitter"><i className="fab fa-youtube"></i></Link>
                 <Link to="https://www.instagram.com/fivliaindia" className="instagram"><i className="fab fa-instagram"></i></Link>
-                <Link to="#" className="linkedin"><i className="fab fa-linkedin-in"></i></Link>
+                <Link to="https://www.linkedin.com/in/fivlia-online-shopping-925641377/" className="linkedin"><i className="fab fa-linkedin-in"></i></Link>
               </div>
             </div>
           </div>
