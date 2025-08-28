@@ -39,6 +39,7 @@ const Header = () => {
   };
 
   const handleSuggestionClick = (product) => {
+    console.log('product',product)
     navigate(`/product/${product._id || product.id}`,
       { state: { product } }
     );
