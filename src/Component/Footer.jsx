@@ -176,7 +176,7 @@ const Footer = () => {
                 restaurants for quick delivery.
               </p>
               <div className="payment-icons" style={{ marginTop: 16 }}>
-                <img src={payFooter} alt="" />
+                <img src={payFooter} alt=""/>
               </div>
             </div>
             <div className="footer-section">
