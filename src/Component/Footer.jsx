@@ -200,10 +200,10 @@ const Footer = () => {
               <div className="footer-title">Usefull Links</div>
               <ul className="footer-link-list">
                 <li>
-                  <Link className="text-decoration-none text-muted" to="/become-a-seller">Seller App</Link>
+                  <Link className="text-decoration-none text-muted" to="/become-a-seller">Sell With Us</Link>
                 </li>
                 <li>
-                  <Link className="text-decoration-none text-muted" to="/become-a-delivery-partner">Delivery Partner</Link>
+                  <Link className="text-decoration-none text-muted" to="/become-a-delivery-partner">Deliver With Us</Link>
                 </li>
 
                 {isLoggedIn ? (
