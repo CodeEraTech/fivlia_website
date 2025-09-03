@@ -95,7 +95,7 @@ const BecomeASeller = () => {
     }
     setVerifying(true);
     try {
-      const res = await post(`${API_BASE_URL}${ENDPOINTS.VERIFY_OTP}`, {
+      const res = await post(`${API_BASE_URL}${ENDPOINTS.SELLER_VERIFY_OTP}`, {
         email: formData.email,
         otpEmail: otpData.emailOtp,
         PhoneNumber: formData.PhoneNumber,

@@ -4,7 +4,7 @@ import { ENDPOINTS } from '../apis/endpoints';
 const loadRazorpayScript = () => {
   return new Promise((resolve, reject) => {
     if (window.Razorpay) {
-      resolve(true); 
+      resolve(true);
       return;
     }
 
@@ -16,9 +16,14 @@ const loadRazorpayScript = () => {
   });
 };
 
-const launchRazorpay = async ({ tempOrderId, amount, onSuccess, onFailure }) => {
+const launchRazorpay = async ({ tempOrderId, amount, onSuccess, onFailure, razorpayKey }) => {
   if (!tempOrderId || !amount) {
     alert("Invalid payment data. Cannot proceed to Razorpay.");
+    return;
+  }
+console.log('Razorpay Key:wuw', razorpayKey);
+  if (!razorpayKey) {
+    alert("Razorpay key not configured. Please contact support.");
     return;
   }
 
@@ -29,7 +34,7 @@ const launchRazorpay = async ({ tempOrderId, amount, onSuccess, onFailure }) => 
   }
 
   const options = {
-    key: "rzp_test_w183j1d6u8QW1E",
+    key: razorpayKey,
     amount: amount,
     currency: "INR",
     name: "Fivlia",
@@ -41,10 +46,10 @@ const launchRazorpay = async ({ tempOrderId, amount, onSuccess, onFailure }) => 
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,
           tempOrderId: tempOrderId,
-          paymentStatus:true,
-          transactionId:response.razorpay_order_id,
+          paymentStatus: true,
+          transactionId: response.razorpay_order_id,
         };
-        const verifyRes = await post(ENDPOINTS.VERIFY_PAYMENT, verifyPayload,{authRequired:true});
+        const verifyRes = await post(ENDPOINTS.VERIFY_PAYMENT, verifyPayload, { authRequired: true });
         if (verifyRes.data?.status === true && verifyRes.data?.order.paymentStatus === "Successful") {
           onSuccess?.(verifyRes.data);
         } else {

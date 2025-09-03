@@ -21,6 +21,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const [storeId, setStoreId] = useState(null);
+  const [paymentOption, setPaymentOption] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -55,6 +56,7 @@ export const CartProvider = ({ children }) => {
         setCartItems(response.data.items);
         setCartCount(response.data.items.length);
         setStoreId(response.data.StoreID);
+        setPaymentOption(response.data.paymentOption);
       } else {
         //console.log('CartContext: No items in response, clearing cart');
         setCartItems([]);
@@ -295,6 +297,7 @@ export const CartProvider = ({ children }) => {
       updatingItems,
       removingItems,
       storeId,
+      paymentOption,
     }}>
       {children}
     </CartContext.Provider>

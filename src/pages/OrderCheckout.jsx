@@ -9,10 +9,10 @@ import ScrollToTop from "./ScrollToTop";
 import AddAddressModal from '../Component/AddAddressModal';
 import AddressShimmer from '../Component/AddressShimmer';
 import launchRazorpay from '../utils/launchRazorpay';
-import {useSettingValue, useImageUrl} from '../utils/getSettingsValue';
+import { useSettingValue, useImageUrl } from '../utils/getSettingsValue';
 
 const OrderCheckout = () => {
-  const { cartItems, getCartTotal, getShippingCharge, isInitialized, storeId, fetchCartItems } = useCart();
+  const { cartItems, getCartTotal, getShippingCharge, isInitialized, storeId, fetchCartItems, paymentOption } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [loaderStatus, setLoaderStatus] = useState(true);
@@ -23,7 +23,7 @@ const OrderCheckout = () => {
   const [paymentMode, setPaymentMode] = useState("online");
   const getSetting = useSettingValue();
   const getImageUrl = useImageUrl();
-  
+
   useEffect(() => {
     setTimeout(() => {
       setLoaderStatus(false);
@@ -55,13 +55,13 @@ const OrderCheckout = () => {
     try {
       setAddressLoading(true);
       setAddressError(null);
-      
+
       const response = await get(ENDPOINTS.GET_ADDRESS, { authRequired: true });
-      
+
       if (response.data && response.data.addresses) {
         const addressData = response.data.addresses || [];
         setAddresses(addressData);
-        
+
         // Set first address as default if available
         if (addressData.length > 0) {
           setSelectedAddress(addressData[0]._id);
@@ -87,11 +87,18 @@ const OrderCheckout = () => {
       return;
     }
 
+    const paymentGateways = getSetting('PaymentGateways')['RazorPayKey'];
+    const razorpayKey = paymentGateways['live'];
+    if (!razorpayKey && paymentMode === 'online') {
+      alert("Payment gateway facing some error. Please contact support.");
+      return;
+    }
+
     if (paymentMode === 'cod' && getSetting('codLimit') < getCartTotal() + getShippingCharge() + getSetting('Delivery_Charges')) {
       alert('Order amount is greater than the COD limit. Use Online Payment instead.');
       return;
     }
-  
+
     try {
       const orderPayload = {
         addressId: selectedAddress,
@@ -100,10 +107,10 @@ const OrderCheckout = () => {
         totalAmount: getCartTotal() + getShippingCharge() + getSetting('Delivery_Charges'),
         storeId: storeId,
       };
-  
-      const response = await post(ENDPOINTS.PLACE_ORDER, orderPayload,{authRequired:true});
+
+      const response = await post(ENDPOINTS.PLACE_ORDER, orderPayload, { authRequired: true });
       const { order, tempOrder, tempOrderId } = response.data || {};
-       // ✅ Case 1: COD — handle directly
+      // ✅ Case 1: COD — handle directly
       if (order && order.cashOnDelivery === true && order.paymentStatus === "Successful") {
         fetchCartItems();
         alert("Order placed successfully with Cash on Delivery!");
@@ -123,7 +130,8 @@ const OrderCheckout = () => {
           },
           onFailure: () => {
             alert("Payment verification failed or cancelled.");
-          }
+          },
+          razorpayKey,
         });
       } else {
         alert("Invalid order response. Please try again.");
@@ -132,7 +140,7 @@ const OrderCheckout = () => {
       console.error('Order placement error:', error);
       alert('Something went wrong!');
     }
-  };  
+  };
 
   return (
     <div>
@@ -165,13 +173,13 @@ const OrderCheckout = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="row">
                 <div className="col-lg-7 col-md-12">
                   <div className="accordion accordion-flush" id="accordionFlushExample">
-                    
+
                     {/* Address Section - Always Expanded */}
-                    <div className="accordion-item py-2"  style={{border: 'none'}}>
+                    <div className="accordion-item py-2" style={{ border: 'none' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <div className="fs-5 text-inherit h4">
                           <i className="feather-icon icon-map-pin me-2 text-muted" />
@@ -192,8 +200,8 @@ const OrderCheckout = () => {
                         ) : addressError ? (
                           <div className="alert alert-danger" role="alert">
                             {addressError}
-                            <button 
-                              className="btn btn-sm btn-outline-danger ms-2" 
+                            <button
+                              className="btn btn-sm btn-outline-danger ms-2"
                               onClick={fetchAddresses}
                             >
                               Retry
@@ -206,7 +214,7 @@ const OrderCheckout = () => {
                             </div>
                             <h6 className="text-muted">No addresses found</h6>
                             <p className="text-muted small">Add a delivery address to continue</p>
-                            <button 
+                            <button
                               className="btn btn-primary btn-sm"
                               data-bs-toggle="modal"
                               data-bs-target="#addAddressModal"
@@ -214,52 +222,52 @@ const OrderCheckout = () => {
                               Add Address
                             </button>
                           </div>
-                                                 ) : (
-                           <div className="row">
-                             {addresses.map((address, index) => (
-                               <div key={address._id || index} className="col-12 mb-3">
-                                 <div className="border rounded p-4">
-                                   <div className="d-flex align-items-start">
-                                     <div className="form-check me-3 mt-1">
-                                       <input
-                                         className="form-check-input"
-                                         type="radio"
-                                         name="addressRadio"
-                                         id={`address-${address._id || index}`}
-                                         checked={selectedAddress === address._id}
-                                         onChange={() => handleAddressSelect(address._id)}
-                                       />
-                                     </div>
-                                     <div className="flex-grow-1">
-                                       <div className="d-flex justify-content-between align-items-start mb-3">
-                                         <div>
-                                           <h6 className="mb-1 fw-bold fs-5">{address.fullName}</h6>
-                                           <div className="text-muted">
-                                             {address.mobileNumber && <span className="fw-medium">Phone: {address.mobileNumber}</span>}
-                                             {address.alternateNumber && <span className="ms-3 fw-medium">Alt: {address.alternateNumber}</span>}
-                                           </div>
-                                         </div>
-                                         {address.default && (
-                                           <span className="badge bg-success text-white">Default</span>
-                                         )}
-                                       </div>
-                                       
-                                       <div className="address-details">
-                                         <p className="mb-0 text-dark fs-6 lh-base">
-                                           {address.house_No && `${address.house_No}, `}
-                                           {address.floor && `${address.floor} floor, `}
-                                           {address.address}
-                                           {address.landmark && `, ${address.landmark}`}
-                                           {address.city && address.state && `, ${address.city}, ${address.state} ${address.pincode}`}
-                                         </p>
-                                       </div>
-                                     </div>
-                                   </div>
-                                 </div>
-                               </div>
-                             ))}
-                           </div>
-                         )}
+                        ) : (
+                          <div className="row">
+                            {addresses.map((address, index) => (
+                              <div key={address._id || index} className="col-12 mb-3">
+                                <div className="border rounded p-4">
+                                  <div className="d-flex align-items-start">
+                                    <div className="form-check me-3 mt-1">
+                                      <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="addressRadio"
+                                        id={`address-${address._id || index}`}
+                                        checked={selectedAddress === address._id}
+                                        onChange={() => handleAddressSelect(address._id)}
+                                      />
+                                    </div>
+                                    <div className="flex-grow-1">
+                                      <div className="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                          <h6 className="mb-1 fw-bold fs-5">{address.fullName}</h6>
+                                          <div className="text-muted">
+                                            {address.mobileNumber && <span className="fw-medium">Phone: {address.mobileNumber}</span>}
+                                            {address.alternateNumber && <span className="ms-3 fw-medium">Alt: {address.alternateNumber}</span>}
+                                          </div>
+                                        </div>
+                                        {address.default && (
+                                          <span className="badge bg-success text-white">Default</span>
+                                        )}
+                                      </div>
+
+                                      <div className="address-details">
+                                        <p className="mb-0 text-dark fs-6 lh-base">
+                                          {address.house_No && `${address.house_No}, `}
+                                          {address.floor && `${address.floor} floor, `}
+                                          {address.address}
+                                          {address.landmark && `, ${address.landmark}`}
+                                          {address.city && address.state && `, ${address.city}, ${address.state} ${address.pincode}`}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -298,32 +306,33 @@ const OrderCheckout = () => {
                               </div>
                             </div>
                           </div>
-
-                          <div className="col-md-6 mb-3">
-                            <div className="card card-bordered shadow-none h-100">
-                              <div className="card-body p-4">
-                                <div className="d-flex">
-                                  <div className="form-check">
-                                    <input
-                                      className="form-check-input"
-                                      type="radio"
-                                      name="paymentRadio"
-                                      id="cashonDelivery"
-                                      checked={paymentMode === 'cod'}
-                                      onChange={() => setPaymentMode('cod')}
-                                    />
-                                    <label className="form-check-label ms-2" htmlFor="cashonDelivery"></label>
-                                  </div>
-                                  <div>
-                                    <h5 className="mb-1 h6">Cash on Delivery</h5>
-                                    <p className="mb-0 small">
-                                      Pay with cash when your order is delivered.
-                                    </p>
+                          {paymentOption === true && (
+                            <div className="col-md-6 mb-3">
+                              <div className="card card-bordered shadow-none h-100">
+                                <div className="card-body p-4">
+                                  <div className="d-flex">
+                                    <div className="form-check">
+                                      <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="paymentRadio"
+                                        id="cashonDelivery"
+                                        checked={paymentMode === 'cod'}
+                                        onChange={() => setPaymentMode('cod')}
+                                      />
+                                      <label className="form-check-label ms-2" htmlFor="cashonDelivery"></label>
+                                    </div>
+                                    <div>
+                                      <h5 className="mb-1 h6">Cash on Delivery</h5>
+                                      <p className="mb-0 small">
+                                        Pay with cash when your order is delivered.
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -340,9 +349,9 @@ const OrderCheckout = () => {
                           <li key={`${item.productId}-${item.varientId}-${index}`} className="list-group-item px-4 py-3">
                             <div className="row align-items-center">
                               <div className="col-2 col-md-2">
-                                <img 
-                                  src={getImageUrl(item.image)} 
-                                  alt={item.name} 
+                                <img
+                                  src={getImageUrl(item.image)}
+                                  alt={item.name}
                                   className="img-fluid"
                                   onError={(e) => {
                                     e.target.src = '/assets/img/no_image.jpg';
@@ -375,7 +384,7 @@ const OrderCheckout = () => {
                             <div className="fw-bold">₹{getShippingCharge()}</div>
                           </div>
                           <div className="d-flex align-items-center justify-content-between">
-                          <div>
+                            <div>
                               Delivery Charges{" "}
                               <i className="feather-icon icon-info text-muted" data-bs-toggle="tooltip" title="Default tooltip" />
                             </div>
@@ -389,11 +398,11 @@ const OrderCheckout = () => {
                           </div>
                         </li>
                       </ul>
-                      
+
                       {/* Place Order Button - Full Width */}
                       <div className="p-4">
-                        <button 
-                          className="btn btn-primary w-100" 
+                        <button
+                          className="btn btn-primary w-100"
                           onClick={handlePlaceOrder}
                           disabled={!selectedAddress || addressLoading}
                         >
