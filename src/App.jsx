@@ -47,7 +47,7 @@ const App = () => {
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/:pageSlug" element={<CmsPage />} />
         </Routes>
-        <Footer />
+        {!hideLayout && <Footer />}
       </Router>
     </div>
   );
