@@ -261,6 +261,45 @@ const BecomeASeller = () => {
                     </p>
                   </div>
                   <form className="row" onSubmit={handleSubmit}>
+                    {/* GST */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        GST Number<span className="text-danger">*</span>
+                      </label>
+                      <div className="d-flex">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="gstNumber"
+                          value={formData.gstNumber}
+                          onChange={handleChange}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary ms-2"
+                          onClick={verifyGST}
+                        >
+                          Verify
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Store Name */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Store / Business Name<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="storeName"
+                        className="form-control"
+                        value={formData.storeName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+
                     {/* First Name */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
@@ -291,21 +330,6 @@ const BecomeASeller = () => {
                       />
                     </div>
 
-                    {/* Store Name */}
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">
-                        Store / Business Name<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="storeName"
-                        className="form-control"
-                        value={formData.storeName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
                     {/* Aadhar Upload */}
                     <div className="col-md-12 mb-3">
                       <label className="form-label">
@@ -326,7 +350,7 @@ const BecomeASeller = () => {
                       />
                     </div>
 
-                    {/* PAN Upload */}
+                    {/* PAN Upload
                     <div className="col-md-12 mb-3">
                       <label className="form-label">
                         PAN Card<span className="text-danger">*</span>
@@ -344,7 +368,7 @@ const BecomeASeller = () => {
                         }
                         required
                       />
-                    </div>
+                    </div> */}
 
                     {/* Email */}
                     <div className="col-md-6 mb-3">
@@ -374,30 +398,6 @@ const BecomeASeller = () => {
                         onChange={handleChange}
                         placeholder="Enter WhatsApp Number With country code"
                       />
-                    </div>
-
-                    {/* GST */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        GST Number<span className="text-danger">*</span>
-                      </label>
-                      <div className="d-flex">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="gstNumber"
-                          value={formData.gstNumber}
-                          onChange={handleChange}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-secondary ms-2"
-                          onClick={verifyGST}
-                        >
-                          Verify
-                        </button>
-                      </div>
                     </div>
 
                     {/* City */}
