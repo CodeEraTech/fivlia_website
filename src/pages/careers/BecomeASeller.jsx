@@ -41,7 +41,8 @@ const BecomeASeller = () => {
     PhoneNumber: "",
     gstNumber: "",
     additionalInfo: "",
-    sellFood: true,  
+    sellFood: false,
+    fullAddress:"",
     fsiNumber:"",
     city: "",
     zone: "",
@@ -124,9 +125,16 @@ const BecomeASeller = () => {
       );
       if (res.data.success) {
         const gst = res.data.gstDetails;
+      const bno = gst.pradr?.bno || "";
+      const st = gst.pradr?.st || "";
+      const loc = gst.pradr?.loc || "";
+
+      // Create full address
+      const fullAddress = [bno, st, loc].filter(Boolean).join(", ");
         setFormData((prev) => ({
           ...prev,
           storeName: gst.tradename || "",
+          fullAddress: fullAddress,   
         }));
         setGstDetails(gst);
         Swal.fire("Verified", "GST Details fetched successfully", "success");
@@ -207,7 +215,7 @@ const BecomeASeller = () => {
     form.append("Longitude", longitude);
     form.append("fsiNumber", formData.fsiNumber);
     form.append("sellFood", formData.sellFood);
-
+    form.append("fullAddress", formData.fullAddress);
     if (formData.zone) {
       form.append("zone", formData.zone);
     }
@@ -370,7 +378,7 @@ const BecomeASeller = () => {
   // If not selling food, ask FSI Number
   <div className="col-md-6 mb-3">
     <label className="form-label">
-      FSI Number<span className="text-danger">*</span>
+      FSSAI License No.<span className="text-danger">*</span>
     </label>
     <input
       type="text"
@@ -447,11 +455,24 @@ const BecomeASeller = () => {
                         placeholder="Enter WhatsApp Number With country code"
                       />
                     </div>
+<div className="col-md-12 mb-3">
+    <label className="form-label">
+      Full Address.<span className="text-danger">*</span>
+    </label>
+    <input
+      type="text"
+      className="form-control"
+      name="fullAddress"
+      value={formData.fullAddress || ""}
+      onChange={handleChange}
+      required
+    />
+  </div>
 
                     {/* City */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        City<span className="text-danger">*</span>
+                       Selling City<span className="text-danger">*</span>
                       </label>
                       <select
                         name="city"
@@ -460,7 +481,7 @@ const BecomeASeller = () => {
                         onChange={handleCityChange}
                         required
                       >
-                        <option value="">Select City</option>
+                        <option value="">Select Selling City</option>
                         {city.map((c) => (
                           <option key={c._id} value={c.city}>
                             {c.city}
@@ -472,7 +493,7 @@ const BecomeASeller = () => {
                     {/* Zone */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Zone<span className="text-danger">*</span>
+                       Selling Zone<span className="text-danger">*</span>
                       </label>
                       <select
                         name="zone"
@@ -481,7 +502,7 @@ const BecomeASeller = () => {
                         onChange={handleZoneChange}
                         required
                       >
-                        <option value="">Select Zone</option>
+                        <option value="">Select Selling Zone</option>
                         {zone.map((z) => (
                           <option key={z._id} value={z._id}>
                             {z.zoneTitle}
