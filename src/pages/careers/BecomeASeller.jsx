@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
 import { useNavigate } from "react-router-dom";
+import { Switch, FormControlLabel } from "@mui/material";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -40,6 +41,8 @@ const BecomeASeller = () => {
     PhoneNumber: "",
     gstNumber: "",
     additionalInfo: "",
+    sellFood: true,  
+    fsiNumber:"",
     city: "",
     zone: "",
     aadharCard: [],
@@ -123,8 +126,6 @@ const BecomeASeller = () => {
         const gst = res.data.gstDetails;
         setFormData((prev) => ({
           ...prev,
-          firstName: gst.name?.split(" ")[0] || "",
-          lastName: gst.name?.split(" ")[1] || "",
           storeName: gst.tradename || "",
         }));
         setGstDetails(gst);
@@ -204,6 +205,8 @@ const BecomeASeller = () => {
     form.append("city", formData.city);
     form.append("Latitude", latitude);
     form.append("Longitude", longitude);
+    form.append("fsiNumber", formData.fsiNumber);
+    form.append("sellFood", formData.sellFood);
 
     if (formData.zone) {
       form.append("zone", formData.zone);
@@ -261,46 +264,7 @@ const BecomeASeller = () => {
                     </p>
                   </div>
                   <form className="row" onSubmit={handleSubmit}>
-                    {/* GST */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        GST Number<span className="text-danger">*</span>
-                      </label>
-                      <div className="d-flex">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="gstNumber"
-                          value={formData.gstNumber}
-                          onChange={handleChange}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-secondary ms-2"
-                          onClick={verifyGST}
-                        >
-                          Verify
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Store Name */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Store / Business Name<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="storeName"
-                        className="form-control"
-                        value={formData.storeName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    {/* First Name */}
+                       {/* First Name */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         First Name<span className="text-danger">*</span>
@@ -331,7 +295,7 @@ const BecomeASeller = () => {
                     </div>
 
                     {/* Aadhar Upload */}
-                    <div className="col-md-12 mb-3">
+                    <div className="col-md-6 mb-3">
                       <label className="form-label">
                         Aadhar Card<span className="text-danger">*</span>
                       </label>
@@ -349,7 +313,91 @@ const BecomeASeller = () => {
                         required
                       />
                     </div>
+                    {/* GST */}
+{/* Material-UI Switch */}
+<div className="col-md-6 mb-3">
+  <FormControlLabel
+    control={
+      <Switch
+        checked={formData.sellFood}
+        onChange={(e) =>
+          setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
+        }
+        sx={{
+        '& .MuiSwitch-switchBase.Mui-checked': {
+          color: 'green', // the circle color when checked
+        },
+        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+          backgroundColor: 'green', // the track color when checked
+        },
+      }}
+    />
+  }
+  label="Do You Sell Food?"
+  className="form-label"
+  sx={{
+      marginTop: '30px',
+    }}
+  />
+</div>
 
+{/* Conditionally show GST or FSI */}
+{!formData.sellFood ? (
+  // If selling food, ask GST
+  <div className="col-md-6 mb-3">
+    <label className="form-label">
+      GST Number<span className="text-danger">*</span>
+    </label>
+    <div className="d-flex">
+      <input
+        type="text"
+        className="form-control"
+        name="gstNumber"
+        value={formData.gstNumber}
+        onChange={handleChange}
+        required
+      />
+      <button
+        type="button"
+        className="btn btn-secondary ms-2"
+        onClick={verifyGST}
+      >
+        Verify
+      </button>
+    </div>
+  </div>
+) : (
+  // If not selling food, ask FSI Number
+  <div className="col-md-6 mb-3">
+    <label className="form-label">
+      FSI Number<span className="text-danger">*</span>
+    </label>
+    <input
+      type="text"
+      className="form-control"
+      name="fsiNumber"
+      value={formData.fsiNumber || ""}
+      onChange={handleChange}
+      required
+    />
+  </div>
+)}
+
+
+                    {/* Store Name */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Store / Business Name<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="storeName"
+                        className="form-control"
+                        value={formData.storeName}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
                     {/* PAN Upload
                     <div className="col-md-12 mb-3">
                       <label className="form-label">
