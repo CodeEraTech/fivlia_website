@@ -202,6 +202,13 @@ const BecomeASeller = () => {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    
+  let phone = formData.PhoneNumber.trim();
+  if (phone && !phone.startsWith("+91")) {
+    phone = "+91" + phone.replace(/^0+/, "");
+  }
+
     const form = new FormData();
     form.append("firstName", formData.firstName);
     form.append("lastName", formData.lastName);
@@ -238,8 +245,19 @@ const BecomeASeller = () => {
   // Handle text changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+      if (name === "PhoneNumber") {
+    let phone = value.trim();
+
+    // Add +91 if not already present and number is not empty
+    if (phone && !phone.startsWith("+91")) {
+      phone = "+91" + phone.replace(/^0+/, ""); // also removes leading zeros
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: phone }));
+  } else {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  }
+};
 
   return (
     <div>
