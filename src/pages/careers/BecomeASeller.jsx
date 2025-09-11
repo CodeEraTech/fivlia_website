@@ -42,8 +42,8 @@ const BecomeASeller = () => {
     gstNumber: "",
     additionalInfo: "",
     sellFood: false,
-    fullAddress:"",
-    fsiNumber:"",
+    fullAddress: "",
+    fsiNumber: "",
     city: "",
     zone: "",
     aadharCard: [],
@@ -125,16 +125,16 @@ const BecomeASeller = () => {
       );
       if (res.data.success) {
         const gst = res.data.gstDetails;
-      const bno = gst.pradr?.bno || "";
-      const st = gst.pradr?.st || "";
-      const loc = gst.pradr?.loc || "";
+        const bno = gst.pradr?.bno || "";
+        const st = gst.pradr?.st || "";
+        const loc = gst.pradr?.loc || "";
 
-      // Create full address
-      const fullAddress = [bno, st, loc].filter(Boolean).join(", ");
+        // Create full address
+        const fullAddress = [bno, st, loc].filter(Boolean).join(", ");
         setFormData((prev) => ({
           ...prev,
           storeName: gst.tradename || "",
-          fullAddress: fullAddress,   
+          fullAddress: fullAddress,
         }));
         setGstDetails(gst);
         Swal.fire("Verified", "GST Details fetched successfully", "success");
@@ -202,12 +202,11 @@ const BecomeASeller = () => {
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     
-  let phone = formData.PhoneNumber.trim();
-  if (phone && !phone.startsWith("+91")) {
-    phone = "+91" + phone.replace(/^0+/, "");
-  }
+    let phone = formData.PhoneNumber.trim();
+    if (phone && !phone.startsWith("+91")) {
+      phone = "+91" + phone.replace(/^0+/, "");
+    }
 
     const form = new FormData();
     form.append("firstName", formData.firstName);
@@ -245,19 +244,19 @@ const BecomeASeller = () => {
   // Handle text changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-      if (name === "PhoneNumber") {
-    let phone = value.trim();
+    if (name === "PhoneNumber") {
+      let phone = value.trim();
 
-    // Add +91 if not already present and number is not empty
-    if (phone && !phone.startsWith("+91")) {
-      phone = "+91" + phone.replace(/^0+/, ""); // also removes leading zeros
+      // Add +91 if not already present and number is not empty
+      if (phone && !phone.startsWith("+91")) {
+        phone = "+91" + phone.replace(/^0+/, ""); // also removes leading zeros
+      }
+
+      setFormData((prev) => ({ ...prev, [name]: phone }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-
-    setFormData((prev) => ({ ...prev, [name]: phone }));
-  } else {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-};
+  };
 
   return (
     <div>
@@ -290,7 +289,7 @@ const BecomeASeller = () => {
                     </p>
                   </div>
                   <form className="row" onSubmit={handleSubmit}>
-                       {/* First Name */}
+                    {/* First Name */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         First Name<span className="text-danger">*</span>
@@ -340,74 +339,74 @@ const BecomeASeller = () => {
                       />
                     </div>
                     {/* GST */}
-{/* Material-UI Switch */}
-<div className="col-md-6 mb-3">
-  <FormControlLabel
-    control={
-      <Switch
-        checked={formData.sellFood}
-        onChange={(e) =>
-          setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
-        }
-        sx={{
-        '& .MuiSwitch-switchBase.Mui-checked': {
-          color: 'green', // the circle color when checked
-        },
-        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-          backgroundColor: 'green', // the track color when checked
-        },
-      }}
-    />
-  }
-  label="Do You Sell Food?"
-  className="form-label"
-  sx={{
-      marginTop: '30px',
-    }}
-  />
-</div>
+                    {/* Material-UI Switch */}
+                    <div className="col-md-6 mb-3">
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={formData.sellFood}
+                            onChange={(e) =>
+                              setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
+                            }
+                            sx={{
+                              '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'green', // the circle color when checked
+                              },
+                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: 'green', // the track color when checked
+                              },
+                            }}
+                          />
+                        }
+                        label="Do You Sell Food?"
+                        className="form-label"
+                        sx={{
+                          marginTop: '30px',
+                        }}
+                      />
+                    </div>
 
-{/* Conditionally show GST or FSI */}
-{!formData.sellFood ? (
-  // If selling food, ask GST
-  <div className="col-md-6 mb-3">
-    <label className="form-label">
-      GST Number<span className="text-danger">*</span>
-    </label>
-    <div className="d-flex">
-      <input
-        type="text"
-        className="form-control"
-        name="gstNumber"
-        value={formData.gstNumber}
-        onChange={handleChange}
-        required
-      />
-      <button
-        type="button"
-        className="btn btn-secondary ms-2"
-        onClick={verifyGST}
-      >
-        Verify
-      </button>
-    </div>
-  </div>
-) : (
-  // If not selling food, ask FSI Number
-  <div className="col-md-6 mb-3">
-    <label className="form-label">
-      FSSAI License No.<span className="text-danger">*</span>
-    </label>
-    <input
-      type="text"
-      className="form-control"
-      name="fsiNumber"
-      value={formData.fsiNumber || ""}
-      onChange={handleChange}
-      required
-    />
-  </div>
-)}
+                    {/* Conditionally show GST or FSI */}
+                    {!formData.sellFood ? (
+                      // If selling food, ask GST
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          GST Number<span className="text-danger">*</span>
+                        </label>
+                        <div className="d-flex">
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="gstNumber"
+                            value={formData.gstNumber}
+                            onChange={handleChange}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-secondary ms-2"
+                            onClick={verifyGST}
+                          >
+                            Verify
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // If not selling food, ask FSI Number
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">
+                          FSSAI License No.<span className="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="fsiNumber"
+                          value={formData.fsiNumber || ""}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    )}
 
 
                     {/* Store Name */}
@@ -473,24 +472,24 @@ const BecomeASeller = () => {
                         placeholder="Enter WhatsApp Number With country code"
                       />
                     </div>
-<div className="col-md-12 mb-3">
-    <label className="form-label">
-      Full Address.<span className="text-danger">*</span>
-    </label>
-    <input
-      type="text"
-      className="form-control"
-      name="fullAddress"
-      value={formData.fullAddress || ""}
-      onChange={handleChange}
-      required
-    />
-  </div>
+                    <div className="col-md-12 mb-3">
+                      <label className="form-label">
+                        Full Address.<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="fullAddress"
+                        value={formData.fullAddress || ""}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
 
                     {/* City */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                       Selling City<span className="text-danger">*</span>
+                        Selling City<span className="text-danger">*</span>
                       </label>
                       <select
                         name="city"
@@ -511,7 +510,7 @@ const BecomeASeller = () => {
                     {/* Zone */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                       Selling Zone<span className="text-danger">*</span>
+                        Selling Zone<span className="text-danger">*</span>
                       </label>
                       <select
                         name="zone"
@@ -577,6 +576,21 @@ const BecomeASeller = () => {
                           <div className="modal-content p-3">
                             <h5 className="mb-3">Verify Your OTP</h5>
                             <div className="mb-3">
+                              <label>WhatsApp OTP</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                value={otpData.phoneOtp}
+                                onChange={(e) =>
+                                  setOtpData((prev) => ({
+                                    ...prev,
+                                    phoneOtp: e.target.value,
+                                  }))
+                                }
+                                placeholder="Enter WhatsApp OTP"
+                              />
+                            </div>
+                            <div className="mb-2">
                               <label>Email OTP</label>
                               <input
                                 type="text"
@@ -592,19 +606,7 @@ const BecomeASeller = () => {
                               />
                             </div>
                             <div className="mb-3">
-                              <label>WhatsApp OTP</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={otpData.phoneOtp}
-                                onChange={(e) =>
-                                  setOtpData((prev) => ({
-                                    ...prev,
-                                    phoneOtp: e.target.value,
-                                  }))
-                                }
-                                placeholder="Enter WhatsApp OTP"
-                              />
+                              <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
                             </div>
                             <div className="d-flex justify-content-end">
                               <button
