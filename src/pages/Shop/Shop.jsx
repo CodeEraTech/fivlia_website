@@ -71,6 +71,9 @@ function Dropdown() {
             inventory: prod.inventory || [],
             isVeg: prod.isVeg,
             sku: prod.sku,
+            soldBy: prod.soldBy || { name: "Fivlia" },
+            storeId: prod.storeId || null,
+            isOfficalStore: prod.official || false,
           };
         });
         setAllProducts(mapped);

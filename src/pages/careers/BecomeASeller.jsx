@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { MagnifyingGlass } from "react-loader-spinner";
 import ScrollToTop from "../ScrollToTop";
 import { get, post } from "../../apis/apiClient.jsx";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, LayersControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
 import { useNavigate } from "react-router-dom";
 import { Switch, FormControlLabel } from "@mui/material";
+const { BaseLayer } = LayersControl;
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -79,7 +79,7 @@ const BecomeASeller = () => {
 
   // Resend OTP
   const resendOtp = async () => {
-    await handleSubmit({ preventDefault: () => {} });
+    await handleSubmit({ preventDefault: () => { } });
   };
 
   // Verify OTP
@@ -199,6 +199,56 @@ const BecomeASeller = () => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
+    // --- NEW: distance check before processing ---
+    const selectedZoneId = Array.isArray(formData.zone) ? formData.zone[0] : formData.zone;
+    if (!selectedZoneId) {
+      return Swal.fire("Error", "Please select a zone before submitting.", "error");
+    }
+
+    // find selected zone object from city data
+    const currentCity = city.find((c) => c.city === formData.city);
+    const selectedZone = currentCity?.zones?.find((z) => z._id === selectedZoneId);
+
+    if (!selectedZone) {
+      return Swal.fire("Error", "Selected zone not found. Please re-select the zone.", "error");
+    }
+
+    // ensure lat/lng exist and are numbers
+    const zoneLat = Number(selectedZone.latitude);
+    const zoneLng = Number(selectedZone.longitude);
+    const submitLat = Number(latitude);
+    const submitLng = Number(longitude);
+
+    if (!isFinite(zoneLat) || !isFinite(zoneLng)) {
+      return Swal.fire("Error", "Zone coordinates are invalid.", "error");
+    }
+    if (!isFinite(submitLat) || !isFinite(submitLng)) {
+      return Swal.fire("Error", "Please set a valid location on the map before submitting.", "error");
+    }
+
+    // compute distance in meters using Leaflet
+    const distanceMeters = L.latLng(zoneLat, zoneLng).distanceTo(L.latLng(submitLat, submitLng));
+
+    const MAX_DISTANCE_METERS = 100; // threshold
+    if (distanceMeters >= MAX_DISTANCE_METERS) {
+      return Swal.fire({
+        title: "Invalid Location",
+        html: `The selected location is outside the allowed zone. Please update it.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Update Location",
+        cancelButtonText: "Cancel",
+        reverseButtons: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setMarkerPosition({ lat: zoneLat, lng: zoneLng });
+          setLatitude(zoneLat);
+          setLongitude(zoneLng);
+          Swal.fire("Updated", "Marker moved to zone center.", "success");
+        }
+      });
+    }
+    // --- END distance check ---
     Swal.fire({
       title: "Processing...",
       allowOutsideClick: false,
@@ -249,156 +299,156 @@ const BecomeASeller = () => {
 
   return (
     <div>
-        <>
-          <ScrollToTop />
-          <section className="my-lg-14 my-8">
-            <div className="container">
-              <div className="row">
-                <div className="offset-lg-2 col-lg-8 col-12">
-                  {/* === FORM CONTENT HERE === */}
-                  <div className="mb-8">
-                    <h1 className="h3">Become a Seller</h1>
-                    <p className="lead mb-0">
-                      Interested in selling your products on our platform? Fill out
-                      the form below, and our team will get in touch with you.
-                    </p>
+      <>
+        <ScrollToTop />
+        <section className="my-lg-14 my-8">
+          <div className="container">
+            <div className="row">
+              <div className="offset-lg-2 col-lg-8 col-12">
+                {/* === FORM CONTENT HERE === */}
+                <div className="mb-8">
+                  <h1 className="h3">Become a Seller</h1>
+                  <p className="lead mb-0">
+                    Interested in selling your products on our platform? Fill out
+                    the form below, and our team will get in touch with you.
+                  </p>
+                </div>
+                <form className="row" onSubmit={handleSubmit}>
+                  {/* First Name */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      First Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      className="form-control"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
-                  <form className="row" onSubmit={handleSubmit}>
-                    {/* First Name */}
+
+                  {/* Last Name */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Last Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      className="form-control"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+
+                  {/* Aadhar Upload */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Aadhar Card<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          aadharCard: Array.from(e.target.files),
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  {/* GST */}
+                  {/* Material-UI Switch */}
+                  <div className="col-md-6 mb-3">
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={formData.sellFood}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
+                          }
+                          sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: 'green', // the circle color when checked
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: 'green', // the track color when checked
+                            },
+                          }}
+                        />
+                      }
+                      label="Do You Sell Food?"
+                      className="form-label"
+                      sx={{
+                        marginTop: '30px',
+                      }}
+                    />
+                  </div>
+
+                  {/* Conditionally show GST or FSI */}
+                  {!formData.sellFood ? (
+                    // If selling food, ask GST
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        First Name<span className="text-danger">*</span>
+                        GST Number<span className="text-danger">*</span>
                       </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        className="form-control"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    {/* Last Name */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Last Name<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        className="form-control"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    {/* Aadhar Upload */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Aadhar Card<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        multiple
-                        accept="image/*"
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            aadharCard: Array.from(e.target.files),
-                          }))
-                        }
-                        required
-                      />
-                    </div>
-                    {/* GST */}
-                    {/* Material-UI Switch */}
-                    <div className="col-md-6 mb-3">
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={formData.sellFood}
-                            onChange={(e) =>
-                              setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
-                            }
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'green', // the circle color when checked
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: 'green', // the track color when checked
-                              },
-                            }}
-                          />
-                        }
-                        label="Do You Sell Food?"
-                        className="form-label"
-                        sx={{
-                          marginTop: '30px',
-                        }}
-                      />
-                    </div>
-
-                    {/* Conditionally show GST or FSI */}
-                    {!formData.sellFood ? (
-                      // If selling food, ask GST
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">
-                          GST Number<span className="text-danger">*</span>
-                        </label>
-                        <div className="d-flex">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="gstNumber"
-                            value={formData.gstNumber}
-                            onChange={handleChange}
-                            required
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-secondary ms-2"
-                            onClick={verifyGST}
-                          >
-                            Verify
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      // If not selling food, ask FSI Number
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">
-                          FSSAI License No.<span className="text-danger">*</span>
-                        </label>
+                      <div className="d-flex">
                         <input
                           type="text"
                           className="form-control"
-                          name="fsiNumber"
-                          value={formData.fsiNumber || ""}
+                          name="gstNumber"
+                          value={formData.gstNumber}
                           onChange={handleChange}
                           required
                         />
+                        <button
+                          type="button"
+                          className="btn btn-secondary ms-2"
+                          onClick={verifyGST}
+                        >
+                          Verify
+                        </button>
                       </div>
-                    )}
-
-
-                    {/* Store Name */}
+                    </div>
+                  ) : (
+                    // If not selling food, ask FSI Number
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Store / Business Name<span className="text-danger">*</span>
+                        FSSAI License No.<span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
-                        name="storeName"
                         className="form-control"
-                        value={formData.storeName}
+                        name="fsiNumber"
+                        value={formData.fsiNumber || ""}
                         onChange={handleChange}
                         required
                       />
                     </div>
-                    {/* PAN Upload
+                  )}
+
+
+                  {/* Store Name */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Store / Business Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="storeName"
+                      className="form-control"
+                      value={formData.storeName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  {/* PAN Upload
                                       <div className="col-md-12 mb-3">
                                         <label className="form-label">
                                           PAN Card<span className="text-danger">*</span>
@@ -418,226 +468,252 @@ const BecomeASeller = () => {
                                         />
                                       </div> */}
 
-                    {/* Email */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Email<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        className="form-control"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
+                  {/* Email */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Email<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      className="form-control"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
 
-                    {/* WhatsApp Number */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-whatsapp" viewBox="0 0 16 16">
-                        <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
-                      </svg> WhatsApp Number</label>
-                      <input
-                        type="tel"
-                        name="PhoneNumber"
-                        className="form-control"
-                        value={formData.PhoneNumber}
-                        onChange={handleChange}
-                        placeholder="Enter WhatsApp Number With country code"
-                      />
-                    </div>
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">
-                        Full Address.<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="fullAddress"
-                        value={formData.fullAddress || ""}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
+                  {/* WhatsApp Number */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-whatsapp" viewBox="0 0 16 16">
+                      <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+                    </svg> WhatsApp Number</label>
+                    <input
+                      type="tel"
+                      name="PhoneNumber"
+                      className="form-control"
+                      value={formData.PhoneNumber}
+                      onChange={handleChange}
+                      placeholder="Enter WhatsApp Number With country code"
+                    />
+                  </div>
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label">
+                      Full Address.<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="fullAddress"
+                      value={formData.fullAddress || ""}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
 
-                    {/* City */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Selling City<span className="text-danger">*</span>
-                      </label>
-                      <select
-                        name="city"
-                        className="form-control"
-                        value={formData.city}
-                        onChange={handleCityChange}
-                        required
-                      >
-                        <option value="">Select Selling City</option>
-                        {city.map((c) => (
-                          <option key={c._id} value={c.city}>
-                            {c.city}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Zone */}
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Selling Zone<span className="text-danger">*</span>
-                      </label>
-                      <select
-                        name="zone"
-                        className="form-control"
-                        value={formData.zone[0] || ""}
-                        onChange={handleZoneChange}
-                        required
-                      >
-                        <option value="">Select Selling Zone</option>
-                        {zone.map((z) => (
-                          <option key={z._id} value={z._id}>
-                            {z.zoneTitle}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Map */}
-                    <div className="mb-3">
-                      <div style={{ height: "400px", width: "100%" }}>
-                        <MapContainer
-                          center={markerPosition}
-                          zoom={15}
-                          style={{ height: "100%", width: "100%" }}
-                        >
-                          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                          <Marker position={markerPosition} />
-                          <MapClickHandler />
-                          <MapUpdater position={markerPosition} />
-                        </MapContainer>
-                      </div>
-                      <div className="d-flex flex-wrap gap-3 mt-2">
-                        <div style={{ flex: "1 1 150px" }}>
-                          <label className="form-label">Latitude</label>
-                          <input
-                            type="number"
-                            step="0.000001"
-                            className="form-control"
-                            value={latitude || ""}
-                            onChange={(e) => setLatitude(parseFloat(e.target.value))}
-                          />
-                        </div>
-                        <div style={{ flex: "1 1 150px" }}>
-                          <label className="form-label">Longitude</label>
-                          <input
-                            type="number"
-                            step="0.000001"
-                            className="form-control"
-                            value={longitude || ""}
-                            onChange={(e) => setLongitude(parseFloat(e.target.value))}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Info */}
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">Additional Information</label>
-                      <textarea
-                        rows={3}
-                        className="form-control"
-                        name="additionalInfo"
-                        value={formData.additionalInfo}
-                        onChange={handleChange}
-                      />
-                    </div>
-
-                    {/* Submit */}
-                    <div className="col-md-12 justify-content-center d-flex mt-3">
-                      <button type="submit" style={{ width: "80%" }} className="btn btn-primary">
-                        Submit
-                      </button>
-                    </div>
-                  </form>
-                  {/* OTP Modal */}
-                  {otpModal && (
-                    <div
-                      className="modal d-block"
-                      style={{ background: "rgba(0,0,0,0.5)" }}
+                  {/* City */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Selling City<span className="text-danger">*</span>
+                    </label>
+                    <select
+                      name="city"
+                      className="form-control"
+                      value={formData.city}
+                      onChange={handleCityChange}
+                      required
                     >
-                      <div className="modal-dialog">
-                        <div className="modal-content p-3">
-                          <h5 className="mb-3">Verify Your OTP</h5>
-                          <div className="mb-3">
-                            <label>WhatsApp OTP</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={otpData.phoneOtp}
-                              onChange={(e) =>
-                                setOtpData((prev) => ({
-                                  ...prev,
-                                  phoneOtp: e.target.value,
-                                }))
-                              }
-                              placeholder="Enter WhatsApp OTP"
+                      <option value="">Select Selling City</option>
+                      {city.map((c) => (
+                        <option key={c._id} value={c.city}>
+                          {c.city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Zone */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Selling Zone<span className="text-danger">*</span>
+                    </label>
+                    <select
+                      name="zone"
+                      className="form-control"
+                      value={formData.zone[0] || ""}
+                      onChange={handleZoneChange}
+                      required
+                    >
+                      <option value="">Select Selling Zone</option>
+                      {zone.map((z) => (
+                        <option key={z._id} value={z._id}>
+                          {z.zoneTitle}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Map */}
+                  <div className="mb-3">
+                    <div style={{ height: "400px", width: "100%" }}>
+                      <MapContainer
+                        center={markerPosition}
+                        zoom={15}
+                        style={{ height: "100%", width: "100%" }}
+                      >
+                        {/* Layer switcher UI in top-right */}
+                        <LayersControl position="topright">
+                          {/* Default OpenStreetMap */}
+                          <BaseLayer checked name="Street View">
+                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                          </BaseLayer>
+
+                          {/* Google Satellite (from third-party tile server) */}
+                          <BaseLayer name="Satellite View">
+                            <TileLayer
+                              url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                              attribution="&copy; <a href='https://www.google.com/maps'>Google Maps</a>"
                             />
-                          </div>
-                          <div className="mb-2">
-                            <label>Email OTP</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={otpData.emailOtp}
-                              onChange={(e) =>
-                                setOtpData((prev) => ({
-                                  ...prev,
-                                  emailOtp: e.target.value,
-                                }))
-                              }
-                              placeholder="Enter Email OTP"
+                          </BaseLayer>
+
+                          {/* Google Hybrid (satellite + labels) */}
+                          <BaseLayer name="Hybrid View">
+                            <TileLayer
+                              url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                              attribution="&copy; <a href='https://www.google.com/maps'>Google Maps</a>"
                             />
-                          </div>
-                          <div className="mb-3">
-                            <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
-                          </div>
-                          <div className="mb-3 text-muted">
-                            {resendTimer > 0 ? (
-                              <span style={{ color: "red" }}>You can request a new OTP in {resendTimer} seconds</span>
-                            ) : (
-                              <span
-                                onClick={resendOtp}
-                                style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}
-                              >
-                                Resend OTP
-                              </span>
-                            )}
-                          </div>
-                          <div className="d-flex justify-content-end">
-                            <button
-                              className="btn btn-secondary me-2"
-                              onClick={() => setOtpModal(false)}
+                          </BaseLayer>
+                        </LayersControl>
+
+                        {/* Marker */}
+                        <Marker position={markerPosition} />
+
+                        {/* Your click + updater */}
+                        <MapClickHandler />
+                        <MapUpdater position={markerPosition} />
+                      </MapContainer>
+                    </div>
+                    <div className="d-flex flex-wrap gap-3 mt-2">
+                      <div style={{ flex: "1 1 150px" }}>
+                        <label className="form-label">Latitude</label>
+                        <input
+                          type="number"
+                          step="0.000001"
+                          className="form-control"
+                          value={latitude || ""}
+                          onChange={(e) => setLatitude(parseFloat(e.target.value))}
+                        />
+                      </div>
+                      <div style={{ flex: "1 1 150px" }}>
+                        <label className="form-label">Longitude</label>
+                        <input
+                          type="number"
+                          step="0.000001"
+                          className="form-control"
+                          value={longitude || ""}
+                          onChange={(e) => setLongitude(parseFloat(e.target.value))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label">Additional Information</label>
+                    <textarea
+                      rows={3}
+                      className="form-control"
+                      name="additionalInfo"
+                      value={formData.additionalInfo}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  {/* Submit */}
+                  <div className="col-md-12 justify-content-center d-flex mt-3">
+                    <button type="submit" style={{ width: "80%" }} className="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </form>
+                {/* OTP Modal */}
+                {otpModal && (
+                  <div
+                    className="modal d-block"
+                    style={{ background: "rgba(0,0,0,0.5)" }}
+                  >
+                    <div className="modal-dialog">
+                      <div className="modal-content p-3">
+                        <h5 className="mb-3">Verify Your OTP</h5>
+                        <div className="mb-3">
+                          <label>WhatsApp OTP</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={otpData.phoneOtp}
+                            onChange={(e) =>
+                              setOtpData((prev) => ({
+                                ...prev,
+                                phoneOtp: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter WhatsApp OTP"
+                          />
+                        </div>
+                        <div className="mb-2">
+                          <label>Email OTP</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={otpData.emailOtp}
+                            onChange={(e) =>
+                              setOtpData((prev) => ({
+                                ...prev,
+                                emailOtp: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter Email OTP"
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
+                        </div>
+                        <div className="mb-3 text-muted">
+                          {resendTimer > 0 ? (
+                            <span style={{ color: "red" }}>You can request a new OTP in {resendTimer} seconds</span>
+                          ) : (
+                            <span
+                              onClick={resendOtp}
+                              style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}
                             >
-                              Cancel
-                            </button>
-                            <button
-                              className="btn btn-primary"
-                              onClick={verifyOtp}
-                              disabled={verifying}
-                            >
-                              {verifying ? "Verifying..." : "Verify OTP"}
-                            </button>
-                          </div>
+                              Resend OTP
+                            </span>
+                          )}
+                        </div>
+                        <div className="d-flex justify-content-end">
+                          <button
+                            className="btn btn-secondary me-2"
+                            onClick={() => setOtpModal(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            onClick={verifyOtp}
+                            disabled={verifying}
+                          >
+                            {verifying ? "Verifying..." : "Verify OTP"}
+                          </button>
                         </div>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          </section>
-        </>  
+          </div>
+        </section>
+      </>
     </div>
   );
 };

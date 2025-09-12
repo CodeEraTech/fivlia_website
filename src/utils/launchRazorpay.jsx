@@ -16,12 +16,12 @@ const loadRazorpayScript = () => {
   });
 };
 
-const launchRazorpay = async ({ tempOrderId, amount, onSuccess, onFailure, razorpayKey }) => {
-  if (!tempOrderId || !amount) {
+const launchRazorpay = async ({ tempOrderId, rzOrderId, amount, onSuccess, onFailure, razorpayKey }) => {
+  if (!tempOrderId || !amount || !rzOrderId) {
     alert("Invalid payment data. Cannot proceed to Razorpay.");
     return;
   }
-console.log('Razorpay Key:wuw', razorpayKey);
+
   if (!razorpayKey) {
     alert("Razorpay key not configured. Please contact support.");
     return;
@@ -37,6 +37,7 @@ console.log('Razorpay Key:wuw', razorpayKey);
     key: razorpayKey,
     amount: amount,
     currency: "INR",
+    order_id: rzOrderId,
     name: "Fivlia",
     description: "Order Payment",
     handler: async function (response) {
@@ -59,6 +60,11 @@ console.log('Razorpay Key:wuw', razorpayKey);
       } catch (err) {
         // console.error("Payment verification error:", err);
         alert("Something went wrong during payment verification.");
+        onFailure?.();
+      }
+    },
+    modal: {
+      ondismiss: function () {
         onFailure?.();
       }
     },

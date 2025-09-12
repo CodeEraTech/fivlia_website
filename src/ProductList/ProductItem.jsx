@@ -257,10 +257,16 @@ const ProductItem = ({ products = [] }) => {
                 {product.brand && (
                   <><div className="text-small mb-1">
                     <span className="text-muted">Brand: {product.brand}</span>
-                  </div><div className="text-small mb-1">
+                  </div>
+                    <div className="text-small mb-1">
                       <span className="text-muted">SKU: {product.sku}</span>
                     </div></>
                 )}
+                {/* <div className="text-small mb-1">
+                  <span className="text-muted">Sold By: <Link to={`/seller?id=${product.storeId}`}>
+                    {product.soldBy}
+                  </Link></span>
+                </div> */}
                 <h2 className="fs-6">
                   <span
                     className="text-inherit text-decoration-none"
@@ -414,7 +420,7 @@ const ProductItem = ({ products = [] }) => {
             box-shadow: none;
           }
         `}</style>
-      </div>
+      </div >
     </>
   );
 };

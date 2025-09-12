@@ -81,8 +81,8 @@ const ProductDetails = () => {
           <h2 className="pqv-product-name">{product.name || product.productName}</h2>
           <div className="pqv-product-meta">
             <span className="pqv-category">
-  {Array.isArray(product.category)
-  ? product.category.map(c => c.name).join(", ")    : (product.category?.name || product.category)}
+              {Array.isArray(product.category)
+                ? product.category.map(c => c.name).join(", ") : (product.category?.name || product.category)}
 
               {product.isVeg !== 0 && (
                 <span
@@ -95,7 +95,7 @@ const ProductDetails = () => {
                 </span>
               )}
             </span>
-            {(product.brand || product.brand_Name.name) &&  (
+            {(product.brand || product.brand_Name.name) && (
               <>
                 <span className="pqv-brand">
                   Brand: <Link to={`/brand?id=${product.brandId || product.brand_Name?._id}`}>
@@ -218,7 +218,7 @@ const ProductDetails = () => {
       </div>
       <div className="pqv-related-section">
         <hr className="pqv-separator" />
-        <RelatedProducts productId={product._id || product.id}  />
+        <RelatedProducts productId={product._id || product.id} />
       </div>
       <style>{`
 .pqv-details-row {

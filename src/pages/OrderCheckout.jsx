@@ -23,6 +23,7 @@ const OrderCheckout = () => {
   const [paymentMode, setPaymentMode] = useState("online");
   const getSetting = useSettingValue();
   const getImageUrl = useImageUrl();
+  const [paymentProcess, setPaymentProcess] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -100,6 +101,7 @@ const OrderCheckout = () => {
     }
 
     try {
+      setPaymentProcess(true)
       const orderPayload = {
         addressId: selectedAddress,
         cartIds: cartItems.map(item => item._id),
@@ -109,7 +111,7 @@ const OrderCheckout = () => {
       };
 
       const response = await post(ENDPOINTS.PLACE_ORDER, orderPayload, { authRequired: true });
-      const { order, tempOrder, tempOrderId } = response.data || {};
+      const { order, tempOrder, tempOrderId, payResponse} = response.data || {};
       // ✅ Case 1: COD — handle directly
       if (order && order.cashOnDelivery === true && order.paymentStatus === "Successful") {
         fetchCartItems();
@@ -118,27 +120,31 @@ const OrderCheckout = () => {
         return;
       }
       // ✅ Case 2: Online payment — proceed to Razorpay
-      if (tempOrder && tempOrderId && tempOrder.totalPrice) {
-        const amountInPaisa = Math.round(tempOrder.totalPrice * 100);
+      if (tempOrder && tempOrderId && tempOrder.totalPrice && payResponse && payResponse.id) {
         launchRazorpay({
-          tempOrderId,
-          amount: amountInPaisa,
+          tempOrderId: tempOrderId,
+          amount: payResponse.amount,
+          rzOrderId: payResponse.id,
           onSuccess: () => {
             fetchCartItems();
             alert("Payment successful and order confirmed!");
+            setPaymentProcess(false)
             navigate('/MyAccountOrder');
           },
           onFailure: () => {
             alert("Payment verification failed or cancelled.");
+            setPaymentProcess(false);
           },
           razorpayKey,
         });
       } else {
         alert("Invalid order response. Please try again.");
+        setPaymentProcess(false)
       }
     } catch (error) {
       console.error('Order placement error:', error);
       alert('Something went wrong!');
+      setPaymentProcess(false);
     }
   };
 
@@ -404,9 +410,9 @@ const OrderCheckout = () => {
                         <button
                           className="btn btn-primary w-100"
                           onClick={handlePlaceOrder}
-                          disabled={!selectedAddress || addressLoading}
+                          disabled={!selectedAddress || addressLoading || paymentProcess}
                         >
-                          {addressLoading ? 'Loading...' : 'Place Order'}
+                          {addressLoading || paymentProcess ? 'Processing...' : 'Place Order'}
                         </button>
                       </div>
                     </div>
