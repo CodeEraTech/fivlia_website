@@ -20,7 +20,6 @@ L.Icon.Default.mergeOptions({
 
 const BecomeASeller = () => {
   const navigate = useNavigate();
-  const [loaderStatus, setLoaderStatus] = useState(true);
   const [gstDetails, setGstDetails] = useState(null);
   const [otpModal, setOtpModal] = useState(false);
   const [markerPosition, setMarkerPosition] = useState({
@@ -32,6 +31,7 @@ const BecomeASeller = () => {
   const [otpData, setOtpData] = useState({ emailOtp: "", phoneOtp: "" });
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -65,30 +65,21 @@ const BecomeASeller = () => {
     return null;
   };
 
-  // Initial loader
+  // Timer for resend OTP
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoaderStatus(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
-  // Send OTP
-  const sendOtp = async () => {
-    if (!formData.email || !formData.PhoneNumber) {
-      Swal.fire("Error", "Email and phone number are required to send OTP.", "error");
-      return;
-    }
-    try {
-      await post(`${API_BASE_URL}${ENDPOINTS.SEND_OTP}`, {
-        email: formData.email,
-        PhoneNumber: formData.PhoneNumber,
-      });
-      Swal.fire("Success", "OTP sent to your email and phone.", "success");
-      setOtpModal(true);
-    } catch (error) {
-      Swal.fire("Error", error.response?.data?.message || "Failed to send OTP", "error");
-    }
+
+  // Resend OTP
+  const resendOtp = async () => {
+    await handleSubmit({ preventDefault: () => {} });
   };
 
   // Verify OTP
@@ -97,7 +88,14 @@ const BecomeASeller = () => {
       Swal.fire("Error", "Enter at least one OTP to verify.", "error");
       return;
     }
+
     setVerifying(true);
+    Swal.fire({
+      title: "Verifying OTP...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
     try {
       const res = await post(`${API_BASE_URL}${ENDPOINTS.SELLER_VERIFY_OTP}`, {
         email: formData.email,
@@ -129,19 +127,18 @@ const BecomeASeller = () => {
         const st = gst.pradr?.st || "";
         const loc = gst.pradr?.loc || "";
 
-        // Create full address
         const fullAddress = [bno, st, loc].filter(Boolean).join(", ");
         setFormData((prev) => ({
           ...prev,
           storeName: gst.tradename || "",
-          fullAddress: fullAddress,
+          fullAddress,
         }));
         setGstDetails(gst);
         Swal.fire("Verified", "GST Details fetched successfully", "success");
       } else {
         Swal.fire("Error", "Invalid GST Number", "error");
       }
-    } catch (error) {
+    } catch {
       Swal.fire("Error", "Failed to verify GST number", "error");
     }
   };
@@ -149,7 +146,6 @@ const BecomeASeller = () => {
   // Fetch cities
   useEffect(() => {
     let isMounted = true;
-    setLoaderStatus(true);
     get(ENDPOINTS.GETCITY)
       .then((res) => {
         if (isMounted) {
@@ -158,10 +154,9 @@ const BecomeASeller = () => {
         }
       })
       .catch(() => {
-        if (isMounted) setError("Failed to load categories");
+        if (isMounted) setError("Failed to load cities. Please try again.");
       })
       .finally(() => {
-        if (isMounted) setLoaderStatus(false);
       });
     return () => {
       isMounted = false;
@@ -201,32 +196,28 @@ const BecomeASeller = () => {
 
   // Submit form
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    Swal.fire({
+      title: "Processing...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
     let phone = formData.PhoneNumber.trim();
     if (phone && !phone.startsWith("+91")) {
       phone = "+91" + phone.replace(/^0+/, "");
     }
 
     const form = new FormData();
-    form.append("firstName", formData.firstName);
-    form.append("lastName", formData.lastName);
-    form.append("storeName", formData.storeName);
-    form.append("email", formData.email);
-    form.append("PhoneNumber", formData.PhoneNumber);
-    form.append("gstNumber", formData.gstNumber);
-    form.append("additionalInfo", formData.additionalInfo);
-    form.append("city", formData.city);
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "aadharCard" && key !== "panCard") {
+        form.append(key, value);
+      }
+    });
     form.append("Latitude", latitude);
     form.append("Longitude", longitude);
-    form.append("fsiNumber", formData.fsiNumber);
-    form.append("sellFood", formData.sellFood);
-    form.append("fullAddress", formData.fullAddress);
-    if (formData.zone) {
-      form.append("zone", formData.zone);
-    }
-
-    // Files
     formData.aadharCard.forEach((file) => form.append("aadharCard", file));
     formData.panCard.forEach((file) => form.append("panCard", file));
 
@@ -236,22 +227,20 @@ const BecomeASeller = () => {
       });
       Swal.fire("Success", res.data.message, "success");
       setOtpModal(true);
+      setResendTimer(60);
     } catch (error) {
       Swal.fire("Error", error.response?.data?.message || "Submission failed", "error");
     }
   };
 
-  // Handle text changes
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "PhoneNumber") {
       let phone = value.trim();
-
-      // Add +91 if not already present and number is not empty
       if (phone && !phone.startsWith("+91")) {
-        phone = "+91" + phone.replace(/^0+/, ""); // also removes leading zeros
+        phone = "+91" + phone.replace(/^0+/, "");
       }
-
       setFormData((prev) => ({ ...prev, [name]: phone }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -260,27 +249,13 @@ const BecomeASeller = () => {
 
   return (
     <div>
-      {loaderStatus ? (
-        <div
-          className="loader-container d-flex justify-content-center align-items-center"
-          style={{ minHeight: "60vh" }}
-        >
-          <MagnifyingGlass
-            visible={true}
-            height="100"
-            width="100"
-            ariaLabel="magnifying-glass-loading"
-            glassColor="#c0efff"
-            color="#0aad0a"
-          />
-        </div>
-      ) : (
         <>
           <ScrollToTop />
           <section className="my-lg-14 my-8">
             <div className="container">
               <div className="row">
                 <div className="offset-lg-2 col-lg-8 col-12">
+                  {/* === FORM CONTENT HERE === */}
                   <div className="mb-8">
                     <h1 className="h3">Become a Seller</h1>
                     <p className="lead mb-0">
@@ -424,24 +399,24 @@ const BecomeASeller = () => {
                       />
                     </div>
                     {/* PAN Upload
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">
-                        PAN Card<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        multiple
-                        accept="image/*"
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            panCard: Array.from(e.target.files),
-                          }))
-                        }
-                        required
-                      />
-                    </div> */}
+                                      <div className="col-md-12 mb-3">
+                                        <label className="form-label">
+                                          PAN Card<span className="text-danger">*</span>
+                                        </label>
+                                        <input
+                                          type="file"
+                                          className="form-control"
+                                          multiple
+                                          accept="image/*"
+                                          onChange={(e) =>
+                                            setFormData((prev) => ({
+                                              ...prev,
+                                              panCard: Array.from(e.target.files),
+                                            }))
+                                          }
+                                          required
+                                        />
+                                      </div> */}
 
                     {/* Email */}
                     <div className="col-md-6 mb-3">
@@ -566,68 +541,6 @@ const BecomeASeller = () => {
                       </div>
                     </div>
 
-                    {/* OTP Modal */}
-                    {otpModal && (
-                      <div
-                        className="modal d-block"
-                        style={{ background: "rgba(0,0,0,0.5)" }}
-                      >
-                        <div className="modal-dialog">
-                          <div className="modal-content p-3">
-                            <h5 className="mb-3">Verify Your OTP</h5>
-                            <div className="mb-3">
-                              <label>WhatsApp OTP</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={otpData.phoneOtp}
-                                onChange={(e) =>
-                                  setOtpData((prev) => ({
-                                    ...prev,
-                                    phoneOtp: e.target.value,
-                                  }))
-                                }
-                                placeholder="Enter WhatsApp OTP"
-                              />
-                            </div>
-                            <div className="mb-2">
-                              <label>Email OTP</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={otpData.emailOtp}
-                                onChange={(e) =>
-                                  setOtpData((prev) => ({
-                                    ...prev,
-                                    emailOtp: e.target.value,
-                                  }))
-                                }
-                                placeholder="Enter email OTP"
-                              />
-                            </div>
-                            <div className="mb-3">
-                              <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
-                            </div>
-                            <div className="d-flex justify-content-end">
-                              <button
-                                className="btn btn-secondary me-2"
-                                onClick={() => setOtpModal(false)}
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                className="btn btn-primary"
-                                onClick={verifyOtp}
-                                disabled={verifying}
-                              >
-                                {verifying ? "Verifying..." : "Verify OTP"}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Additional Info */}
                     <div className="col-md-12 mb-3">
                       <label className="form-label">Additional Information</label>
@@ -647,12 +560,84 @@ const BecomeASeller = () => {
                       </button>
                     </div>
                   </form>
+                  {/* OTP Modal */}
+                  {otpModal && (
+                    <div
+                      className="modal d-block"
+                      style={{ background: "rgba(0,0,0,0.5)" }}
+                    >
+                      <div className="modal-dialog">
+                        <div className="modal-content p-3">
+                          <h5 className="mb-3">Verify Your OTP</h5>
+                          <div className="mb-3">
+                            <label>WhatsApp OTP</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={otpData.phoneOtp}
+                              onChange={(e) =>
+                                setOtpData((prev) => ({
+                                  ...prev,
+                                  phoneOtp: e.target.value,
+                                }))
+                              }
+                              placeholder="Enter WhatsApp OTP"
+                            />
+                          </div>
+                          <div className="mb-2">
+                            <label>Email OTP</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={otpData.emailOtp}
+                              onChange={(e) =>
+                                setOtpData((prev) => ({
+                                  ...prev,
+                                  emailOtp: e.target.value,
+                                }))
+                              }
+                              placeholder="Enter Email OTP"
+                            />
+                          </div>
+                          <div className="mb-3">
+                            <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
+                          </div>
+                          <div className="mb-3 text-muted">
+                            {resendTimer > 0 ? (
+                              <span style={{ color: "red" }}>You can request a new OTP in {resendTimer} seconds</span>
+                            ) : (
+                              <span
+                                onClick={resendOtp}
+                                style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}
+                              >
+                                Resend OTP
+                              </span>
+                            )}
+                          </div>
+                          <div className="d-flex justify-content-end">
+                            <button
+                              className="btn btn-secondary me-2"
+                              onClick={() => setOtpModal(false)}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              className="btn btn-primary"
+                              onClick={verifyOtp}
+                              disabled={verifying}
+                            >
+                              {verifying ? "Verifying..." : "Verify OTP"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </section>
-        </>
-      )}
+        </>  
     </div>
   );
 };
