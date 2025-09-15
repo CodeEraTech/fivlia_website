@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import ScrollToTop from "../ScrollToTop";
 import { get, post } from "../../apis/apiClient.jsx";
-import { MapContainer, TileLayer, Marker, useMapEvents, LayersControl } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  LayersControl,
+  Circle,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
@@ -52,18 +59,8 @@ const BecomeASeller = () => {
 
   const [city, setCity] = useState([]);
   const [zone, setZone] = useState([]);
-
-  // Map click handler
-  const MapClickHandler = () => {
-    useMapEvents({
-      click(e) {
-        setMarkerPosition(e.latlng);
-        setLatitude(e.latlng.lat);
-        setLongitude(e.latlng.lng);
-      },
-    });
-    return null;
-  };
+  const [zoneRadius, setZoneRadius] = useState(null);
+  const [zoneCenter, setZoneCenter] = useState(null); // ✅ fixed zone center
 
   // Timer for resend OTP
   useEffect(() => {
@@ -76,10 +73,9 @@ const BecomeASeller = () => {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-
   // Resend OTP
   const resendOtp = async () => {
-    await handleSubmit({ preventDefault: () => { } });
+    await handleSubmit({ preventDefault: () => {} });
   };
 
   // Verify OTP
@@ -108,7 +104,11 @@ const BecomeASeller = () => {
       navigate("/");
       setOtpModal(false);
     } catch (error) {
-      Swal.fire("Error", error.response?.data?.message || "OTP verification failed", "error");
+      Swal.fire(
+        "Error",
+        error.response?.data?.message || "OTP verification failed",
+        "error"
+      );
     } finally {
       setVerifying(false);
     }
@@ -116,7 +116,8 @@ const BecomeASeller = () => {
 
   // Verify GST
   const verifyGST = async () => {
-    if (!formData.gstNumber) return Swal.fire("Error", "Enter GST Number", "error");
+    if (!formData.gstNumber)
+      return Swal.fire("Error", "Enter GST Number", "error");
     try {
       const res = await get(
         `${API_BASE_URL}${ENDPOINTS.GSTDETAIL}?gst=${formData.gstNumber}`
@@ -156,8 +157,7 @@ const BecomeASeller = () => {
       .catch(() => {
         if (isMounted) setError("Failed to load cities. Please try again.");
       })
-      .finally(() => {
-      });
+      .finally(() => {});
     return () => {
       isMounted = false;
     };
@@ -166,7 +166,7 @@ const BecomeASeller = () => {
   // City change
   const handleCityChange = (e) => {
     const selectedCity = e.target.value;
-    setFormData((prev) => ({ ...prev, city: selectedCity, zone: [] }));
+    setFormData((prev) => ({ ...prev, city: selectedCity, zone: "" }));
     const selected = city.find((c) => c.city === selectedCity);
     setZone(selected?.zones || []);
   };
@@ -175,22 +175,47 @@ const BecomeASeller = () => {
   const handleZoneChange = (e) => {
     const selectedZoneId = e.target.value;
     setFormData((prev) => ({ ...prev, zone: [selectedZoneId] }));
+
     const currentCity = city.find((c) => c.city === formData.city);
-    const selectedZone = currentCity?.zones.find((z) => z._id === selectedZoneId);
+    const selectedZone = currentCity?.zones.find(
+      (z) => z._id === selectedZoneId
+    );
     if (selectedZone) {
-      const newPos = { lat: selectedZone.latitude, lng: selectedZone.longitude };
-      setMarkerPosition(newPos);
+      const newCenter = {
+        lat: selectedZone.latitude,
+        lng: selectedZone.longitude,
+      };
+      setMarkerPosition(newCenter);
       setLatitude(selectedZone.latitude);
       setLongitude(selectedZone.longitude);
+      setZoneRadius(selectedZone.range);
+      setZoneCenter(newCenter);
     }
   };
 
-  // Map updater
-  const MapUpdater = ({ position }) => {
-    const map = useMapEvents({});
-    useEffect(() => {
-      map.setView(position, map.getZoom(), { animate: true });
-    }, [position, map]);
+  // Map updater (restrict clicks inside fixed circle)
+  const MapUpdater = () => {
+    useMapEvents({
+      click: (e) => {
+        if (!zoneCenter || !zoneRadius) return;
+
+        const clickedLat = e.latlng.lat;
+        const clickedLon = e.latlng.lng;
+        const distance = L.latLng(zoneCenter.lat, zoneCenter.lng).distanceTo(
+          L.latLng(clickedLat, clickedLon)
+        );
+
+        if (distance > zoneRadius) {
+          Swal.fire("Error", "You clicked outside the allowed zone!", "error");
+          return;
+        }
+
+        // move marker if inside zone
+        setMarkerPosition(e.latlng);
+        setLatitude(clickedLat);
+        setLongitude(clickedLon);
+      },
+    });
     return null;
   };
 
@@ -200,17 +225,29 @@ const BecomeASeller = () => {
       e.preventDefault();
     }
     // --- NEW: distance check before processing ---
-    const selectedZoneId = Array.isArray(formData.zone) ? formData.zone[0] : formData.zone;
+    const selectedZoneId = Array.isArray(formData.zone)
+      ? formData.zone[0]
+      : formData.zone;
     if (!selectedZoneId) {
-      return Swal.fire("Error", "Please select a zone before submitting.", "error");
+      return Swal.fire(
+        "Error",
+        "Please select a zone before submitting.",
+        "error"
+      );
     }
 
     // find selected zone object from city data
     const currentCity = city.find((c) => c.city === formData.city);
-    const selectedZone = currentCity?.zones?.find((z) => z._id === selectedZoneId);
+    const selectedZone = currentCity?.zones?.find(
+      (z) => z._id === selectedZoneId
+    );
 
     if (!selectedZone) {
-      return Swal.fire("Error", "Selected zone not found. Please re-select the zone.", "error");
+      return Swal.fire(
+        "Error",
+        "Selected zone not found. Please re-select the zone.",
+        "error"
+      );
     }
 
     // ensure lat/lng exist and are numbers
@@ -223,13 +260,19 @@ const BecomeASeller = () => {
       return Swal.fire("Error", "Zone coordinates are invalid.", "error");
     }
     if (!isFinite(submitLat) || !isFinite(submitLng)) {
-      return Swal.fire("Error", "Please set a valid location on the map before submitting.", "error");
+      return Swal.fire(
+        "Error",
+        "Please set a valid location on the map before submitting.",
+        "error"
+      );
     }
 
     // compute distance in meters using Leaflet
-    const distanceMeters = L.latLng(zoneLat, zoneLng).distanceTo(L.latLng(submitLat, submitLng));
+    const distanceMeters = L.latLng(zoneLat, zoneLng).distanceTo(
+      L.latLng(submitLat, submitLng)
+    );
 
-    const MAX_DISTANCE_METERS = 100; // threshold
+    const MAX_DISTANCE_METERS = Number(selectedZone.range);
     if (distanceMeters >= MAX_DISTANCE_METERS) {
       return Swal.fire({
         title: "Invalid Location",
@@ -279,7 +322,11 @@ const BecomeASeller = () => {
       setOtpModal(true);
       setResendTimer(60);
     } catch (error) {
-      Swal.fire("Error", error.response?.data?.message || "Submission failed", "error");
+      Swal.fire(
+        "Error",
+        error.response?.data?.message || "Submission failed",
+        "error"
+      );
     }
   };
 
@@ -309,8 +356,8 @@ const BecomeASeller = () => {
                 <div className="mb-8">
                   <h1 className="h3">Become a Seller</h1>
                   <p className="lead mb-0">
-                    Interested in selling your products on our platform? Fill out
-                    the form below, and our team will get in touch with you.
+                    Interested in selling your products on our platform? Fill
+                    out the form below, and our team will get in touch with you.
                   </p>
                 </div>
                 <form className="row" onSubmit={handleSubmit}>
@@ -371,22 +418,26 @@ const BecomeASeller = () => {
                         <Switch
                           checked={formData.sellFood}
                           onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, sellFood: e.target.checked }))
+                            setFormData((prev) => ({
+                              ...prev,
+                              sellFood: e.target.checked,
+                            }))
                           }
                           sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: 'green', // the circle color when checked
+                            "& .MuiSwitch-switchBase.Mui-checked": {
+                              color: "green", // the circle color when checked
                             },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: 'green', // the track color when checked
-                            },
+                            "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                              {
+                                backgroundColor: "green", // the track color when checked
+                              },
                           }}
                         />
                       }
                       label="Do You Sell Food?"
                       className="form-label"
                       sx={{
-                        marginTop: '30px',
+                        marginTop: "30px",
                       }}
                     />
                   </div>
@@ -433,11 +484,11 @@ const BecomeASeller = () => {
                     </div>
                   )}
 
-
                   {/* Store Name */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
-                      Store / Business Name<span className="text-danger">*</span>
+                      Store / Business Name
+                      <span className="text-danger">*</span>
                     </label>
                     <input
                       type="text"
@@ -485,9 +536,19 @@ const BecomeASeller = () => {
 
                   {/* WhatsApp Number */}
                   <div className="col-md-6 mb-3">
-                    <label className="form-label"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-whatsapp" viewBox="0 0 16 16">
-                      <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
-                    </svg> WhatsApp Number</label>
+                    <label className="form-label">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="currentColor"
+                        className="bi bi-whatsapp"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
+                      </svg>{" "}
+                      WhatsApp Number
+                    </label>
                     <input
                       type="tel"
                       name="PhoneNumber"
@@ -558,25 +619,19 @@ const BecomeASeller = () => {
                     <div style={{ height: "400px", width: "100%" }}>
                       <MapContainer
                         center={markerPosition}
-                        zoom={15}
+                        zoom={12}
                         style={{ height: "100%", width: "100%" }}
                       >
-                        {/* Layer switcher UI in top-right */}
                         <LayersControl position="topright">
-                          {/* Default OpenStreetMap */}
                           <BaseLayer checked name="Street View">
                             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                           </BaseLayer>
-
-                          {/* Google Satellite (from third-party tile server) */}
                           <BaseLayer name="Satellite View">
                             <TileLayer
                               url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
                               attribution="&copy; <a href='https://www.google.com/maps'>Google Maps</a>"
                             />
                           </BaseLayer>
-
-                          {/* Google Hybrid (satellite + labels) */}
                           <BaseLayer name="Hybrid View">
                             <TileLayer
                               url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
@@ -585,12 +640,22 @@ const BecomeASeller = () => {
                           </BaseLayer>
                         </LayersControl>
 
+                        {/* ✅ Circle fixed at zone center */}
+                        {zoneRadius && zoneCenter && (
+                          <Circle
+                            center={zoneCenter}
+                            radius={zoneRadius}
+                            color="lightgreen"
+                            fillColor="lightgreen"
+                            fillOpacity={0.4}
+                          />
+                        )}
+
                         {/* Marker */}
                         <Marker position={markerPosition} />
 
-                        {/* Your click + updater */}
-                        <MapClickHandler />
-                        <MapUpdater position={markerPosition} />
+                        {/* Click control */}
+                        <MapUpdater />
                       </MapContainer>
                     </div>
                     <div className="d-flex flex-wrap gap-3 mt-2">
@@ -601,7 +666,9 @@ const BecomeASeller = () => {
                           step="0.000001"
                           className="form-control"
                           value={latitude || ""}
-                          onChange={(e) => setLatitude(parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            setLatitude(parseFloat(e.target.value))
+                          }
                         />
                       </div>
                       <div style={{ flex: "1 1 150px" }}>
@@ -611,7 +678,9 @@ const BecomeASeller = () => {
                           step="0.000001"
                           className="form-control"
                           value={longitude || ""}
-                          onChange={(e) => setLongitude(parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            setLongitude(parseFloat(e.target.value))
+                          }
                         />
                       </div>
                     </div>
@@ -631,7 +700,11 @@ const BecomeASeller = () => {
 
                   {/* Submit */}
                   <div className="col-md-12 justify-content-center d-flex mt-3">
-                    <button type="submit" style={{ width: "80%" }} className="btn btn-primary">
+                    <button
+                      type="submit"
+                      style={{ width: "80%" }}
+                      className="btn btn-primary"
+                    >
                       Submit
                     </button>
                   </div>
@@ -676,15 +749,24 @@ const BecomeASeller = () => {
                           />
                         </div>
                         <div className="mb-3">
-                          <h6>Check your spam/junk folder if the OTP isn’t in your inbox.</h6>
+                          <h6>
+                            Check your spam/junk folder if the OTP isn’t in your
+                            inbox.
+                          </h6>
                         </div>
                         <div className="mb-3 text-muted">
                           {resendTimer > 0 ? (
-                            <span style={{ color: "red" }}>You can request a new OTP in {resendTimer} seconds</span>
+                            <span style={{ color: "red" }}>
+                              You can request a new OTP in {resendTimer} seconds
+                            </span>
                           ) : (
                             <span
                               onClick={resendOtp}
-                              style={{ cursor: "pointer", textDecoration: "underline", color: "blue" }}
+                              style={{
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                                color: "blue",
+                              }}
                             >
                               Resend OTP
                             </span>
