@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { calculateDeliveryTime } from "../apis/googleMapsApi";
-import { isOutOfStock, getStockStatusText, getStockStatusColor } from "../utils/stockUtils";
+import {
+  isOutOfStock,
+  getStockStatusText,
+  getStockStatusColor,
+} from "../utils/stockUtils";
 
 const ProductItem = ({ products = [] }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -12,8 +16,8 @@ const ProductItem = ({ products = [] }) => {
 
   const handleAddClick = () => {
     Swal.fire({
-      icon: 'success',
-      title: 'Added to Cart',
+      icon: "success",
+      title: "Added to Cart",
       text: "Product has been added to your cart!",
       showConfirmButton: true,
       timer: 3000,
@@ -32,8 +36,8 @@ const ProductItem = ({ products = [] }) => {
 
   const handleModalAddToCart = (product, quantity) => {
     Swal.fire({
-      icon: 'success',
-      title: 'Added to Cart',
+      icon: "success",
+      title: "Added to Cart",
       text: `${quantity} x ${product.name} added to your cart!`,
       showConfirmButton: true,
       timer: 3000,
@@ -73,7 +77,11 @@ const ProductItem = ({ products = [] }) => {
     }
 
     if (product.discount_percentage > 0) {
-      return <span className="badge bg-danger">{product.discount_percentage}% OFF</span>;
+      return (
+        <span className="badge bg-danger">
+          {product.discount_percentage}% OFF
+        </span>
+      );
     }
     if (product.is_hot) {
       return <span className="badge bg-danger">Hot</span>;
@@ -103,11 +111,11 @@ const ProductItem = ({ products = [] }) => {
 
     if (isOutOfStock(product)) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Out of Stock',
-        text: 'This product is currently out of stock.',
+        icon: "warning",
+        title: "Out of Stock",
+        text: "This product is currently out of stock.",
         showConfirmButton: true,
-        confirmButtonText: 'OK',
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -212,10 +220,16 @@ const ProductItem = ({ products = [] }) => {
                     src={product.image}
                     alt={product.name}
                     className="mb-3 img-fluid"
-                    style={{ height: '200px', objectFit: 'cover', cursor: 'pointer' }}
-                    onClick={() => navigate(`/product/${product.id}`, { state: { product } })}
+                    style={{
+                      height: "200px",
+                      objectFit: "cover",
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navigate(`/product/${product.id}`, { state: { product } })
+                    }
                     onError={(e) => {
-                      e.target.src = '/assets/img/no_image.jpg';
+                      e.target.src = "/assets/img/no_image.jpg";
                     }}
                   />
                   {/* <div className="card-product-action" style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center' }}>
@@ -242,36 +256,87 @@ const ProductItem = ({ products = [] }) => {
                 <div className="category-delivery-row">
                   <span className="text-muted small">{product.category}</span>
                   <div className="delivery-time-display">
-                    <i className="fa fa-clock-o" style={{ marginRight: '4px', color: '#0AAD0A' }}></i>
+                    <i
+                      className="fa fa-clock-o"
+                      style={{ marginRight: "4px", color: "#0AAD0A" }}
+                    ></i>
                     <span className="delivery-time-text">
-                      <svg width="14" height="14" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="32" cy="32" r="28" stroke="#0AAD0A" strokeWidth="4" fill="none" />
-                        <line x1="32" y1="32" x2="32" y2="16" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round" />
-                        <line x1="32" y1="32" x2="44" y2="32" stroke="#0AAD0A" strokeWidth="4" strokeLinecap="round" />
-                        <rect x="28" y="4" width="8" height="8" fill="#0AAD0A" rx="2" />
-                      </svg>&nbsp;&nbsp;
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 64 64"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="#0AAD0A"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <line
+                          x1="32"
+                          y1="32"
+                          x2="32"
+                          y2="16"
+                          stroke="#0AAD0A"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                        />
+                        <line
+                          x1="32"
+                          y1="32"
+                          x2="44"
+                          y2="32"
+                          stroke="#0AAD0A"
+                          strokeWidth="4"
+                          strokeLinecap="round"
+                        />
+                        <rect
+                          x="28"
+                          y="4"
+                          width="8"
+                          height="8"
+                          fill="#0AAD0A"
+                          rx="2"
+                        />
+                      </svg>
+                      &nbsp;&nbsp;
                       {getDeliveryTime(product)} min
                     </span>
                   </div>
                 </div>
                 {product.brand && (
-                  <><div className="text-small mb-1">
-                    <span className="text-muted">Brand: {product.brand}</span>
-                  </div>
+                  <>
+                    <div className="text-small mb-1">
+                      <span className="text-muted">Brand: {product.brand}</span>
+                    </div>
                     <div className="text-small mb-1">
                       <span className="text-muted">SKU: {product.sku}</span>
-                    </div></>
+                    </div>
+                  </>
                 )}
-                {/* <div className="text-small mb-1">
-                  <span className="text-muted">Sold By: <Link to={`/seller?id=${product.storeId}`}>
-                    {product.soldBy}
-                  </Link></span>
-                </div> */}
+                {product.soldBy && (
+                  <>
+                    <div className="text-small mb-1">
+                      <span className="text-muted">
+                        Sold By:{" "}
+                        <Link to={`/seller-products?id=${product.storeId}`}>
+                          {product.soldBy}
+                        </Link>
+                      </span>
+                    </div>
+                  </>
+                )}
                 <h2 className="fs-6">
                   <span
                     className="text-inherit text-decoration-none"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate(`/product/${product.id}`, { state: { product } })}
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(`/product/${product.id}`, { state: { product } })
+                    }
                   >
                     {product.name}
                   </span>
@@ -279,14 +344,14 @@ const ProductItem = ({ products = [] }) => {
                 <div>
                   <small className="text-warning">
                     {renderStars(product.rating)}
-                  </small>{' '}
+                  </small>{" "}
                   <span className="text-muted small">
                     {product.rating} ({product.review_count})
                   </span>
                 </div>
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <div>
-                    <span className="text-dark">₹{product.price}</span>{' '}
+                    <span className="text-dark">₹{product.price}</span>{" "}
                     {product.mrp && product.mrp > product.price && (
                       <span className="text-decoration-line-through text-muted">
                         ₹{product.mrp}
@@ -299,8 +364,7 @@ const ProductItem = ({ products = [] }) => {
                       className="btn btn-primary btn-sm"
                       onClick={(e) => handleAddToCartClick(product, e)}
                     >
-                      <i className="fa fa-plus" />{' '}
-                      Add
+                      <i className="fa fa-plus" /> Add
                     </button>
                   </div>
                 </div>
@@ -420,7 +484,7 @@ const ProductItem = ({ products = [] }) => {
             box-shadow: none;
           }
         `}</style>
-      </div >
+      </div>
     </>
   );
 };
