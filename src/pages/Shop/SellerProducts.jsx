@@ -6,6 +6,55 @@ import ProductItem from "../../ProductList/ProductItem";
 import ProductShimmer from "../../ProductList/ProductShimmer";
 import { useSearchParams } from "react-router-dom";
 import CategoryChips from "../../utils/CategoryChips";
+import { Link } from "react-router-dom";
+
+// Responsive breakpoints/settings for the banner carousel
+const bannerCarouselSettings = {
+  dots: true,
+  infinite: true,
+  speed: 1000,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 7000,
+  responsive: [
+    {
+      breakpoint: 1200,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+    {
+      breakpoint: 900,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+    {
+      breakpoint: 600,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+    {
+      breakpoint: 480,
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      },
+    },
+  ],
+};
 
 const SellerProducts = () => {
   const [searchParams] = useSearchParams();
@@ -15,6 +64,7 @@ const SellerProducts = () => {
   const [allProducts, setAllProducts] = useState([]); // keep unfiltered list
   const [filteredProducts, setFilteredProducts] = useState([]); // filtered list
   const [categories, setCategories] = useState([]);
+  const [defaultImg, setDefaultImg] = useState([]); // Default images
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const getImageUrl = useImageUrl();
@@ -37,6 +87,8 @@ const SellerProducts = () => {
         const sellerData = response?.data?.seller || {};
         const productList = response?.data?.products || [];
         const catList = response?.data?.categories || [];
+        const defaultImg = response?.data?.sellerImage || [];
+        const advertisementImages = response?.data?.advertisementImages || [];
 
         const processedProducts = productList.map((prod) => ({
           id: prod._id,
@@ -72,6 +124,7 @@ const SellerProducts = () => {
         setAllProducts(processedProducts);
         setFilteredProducts(processedProducts);
         setCategories(catList);
+        setDefaultImg(defaultImg);
       } catch (err) {
         console.error("Error fetching seller details:", err);
         setError("Something went wrong while fetching seller details.");
@@ -126,9 +179,83 @@ const SellerProducts = () => {
   return (
     <section className="my-lg-14 my-8">
       <div className="container">
+        <style>{`
+        .image-slider {
+          position: relative;
+          width: 100%;
+        }
+
+        .carousel-item {
+          position: relative;
+          height: 500px;
+        }
+
+        .slider-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.4);
+          z-index: 1;
+          border-radius:10px;
+        }
+
+        .store-name-overlay {
+          position: absolute;
+          top: 90%;
+          left: 25%;
+          transform: translate(-50%, -50%);
+          color: white;
+          font-size: 2rem;
+          font-weight: bold;
+          z-index: 2;
+          text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        `}</style>
+        {/* Image Slider Section */}
+        {(!seller?.advertisementImages?.length && defaultImg.length > 0) || seller?.advertisementImages?.length > 0 ? (
+          <div className="image-slider" style={{ position: 'relative' }}>
+            <div className="carousel-inner">
+              { (seller?.advertisementImages?.length > 0 ? seller.advertisementImages : defaultImg).map((image, index) => (
+                <div
+                  className={`carousel-item${index === 0 ? " active" : ""}`}
+                  key={index}
+                  style={{ position: "relative" }}
+                >
+                  <Link 
+                    to={`/Shop?category=${seller?.storeName || ""}`}
+                    aria-label={`Go to store: ${seller?.storeName}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div
+                      style={{
+                        background: `url(${getImageUrl(image)}) no-repeat center center`,
+                        backgroundSize: "cover",
+                        borderRadius: ".5rem",
+                        minHeight: 500,
+                        width: "100%",
+                        transition: "min-height 0.3s",
+                        cursor: "pointer",
+                        position: "relative"
+                      }}
+                    >
+                      <div className="slider-overlay"></div>
+                      <div className="store-name-overlay">
+                        Products By {seller?.storeName}
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* Store Header Section */}
         {seller?.storeName && !loading ? (
           <div className="row align-items-center text-center mb-6">
-            <div className="col-12">
+            {/* <div className="col-12">
               <div className="section-head">
                 <h3
                   className="h3style"
@@ -139,7 +266,7 @@ const SellerProducts = () => {
                 <div className="wt-separator bg-primarys"></div>
                 <div className="wt-separator2 bg-primarys"></div>
               </div>
-            </div>
+            </div> */}
             <div className="col-12">
               <CategoryChips
                 data={categories.subcat ? [categories] : categories}
@@ -152,6 +279,7 @@ const SellerProducts = () => {
           </div>
         ) : null}
 
+        {/* Loading & Error Handling */}
         {loading ? (
           <div className="row">
             <div className="col-12 text-center">
