@@ -300,12 +300,20 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="footer-bar ">
+        <div className="footer-bar" style={{display:"flex"}}>
           <div className="container text-center">
             <div className="footer-copy">
               <div className="copyright">
                 © {year} All Rights Reserved By -
                 <Link to="#" target="_blank"> @fivlia</Link>
+              </div>
+            </div>
+          </div>
+          <div className="container text-center">
+            <div className="footer-copy">
+              <div className="copyright">
+                Developed by -
+                <Link to="https://codeeratech.com" target="_blank"> Codeeratech</Link>
               </div>
             </div>
           </div>

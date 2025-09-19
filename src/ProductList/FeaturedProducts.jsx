@@ -3,7 +3,7 @@ import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints.jsx";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import ProductShimmer from './ProductShimmer';
+import ProductShimmer from "./ProductShimmer";
 import { useImageUrl } from "../utils/getSettingsValue";
 import ProductItem from "./ProductItem";
 
@@ -26,11 +26,11 @@ const FeaturedProducts = () => {
             image: getImageUrl(product.productImageUrl?.[0]),
             price: product.sell_price || product.variants[0].sell_price,
             mrp: product.mrp || product.variants[0].mrp,
-            category: product.category?.[0]?.name || 'Category',
-            category_id: product.category?.[0]?._id || '',
-            brand: product.brand_Name?.name || 'Brand',
-            brandId: product.brand_Name?._id || '',
-            unit: product.unit?.name || '',
+            category: product.category?.[0]?.name || "Category",
+            category_id: product.category?.[0]?._id || "",
+            brand: product.brand_Name?.name || "Brand",
+            brandId: product.brand_Name?._id || "",
+            unit: product.unit?.name || "",
             tax: product.tax,
             rating: 4.5, // Default rating since not in API
             review_count: 0, // Default since not in API
@@ -44,16 +44,18 @@ const FeaturedProducts = () => {
             variants: product.variants || [],
             inventory: product.inventory || [],
             isVeg: product.isVeg,
+            soldBy: product.storeName || "",
+            storeId: product.storeId || null,
+            isOfficalStore: product.official || false,
           }));
           setProducts(processedProducts);
         } else {
-          setError('Failed to fetch popular products');
+          setError("Failed to fetch popular products");
         }
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
-
 
   if (loading) {
     return (
@@ -62,7 +64,9 @@ const FeaturedProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Featured Products">Featured Products</h3>
+                <h3 className="h3style" data-title="Featured Products">
+                  Featured Products
+                </h3>
                 <div className="wt-separator bg-primarys"></div>
                 <div className="wt-separator2 bg-primarys"></div>
               </div>
@@ -85,7 +89,9 @@ const FeaturedProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Featured Products">Featured Products</h3>
+                <h3 className="h3style" data-title="Featured Products">
+                  Featured Products
+                </h3>
                 <div className="wt-separator bg-primarys"></div>
                 <div className="wt-separator2 bg-primarys"></div>
               </div>
@@ -112,11 +118,11 @@ const FeaturedProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Featured Products">Featured Products</h3>
-                <div className="wt-separator bg-primarys">
-                </div>
-                <div className="wt-separator2 bg-primarys">
-                </div>
+                <h3 className="h3style" data-title="Featured Products">
+                  Featured Products
+                </h3>
+                <div className="wt-separator bg-primarys"></div>
+                <div className="wt-separator2 bg-primarys"></div>
               </div>
             </div>
           </div>
@@ -128,4 +134,4 @@ const FeaturedProducts = () => {
   );
 };
 
-export default FeaturedProducts; 
+export default FeaturedProducts;

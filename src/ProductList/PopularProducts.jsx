@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ProductItem from "./ProductItem";
 import { get } from "../apis/apiClient";
 import { ENDPOINTS } from "../apis/endpoints";
-import ProductShimmer from './ProductShimmer';
+import ProductShimmer from "./ProductShimmer";
 import { useImageUrl } from "../utils/getSettingsValue";
 
 const PopularProducts = () => {
@@ -10,15 +10,15 @@ const PopularProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const getImageUrl = useImageUrl();
-  
+
   useEffect(() => {
     const fetchPopularProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await get(ENDPOINTS.POPULAR_PRODUCTS);
-        
+
         if (response.data && response.data.best) {
           const processedProducts = response.data.best.map((product) => ({
             id: product._id,
@@ -27,11 +27,11 @@ const PopularProducts = () => {
             image: getImageUrl(product.productImageUrl?.[0]),
             price: product.sell_price || product.variants[0].sell_price,
             mrp: product.mrp || product.variants[0].mrp,
-            category: product.category?.[0]?.name || 'Category',
-            category_id: product.category?.[0]?._id || '',
-            brand: product.brand_Name?.name || 'Brand',
-            brandId: product.brand_Name?._id || '',
-            unit: product.unit?.name || '',
+            category: product.category?.[0]?.name || "Category",
+            category_id: product.category?.[0]?._id || "",
+            brand: product.brand_Name?.name || "Brand",
+            brandId: product.brand_Name?._id || "",
+            unit: product.unit?.name || "",
             tax: product.tax,
             rating: 4.5, // Default rating since not in API
             review_count: 0, // Default since not in API
@@ -45,15 +45,18 @@ const PopularProducts = () => {
             variants: product.variants || [],
             inventory: product.inventory || [],
             isVeg: product.isVeg,
+            soldBy: product.storeName || "",
+            storeId: product.storeId || null,
+            isOfficalStore: product.official || false,
           }));
-          
+
           setProducts(processedProducts);
         } else {
-          setError('Failed to fetch popular products');
+          setError("Failed to fetch popular products");
         }
       } catch (err) {
         //console.error('Error fetching popular products:', err);
-        setError(err.message || 'Failed to fetch popular products');
+        setError(err.message || "Failed to fetch popular products");
       } finally {
         setLoading(false);
       }
@@ -69,7 +72,9 @@ const PopularProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Popular Products">Popular Products</h3>
+                <h3 className="h3style" data-title="Popular Products">
+                  Popular Products
+                </h3>
                 <div className="wt-separator bg-primarys"></div>
                 <div className="wt-separator2 bg-primarys"></div>
               </div>
@@ -92,7 +97,9 @@ const PopularProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Popular Products">Popular Products</h3>
+                <h3 className="h3style" data-title="Popular Products">
+                  Popular Products
+                </h3>
                 <div className="wt-separator bg-primarys"></div>
                 <div className="wt-separator2 bg-primarys"></div>
               </div>
@@ -119,11 +126,11 @@ const PopularProducts = () => {
           <div className="row">
             <div className="col-12 mb-6">
               <div className="section-head text-center mt-8">
-                <h3 className='h3style' data-title="Popular Products">Popular Products</h3>
-                <div className="wt-separator bg-primarys">
-                </div>
-                <div className="wt-separator2 bg-primarys">
-                </div>
+                <h3 className="h3style" data-title="Popular Products">
+                  Popular Products
+                </h3>
+                <div className="wt-separator bg-primarys"></div>
+                <div className="wt-separator2 bg-primarys"></div>
               </div>
             </div>
           </div>
@@ -135,4 +142,4 @@ const PopularProducts = () => {
   );
 };
 
-export default PopularProducts; 
+export default PopularProducts;
