@@ -1,9 +1,14 @@
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import RelatedProducts from "./RelatedProducts";
 import AddToCartButton from "../Component/AddToCartButton";
 import { useImageUrl } from "../utils/getSettingsValue";
-import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStock } from "../utils/stockUtils";
+import {
+  isOutOfStock,
+  getStockStatusText,
+  getStockStatusColor,
+  getAvailableStock,
+} from "../utils/stockUtils";
 
 const ProductDetails = () => {
   const location = useLocation();
@@ -11,17 +16,36 @@ const ProductDetails = () => {
   const getImageUrl = useImageUrl();
   const product = location.state?.product;
 
-  if (!product) return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <div style={{ fontSize: '1.2rem', color: '#e53935', marginBottom: 16 }}>No product data provided.<br />Please access this page via the product search or product list.</div>
-      <button onClick={() => navigate('/')} style={{ padding: '0.5rem 1.5rem', background: '#0aad0a', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}>Go to Home</button>
-    </div>
-  );
+  if (!product)
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <div style={{ fontSize: "1.2rem", color: "#e53935", marginBottom: 16 }}>
+          No product data provided.
+          <br />
+          Please access this page via the product search or product list.
+        </div>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            padding: "0.5rem 1.5rem",
+            background: "#0aad0a",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Go to Home
+        </button>
+      </div>
+    );
 
   // Gather all images (main + variants)
-  const images = product.productImageUrl && Array.isArray(product.productImageUrl)
-    ? product.productImageUrl
-    : product.image
+  const images =
+    product.productImageUrl && Array.isArray(product.productImageUrl)
+      ? product.productImageUrl
+      : product.image
       ? [product.image]
       : [];
 
@@ -29,13 +53,13 @@ const ProductDetails = () => {
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
   const selectedVariant = variants[selectedVariantIdx] || {};
 
-  const [selectedImage, setSelectedImage] = useState(images[0] || '');
+  const [selectedImage, setSelectedImage] = useState(images[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
 
   // Reset selected image, quantity, and variant when product changes
   useEffect(() => {
-    setSelectedImage(images[0] || '');
+    setSelectedImage(images[0] || "");
     setQuantity(1);
     setSelectedVariantIdx(0);
   }, [product]);
@@ -47,17 +71,27 @@ const ProductDetails = () => {
   const availableStock = getAvailableStock(product, selectedVariant);
 
   return (
-    <div className="container-fluid pqv-modal-content" style={{ margin: '2rem auto', background: 'transparent', boxShadow: 'none', borderRadius: 0, border: 'none', overflowX: 'hidden' }}>
+    <div
+      className="container-fluid pqv-modal-content"
+      style={{
+        margin: "2rem auto",
+        background: "transparent",
+        boxShadow: "none",
+        borderRadius: 0,
+        border: "none",
+        overflowX: "hidden",
+      }}
+    >
       <div className="pqv-details-row">
         {/* Left: Images */}
         <div className="pqv-modal-left">
           <div className="pqv-main-image-wrapper">
             <img
-              src={getImageUrl(selectedImage || '/assets/img/no_image.jpg')}
+              src={getImageUrl(selectedImage || "/assets/img/no_image.jpg")}
               alt={product.productName || product.name}
               className="pqv-main-image"
               onError={(e) => {
-                e.target.src = '/assets/img/no_image.jpg';
+                e.target.src = "/assets/img/no_image.jpg";
               }}
             />
           </div>
@@ -66,11 +100,15 @@ const ProductDetails = () => {
               {images.map((img, idx) => (
                 <img
                   key={img + idx}
-                  src={getImageUrl(img || '/assets/img/no_image.jpg')}
+                  src={getImageUrl(img || "/assets/img/no_image.jpg")}
                   alt={`Thumbnail ${idx + 1}`}
-                  className={`pqv-thumbnail${selectedImage === img ? ' selected' : ''}`}
+                  className={`pqv-thumbnail${
+                    selectedImage === img ? " selected" : ""
+                  }`}
                   onClick={() => setSelectedImage(img)}
-                  onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
+                  onError={(e) => {
+                    e.target.src = "/assets/img/no_image.jpg";
+                  }}
                 />
               ))}
             </div>
@@ -78,31 +116,51 @@ const ProductDetails = () => {
         </div>
         {/* Right: Info */}
         <div className="pqv-modal-right">
-          <h2 className="pqv-product-name">{product.name || product.productName}</h2>
+          <h2 className="pqv-product-name">
+            {product.name || product.productName}
+          </h2>
           <div className="pqv-product-meta">
             <span className="pqv-category">
               {Array.isArray(product.category)
-                ? product.category.map(c => c.name).join(", ") : (product.category?.name || product.category)}
+                ? product.category.map((c) => c.name).join(", ")
+                : product.category?.name || product.category}
 
               {product.isVeg !== 0 && (
                 <span
                   style={{
-                    color: product.isVeg === 1 ? 'green' : 'red',
-                    fontWeight: 'bold'
+                    color: product.isVeg === 1 ? "green" : "red",
+                    fontWeight: "bold",
                   }}
                 >
-                  &nbsp;({product.isVeg === 1 ? 'Veg' : 'NonVeg'})
+                  &nbsp;({product.isVeg === 1 ? "Veg" : "NonVeg"})
                 </span>
               )}
             </span>
             {(product.brand || product.brand_Name.name) && (
               <>
                 <span className="pqv-brand">
-                  Brand: <Link to={`/brand?id=${product.brandId || product.brand_Name?._id}`}>
+                  Brand:{" "}
+                  <Link
+                    to={`/brand?id=${
+                      product.brandId || product.brand_Name?._id
+                    }`}
+                  >
                     {product.brand || product.brand_Name.name}
                   </Link>
                 </span>
                 <span className="pqv-brand">SKU: {product.sku}</span>
+              </>
+            )}
+            {product.storeId && (
+              <>
+                <div className="text-small mb-1">
+                  <span className="text-muted">
+                    Sold By:{" "}
+                    <Link to={`/seller-products?id=${product.storeId}`}>
+                      {product.soldBy}
+                    </Link>
+                  </span>
+                </div>
               </>
             )}
           </div>
@@ -112,11 +170,15 @@ const ProductDetails = () => {
               {variants.map((variant, idx) => (
                 <button
                   key={variant._id || idx}
-                  className={`pqv-variant-pill${selectedVariantIdx === idx ? ' selected' : ''}`}
+                  className={`pqv-variant-pill${
+                    selectedVariantIdx === idx ? " selected" : ""
+                  }`}
                   onClick={() => setSelectedVariantIdx(idx)}
                   type="button"
                 >
-                  {variant.variantValue || variant.attributeName || `Variant ${idx + 1}`}
+                  {variant.variantValue ||
+                    variant.attributeName ||
+                    `Variant ${idx + 1}`}
                 </button>
               ))}
             </div>
@@ -126,22 +188,22 @@ const ProductDetails = () => {
               <>
                 {descExpanded
                   ? product.description
-                  : product.description.slice(0, 200) + '...'}
+                  : product.description.slice(0, 200) + "..."}
                 <button
                   className="pqv-readmore-btn"
                   style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#0aad0a',
-                    cursor: 'pointer',
+                    background: "none",
+                    border: "none",
+                    color: "#0aad0a",
+                    cursor: "pointer",
                     fontWeight: 500,
                     marginLeft: 8,
-                    fontSize: '1em',
-                    padding: 0
+                    fontSize: "1em",
+                    padding: 0,
                   }}
-                  onClick={() => setDescExpanded(e => !e)}
+                  onClick={() => setDescExpanded((e) => !e)}
                 >
-                  {descExpanded ? 'Read less' : 'Read more'}
+                  {descExpanded ? "Read less" : "Read more"}
                 </button>
               </>
             ) : (
@@ -149,25 +211,31 @@ const ProductDetails = () => {
             )}
           </div>
           <div className="pqv-product-price">
-            <span className="pqv-price">₹{selectedVariant.sell_price || product.price}</span>
-            {selectedVariant.mrp && selectedVariant.mrp > (selectedVariant.sell_price || product.price) && (
-              <span className="pqv-mrp">₹{selectedVariant.mrp}</span>
-            )}
+            <span className="pqv-price">
+              ₹{selectedVariant.sell_price || product.price}
+            </span>
+            {selectedVariant.mrp &&
+              selectedVariant.mrp >
+                (selectedVariant.sell_price || product.price) && (
+                <span className="pqv-mrp">₹{selectedVariant.mrp}</span>
+              )}
             {selectedVariant.discountValue && (
-              <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
+              <span className="pqv-discount">
+                {selectedVariant.discountValue}% OFF
+              </span>
             )}
           </div>
 
           {/* Stock Information */}
-          <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
+          <div className="pqv-stock-info" style={{ marginBottom: "1rem" }}>
             <div className="d-flex align-items-center">
               <span
                 className="badge"
                 style={{
                   backgroundColor: stockStatusColor,
-                  color: 'white',
-                  fontSize: '0.8rem',
-                  padding: '0.5rem 0.75rem'
+                  color: "white",
+                  fontSize: "0.8rem",
+                  padding: "0.5rem 0.75rem",
                 }}
               >
                 {stockStatusText}
@@ -186,25 +254,38 @@ const ProductDetails = () => {
               <div className="pqv-qty-box">
                 <button
                   className="pqv-qty-btn"
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   aria-label="Decrease quantity"
                   disabled={outOfStock}
-                >-</button>
+                >
+                  -
+                </button>
                 <input
                   type="number"
                   min="1"
                   max={outOfStock ? 0 : availableStock}
                   value={quantity}
-                  onChange={e => setQuantity(Math.max(1, Math.min(availableStock, parseInt(e.target.value) || 1)))}
+                  onChange={(e) =>
+                    setQuantity(
+                      Math.max(
+                        1,
+                        Math.min(availableStock, parseInt(e.target.value) || 1)
+                      )
+                    )
+                  }
                   className="pqv-qty-input"
                   disabled={outOfStock}
                 />
                 <button
                   className="pqv-qty-btn"
-                  onClick={() => setQuantity(q => Math.min(availableStock, q + 1))}
+                  onClick={() =>
+                    setQuantity((q) => Math.min(availableStock, q + 1))
+                  }
                   aria-label="Increase quantity"
                   disabled={outOfStock || quantity >= availableStock}
-                >+</button>
+                >
+                  +
+                </button>
               </div>
             </div>
             <AddToCartButton
@@ -476,4 +557,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails; 
+export default ProductDetails;

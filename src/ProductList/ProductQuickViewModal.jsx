@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from "react";
 import AddToCartButton from "../Component/AddToCartButton";
-import { isOutOfStock, getStockStatusText, getStockStatusColor, getAvailableStock } from "../utils/stockUtils";
+import {
+  isOutOfStock,
+  getStockStatusText,
+  getStockStatusColor,
+  getAvailableStock,
+} from "../utils/stockUtils";
 import { useImageUrl } from "../utils/getSettingsValue";
+import { Link } from "react-router-dom";
 
 const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   // Move all hooks to the top before any conditional returns
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
-  const [selectedImage, setSelectedImage] = useState('');
+  const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [descExpanded, setDescExpanded] = useState(false);
   const getImageUrl = useImageUrl();
 
   // Gather all images (main + variants)
-  const images = product?.productImageUrl && Array.isArray(product.productImageUrl)
-    ? product.productImageUrl
-    : product?.image
+  const images =
+    product?.productImageUrl && Array.isArray(product.productImageUrl)
+      ? product.productImageUrl
+      : product?.image
       ? [product.image]
       : [];
 
@@ -24,7 +31,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   // Reset selected image, quantity, and variant when product changes
   useEffect(() => {
     if (product && isOpen) {
-      setSelectedImage(images[0] || '');
+      setSelectedImage(images[0] || "");
       setQuantity(1);
       setSelectedVariantIdx(0);
     }
@@ -41,7 +48,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
 
   return (
     <div className="pqv-modal-overlay" onClick={onClose}>
-      <div className="pqv-modal" onClick={e => e.stopPropagation()}>
+      <div className="pqv-modal" onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button className="pqv-close-btn" onClick={onClose} aria-label="Close">
           &times;
@@ -55,7 +62,9 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   src={getImageUrl(selectedImage)}
                   alt={product.name}
                   className="pqv-main-image"
-                  onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
+                  onError={(e) => {
+                    e.target.src = "/assets/img/no_image.jpg";
+                  }}
                 />
               </div>
               {images.length > 1 && (
@@ -65,9 +74,13 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                       key={img + idx}
                       src={getImageUrl(img)}
                       alt={`Thumbnail ${idx + 1}`}
-                      className={`pqv-thumbnail${selectedImage === img ? ' selected' : ''}`}
+                      className={`pqv-thumbnail${
+                        selectedImage === img ? " selected" : ""
+                      }`}
                       onClick={() => setSelectedImage(img)}
-                      onError={e => { e.target.src = '/assets/img/no_image.jpg'; }}
+                      onError={(e) => {
+                        e.target.src = "/assets/img/no_image.jpg";
+                      }}
                     />
                   ))}
                 </div>
@@ -77,22 +90,36 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
             <div className="pqv-modal-right">
               <h2 className="pqv-product-name">{product.name}</h2>
               <div className="pqv-product-meta">
-                <span className="pqv-category">{product.category || ''}
+                <span className="pqv-category">
+                  {product.category || ""}
                   {product.isVeg !== 0 && (
                     <span
                       style={{
-                        color: product.isVeg === 1 ? 'green' : 'red',
-                        fontWeight: 'bold'
+                        color: product.isVeg === 1 ? "green" : "red",
+                        fontWeight: "bold",
                       }}
                     >
-                      &nbsp;({product.isVeg === 1 ? 'Veg' : 'NonVeg'})
+                      &nbsp;({product.isVeg === 1 ? "Veg" : "NonVeg"})
                     </span>
                   )}
                 </span>
-                {product.brand && product.brand.toLowerCase() !== "unbranded" && (
-                  <span className="pqv-brand">Brand: {product.brand}</span>
-                )}
+                {product.brand &&
+                  product.brand.toLowerCase() !== "unbranded" && (
+                    <span className="pqv-brand">Brand: {product.brand}</span>
+                  )}
                 <span className="pqv-brand">SKU: {product.sku}</span>
+                {product.storeId && (
+                  <>
+                    <div className="text-small mb-1">
+                      <span className="text-muted">
+                        Sold By:{" "}
+                        <Link to={`/seller-products?id=${product.storeId}`}>
+                          {product.soldBy}
+                        </Link>
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
               {/* Variant Selector */}
               {variants.length > 0 && (
@@ -100,11 +127,15 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   {variants.map((variant, idx) => (
                     <button
                       key={variant._id || idx}
-                      className={`pqv-variant-pill${selectedVariantIdx === idx ? ' selected' : ''}`}
+                      className={`pqv-variant-pill${
+                        selectedVariantIdx === idx ? " selected" : ""
+                      }`}
                       onClick={() => setSelectedVariantIdx(idx)}
                       type="button"
                     >
-                      {variant.variantValue || variant.attributeName || `Variant ${idx + 1}`}
+                      {variant.variantValue ||
+                        variant.attributeName ||
+                        `Variant ${idx + 1}`}
                     </button>
                   ))}
                 </div>
@@ -114,22 +145,22 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                   <>
                     {descExpanded
                       ? product.description
-                      : product.description.slice(0, 200) + '...'}
+                      : product.description.slice(0, 200) + "..."}
                     <button
                       className="pqv-readmore-btn"
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#0aad0a',
-                        cursor: 'pointer',
+                        background: "none",
+                        border: "none",
+                        color: "#0aad0a",
+                        cursor: "pointer",
                         fontWeight: 500,
                         marginLeft: 8,
-                        fontSize: '1em',
-                        padding: 0
+                        fontSize: "1em",
+                        padding: 0,
                       }}
-                      onClick={() => setDescExpanded(e => !e)}
+                      onClick={() => setDescExpanded((e) => !e)}
                     >
-                      {descExpanded ? 'Read less' : 'Read more'}
+                      {descExpanded ? "Read less" : "Read more"}
                     </button>
                   </>
                 ) : (
@@ -137,25 +168,31 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                 )}
               </div>
               <div className="pqv-product-price">
-                <span className="pqv-price">₹{selectedVariant.sell_price || product.price}</span>
-                {selectedVariant.mrp && selectedVariant.mrp > (selectedVariant.sell_price || product.price) && (
-                  <span className="pqv-mrp">₹{selectedVariant.mrp}</span>
-                )}
+                <span className="pqv-price">
+                  ₹{selectedVariant.sell_price || product.price}
+                </span>
+                {selectedVariant.mrp &&
+                  selectedVariant.mrp >
+                    (selectedVariant.sell_price || product.price) && (
+                    <span className="pqv-mrp">₹{selectedVariant.mrp}</span>
+                  )}
                 {selectedVariant.discountValue && (
-                  <span className="pqv-discount">{selectedVariant.discountValue}% OFF</span>
+                  <span className="pqv-discount">
+                    {selectedVariant.discountValue}% OFF
+                  </span>
                 )}
               </div>
 
               {/* Stock Information */}
-              <div className="pqv-stock-info" style={{ marginBottom: '1rem' }}>
+              <div className="pqv-stock-info" style={{ marginBottom: "1rem" }}>
                 <div className="d-flex align-items-center">
                   <span
                     className="badge"
                     style={{
                       backgroundColor: stockStatusColor,
-                      color: 'white',
-                      fontSize: '0.8rem',
-                      padding: '0.5rem 0.75rem'
+                      color: "white",
+                      fontSize: "0.8rem",
+                      padding: "0.5rem 0.75rem",
                     }}
                   >
                     {stockStatusText}
@@ -177,17 +214,22 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Decrease clicked, current quantity:', quantity);
-                        setQuantity(prev => {
+                        console.log(
+                          "Decrease clicked, current quantity:",
+                          quantity
+                        );
+                        setQuantity((prev) => {
                           const newQty = Math.max(1, prev - 1);
-                          console.log('New quantity after decrease:', newQty);
+                          console.log("New quantity after decrease:", newQty);
                           return newQty;
                         });
                       }}
                       aria-label="Decrease quantity"
                       type="button"
                       disabled={outOfStock}
-                    >-</button>
+                    >
+                      -
+                    </button>
                     <input
                       type="number"
                       min="1"
@@ -195,12 +237,18 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                       value={quantity}
                       onChange={(e) => {
                         e.preventDefault();
-                        const newValue = Math.max(1, Math.min(availableStock, parseInt(e.target.value) || 1));
-                        console.log('Input changed, new value:', newValue);
+                        const newValue = Math.max(
+                          1,
+                          Math.min(
+                            availableStock,
+                            parseInt(e.target.value) || 1
+                          )
+                        );
+                        console.log("Input changed, new value:", newValue);
                         setQuantity(newValue);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                           e.preventDefault();
                         }
                       }}
@@ -212,17 +260,22 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Increase clicked, current quantity:', quantity);
-                        setQuantity(prev => {
+                        console.log(
+                          "Increase clicked, current quantity:",
+                          quantity
+                        );
+                        setQuantity((prev) => {
                           const newQty = Math.min(availableStock, prev + 1);
-                          console.log('New quantity after increase:', newQty);
+                          console.log("New quantity after increase:", newQty);
                           return newQty;
                         });
                       }}
                       aria-label="Increase quantity"
                       type="button"
                       disabled={outOfStock || quantity >= availableStock}
-                    >+</button>
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
                 <AddToCartButton
@@ -569,4 +622,4 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
   );
 };
 
-export default ProductQuickViewModal; 
+export default ProductQuickViewModal;
