@@ -18,6 +18,7 @@ import CmsPage from "./Component/CmsPage.jsx";
 import BecomeASeller from "./pages/careers/BecomeASeller.jsx";
 import BecomeADeliveryPartner from "./pages/careers/BecomeADeliveryPartner.jsx";
 import SellerProducts from "./pages/Shop/SellerProducts.jsx";
+import SimilarProducts from "./ProductList/SimilarProducts.jsx";
 import { isOpenInApp } from "./utils/isOpenInApp";
 
 
@@ -46,7 +47,8 @@ const App = () => {
           <Route path="/become-a-delivery-partner" element={<BecomeADeliveryPartner />} />
           <Route path="/delete-account" element={<DeleteAccount />} />
           <Route path="/contact-us" element={<Contact />} />
-           <Route path="/seller-products" element={<SellerProducts />} />
+          <Route path="/seller-products" element={<SellerProducts />} />
+          <Route path="/explore-other-seller" element={<SimilarProducts />} />
           <Route path="/:pageSlug" element={<CmsPage />} />
         </Routes>
         {!hideLayout && <Footer />}

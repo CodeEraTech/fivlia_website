@@ -2,15 +2,22 @@ import React, { useEffect, useState } from "react";
 import { MagnifyingGlass } from "react-loader-spinner";
 import ScrollToTop from "../ScrollToTop";
 import AccountLayout from "../Accounts/AccountLayout";
-import { get } from "../../apis/apiClient";
+import { get, put } from "../../apis/apiClient";
 import { ENDPOINTS } from "../../apis/endpoints";
-import OrderDetailsModal from './OrderDetailsModal';
+import OrderDetailsModal from "./OrderDetailsModal";
+import RatingModal from "./RatingModal";
+import Swal from "sweetalert2";
 
 const MyAccountOrder = () => {
   const [orders, setOrders] = useState([]);
   const [loaderStatus, setLoaderStatus] = useState(true);
+
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [ratingOrder, setRatingOrder] = useState(null);
+  const [isRateModalOpen, setIsRateModalOpen] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -34,6 +41,44 @@ const MyAccountOrder = () => {
   const openModal = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
+  };
+
+  const openRateModal = (order) => {
+    setRatingOrder(order);
+    setIsRateModalOpen(true);
+  };
+
+  const handleSubmitRating = async (ratings) => {
+    try {
+      Swal.fire({
+        title: "Submitting...",
+        text: "Please wait while we submit your ratings.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      await put(
+        ENDPOINTS.SUBMIT_RATING,
+        { ratingRequest: ratings },
+        { authRequired: true }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Thank you!",
+        text: "Your ratings have been submitted successfully.",
+      });
+
+      setIsRateModalOpen(false);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to submit ratings. Please try again.",
+      });
+    }
   };
 
   const renderOrderStatusBadge = (status) => {
@@ -60,6 +105,17 @@ const MyAccountOrder = () => {
     if (pageNum >= 1 && pageNum <= totalPages) {
       setCurrentPage(pageNum);
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Invalid Date";
+
+    const [datePart] = dateString.split("T");
+    const [year, month, day] = datePart.split("-");
+
+    if (!year || !month || !day) return "Invalid Date";
+
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -101,22 +157,35 @@ const MyAccountOrder = () => {
                     </tr>
                   ) : (
                     paginatedOrders.map((order) => (
-                      <tr key={order._id}>
+                      <tr key={order.orderId}>
                         <td>#{order.orderId}</td>
-                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                        <td>{formatDate(order.createdAt)}</td>
                         <td>{order.items.length}</td>
                         <td>{renderOrderStatusBadge(order.orderStatus)}</td>
                         <td>₹{order.totalPrice?.toFixed(2)}</td>
-                        <td>{order.cashOnDelivery ? 'Cash on Delivery (COD)' : 'Online'}</td>
+                        <td>
+                          {order.cashOnDelivery
+                            ? "Cash on Delivery (COD)"
+                            : "Online"}
+                        </td>
                         <td>
                           <button
-                            className="btn btn-sm btn-outline-primary"
+                            className="btn btn-sm btn-outline-primary me-2"
                             onClick={() => openModal(order)}
                             title="Order Details"
                           >
                             <i className="fas fa-eye me-1" />
-                            View
                           </button>
+
+                          {order.orderStatus === "Delivered" && (
+                            <button
+                              className="btn btn-sm btn-outline-success"
+                              onClick={() => openRateModal(order)}
+                              title="Rate Now"
+                            >
+                              <i className="fas fa-star me-1" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -129,23 +198,42 @@ const MyAccountOrder = () => {
             {totalPages > 1 && (
               <nav className="d-flex justify-content-center mt-4">
                 <ul className="pagination">
-                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
+                  <li
+                    className={`page-item ${
+                      currentPage === 1 ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                    >
                       Previous
                     </button>
                   </li>
                   {[...Array(totalPages)].map((_, i) => (
                     <li
                       key={i}
-                      className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
+                      className={`page-item ${
+                        currentPage === i + 1 ? "active" : ""
+                      }`}
                     >
-                      <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                      <button
+                        className="page-link"
+                        onClick={() => handlePageChange(i + 1)}
+                      >
                         {i + 1}
                       </button>
                     </li>
                   ))}
-                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
+                  <li
+                    className={`page-item ${
+                      currentPage === totalPages ? "disabled" : ""
+                    }`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                    >
                       Next
                     </button>
                   </li>
@@ -158,6 +246,13 @@ const MyAccountOrder = () => {
             order={selectedOrder}
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
+          />
+
+          <RatingModal
+            order={ratingOrder}
+            isOpen={isRateModalOpen}
+            onClose={() => setIsRateModalOpen(false)}
+            onSubmit={handleSubmitRating}
           />
         </AccountLayout>
       )}

@@ -58,9 +58,9 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
             </div>
             <div className="">
               <strong style={{color:'#000', fontSize:'0.9rem'}}>Delivery Address:</strong> <br />
-              {order.addressId.fullName}, <br />
-              {order.addressId.fullAddress}, <br />
-              {order.addressId.moibleNumber}
+              {order.address.fullName || ""}, <br />
+              {order.address.address}, <br />
+              {order.address.mobileNumber}
             </div>
           </div>
         </div>

@@ -1,7 +1,6 @@
 // Place your API base URL here
-export const API_BASE_URL = "https://api.fivlia.in";
-// export const API_BASE_URL = "http://127.0.0.1:8080";
-
+// export const API_BASE_URL = "https://api.fivlia.in";
+export const API_BASE_URL = "http://127.0.0.1:8080";
 
 // Define all endpoints here
 export const ENDPOINTS = {
@@ -11,17 +10,18 @@ export const ENDPOINTS = {
   SELLER_VERIFY_OTP: "/seller/verifyOtp",
   VERIFY_OTP: "/verifyOtp",
   REGISTER: "/register",
-  GETCITY:"/getAllZone",
-  SUBMIT:"/addSeller",
-  GSTDETAIL:"/getDetailsGst",
+  GETCITY: "/getAllZone",
+  SUBMIT: "/addSeller",
+  GSTDETAIL: "/getDetailsGst",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
-  BANNERS: "/website/forwebgetBanner?lat=29.145848762271545&lng=75.73472849177169",
+  BANNERS:
+    "/website/forwebgetBanner?lat=29.145848762271545&lng=75.73472849177169",
   //BANNERS: "/getAllBanner",
   POPULAR_PRODUCTS: "/website/bestSelling?lat=29.1553958&lng=75.7218976",
-  RELATED_PRODUCTS: '/website/relatedProducts?lat=29.1553958&lng=75.7218976',
-  FEATURED_PRODUCTS: '/website/featureProduct?lat=29.1553958&lng=75.7218976',
-  SEARCH_PRODUCTS: '/website/searchProduct?lat=29.1553958&lng=75.7218976',
+  RELATED_PRODUCTS: "/website/relatedProducts?lat=29.1553958&lng=75.7218976",
+  FEATURED_PRODUCTS: "/website/featureProduct?lat=29.1553958&lng=75.7218976",
+  SEARCH_PRODUCTS: "/website/searchProduct?lat=29.1553958&lng=75.7218976",
   PRODUCTS: "/website/getProduct?lat=29.1553958&lng=75.7218976",
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
@@ -31,9 +31,12 @@ export const ENDPOINTS = {
   ADD_ADDRESS: "/address",
   GET_DELIVERY_ESTIMATE: "/getDeliveryEstimateForWebsite",
   PLACE_ORDER: "/placeOrder",
-  VERIFY_PAYMENT: '/verifyPayment',
+  VERIFY_PAYMENT: "/verifyPayment",
   GET_ORDERS: "/getOrderDetails",
-  PAGES:"/getPage",
-  SAVE_CONTACT_US:"/save-contact-us",
-  SELLER_PRODUCTS:"seller-products",
-}; 
+  PAGES: "/getPage",
+  SAVE_CONTACT_US: "/save-contact-us",
+  SELLER_PRODUCTS: "seller-products",
+  RECOMMANDED_PRODUCTS: "/recommedProduct",
+  SIMILAR_PRODUCT: "/checkSimilarProduct",
+  SUBMIT_RATING: "/rating"
+};

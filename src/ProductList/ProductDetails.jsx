@@ -120,7 +120,7 @@ const ProductDetails = () => {
             {product.name || product.productName}
           </h2>
           <div className="pqv-product-meta">
-            <span className="pqv-category">
+            {/* <span className="pqv-category">
               {Array.isArray(product.category)
                 ? product.category.map((c) => c.name).join(", ")
                 : product.category?.name || product.category}
@@ -135,9 +135,10 @@ const ProductDetails = () => {
                   &nbsp;({product.isVeg === 1 ? "Veg" : "NonVeg"})
                 </span>
               )}
-            </span>
+            </span> */}
             {(product.brand || product.brand_Name.name) && (
               <>
+                <span className="pqv-brand">SKU: {product.sku}</span>
                 <span className="pqv-brand">
                   Brand:{" "}
                   <Link
@@ -148,7 +149,6 @@ const ProductDetails = () => {
                     {product.brand || product.brand_Name.name}
                   </Link>
                 </span>
-                <span className="pqv-brand">SKU: {product.sku}</span>
               </>
             )}
             {product.storeId && (
@@ -294,6 +294,9 @@ const ProductDetails = () => {
               selectedVariant={selectedVariant}
               className="pqv-add-to-cart-btn"
             />
+            <Link to={`/explore-other-seller?id=${product.id}`}>
+              Explore Other Sellers
+            </Link>
           </div>
         </div>
       </div>
