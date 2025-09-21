@@ -4,7 +4,7 @@ import { ENDPOINTS } from "../apis/endpoints.jsx";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { useImageUrl } from "../utils/getSettingsValue";
 
-const RecommendedProducts = ({ productId }) => {
+const RecommendedProducts = () => {
   const [recommended, setRecommended] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

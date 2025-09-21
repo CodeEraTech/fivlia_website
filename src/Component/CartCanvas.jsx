@@ -299,7 +299,7 @@ const CartCanvas = () => {
           </>
         )}
       </div>
-      <RecommendedProducts productId={"68403400b7fb40491bf4e1f8"} />
+      <RecommendedProducts />
       {/* Fixed Checkout Section */}
       {cartItems.length > 0 && (
         <div className="cart-checkout-section">
