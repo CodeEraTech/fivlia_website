@@ -91,7 +91,7 @@ const ProductQuickViewModal = ({ product, isOpen, onClose, onAddToCart }) => {
               <h2 className="pqv-product-name">{product.name}</h2>
               <div className="pqv-product-meta">
                 <span className="pqv-category">
-                  {product.category || ""}
+                  {/* {product.category || ""} */}
                   {product.isVeg !== 0 && (
                     <span
                       style={{

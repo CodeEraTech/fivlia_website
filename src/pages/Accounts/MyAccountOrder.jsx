@@ -108,14 +108,9 @@ const MyAccountOrder = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "Invalid Date";
-
-    const [datePart] = dateString.split("T");
-    const [year, month, day] = datePart.split("-");
-
-    if (!year || !month || !day) return "Invalid Date";
-
-    return `${year}-${month}-${day}`;
+    const date = new Date(dateString);
+    const options = { day: "numeric", month: "short", year: "numeric" };
+    return new Intl.DateTimeFormat("en-GB", options).format(date);
   };
 
   return (
@@ -134,6 +129,17 @@ const MyAccountOrder = () => {
       ) : (
         <AccountLayout>
           <div className="p-6 p-lg-10">
+            <style>{`
+            .icon-btn {
+                width: 32px;     
+                height: 32px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;       
+                border-radius: 6px;
+              }
+            `}</style>
             <h2 className="mb-6">Your Orders</h2>
             <div className="table-responsive border-0">
               <table className="table table-bordered table-hover">
@@ -170,20 +176,20 @@ const MyAccountOrder = () => {
                         </td>
                         <td>
                           <button
-                            className="btn btn-sm btn-outline-primary me-2"
+                            className="btn btn-sm btn-outline-primary me-2 icon-btn"
                             onClick={() => openModal(order)}
                             title="Order Details"
                           >
-                            <i className="fas fa-eye me-1" />
+                            <i className="fas fa-eye" />
                           </button>
 
                           {order.orderStatus === "Delivered" && (
                             <button
-                              className="btn btn-sm btn-outline-success"
+                              className="btn btn-sm btn-outline-success icon-btn"
                               onClick={() => openRateModal(order)}
                               title="Rate Now"
                             >
-                              <i className="fas fa-star me-1" />
+                              <i className="fas fa-star" />
                             </button>
                           )}
                         </td>

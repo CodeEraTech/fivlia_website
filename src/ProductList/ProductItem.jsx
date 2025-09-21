@@ -318,7 +318,7 @@ const ProductItem = ({ products = [] }) => {
                     </div>
                   </>
                 )}
-                {product.soldBy && (
+                {/* {product.soldBy && (
                   <>
                     <div className="text-small mb-1">
                       <span className="text-muted">
@@ -329,7 +329,7 @@ const ProductItem = ({ products = [] }) => {
                       </span>
                     </div>
                   </>
-                )}
+                )} */}
                 <h2 className="fs-6">
                   <span
                     className="text-inherit text-decoration-none"
