@@ -9,19 +9,19 @@ export const useSettingValue = () => {
   return (key, fallback = null) => {
     try {
       if (!settings) {
-        console.warn(`Settings not available, using fallback for key: ${key}`);
+        //console.warn(`Settings not available, using fallback for key: ${key}`);
         return fallback;
       }
 
       const value = settings[key];
       if (value === undefined || value === null) {
-        console.warn(`Key "${key}" not found in settings, using fallback`);
+        //console.warn(`Key "${key}" not found in settings, using fallback`);
         return fallback;
       }
 
       return value;
     } catch (error) {
-      console.error(`Error getting setting for key "${key}":`, error);
+      //console.error(`Error getting setting for key "${key}":`, error);
       return fallback;
     }
   };

@@ -142,7 +142,7 @@ const OrderCheckout = () => {
         setPaymentProcess(false)
       }
     } catch (error) {
-      console.error('Order placement error:', error);
+      //console.error('Order placement error:', error);
       alert('Something went wrong!');
       setPaymentProcess(false);
     }

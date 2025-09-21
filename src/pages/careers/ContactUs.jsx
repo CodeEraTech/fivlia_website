@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { post } from '../../apis/apiClient';
-import { ENDPOINTS } from '../../apis/endpoints';
+import { post } from "../../apis/apiClient";
+import { ENDPOINTS } from "../../apis/endpoints";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -9,14 +9,14 @@ const ContactUs = () => {
     lastName: "",
     email: "",
     phone: "",
-    message: ""
+    message: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -29,7 +29,7 @@ const ContactUs = () => {
         icon: "error",
         title: "Missing Fields",
         text: "Please fill in all required fields.",
-        confirmButtonColor: "#dc3545"
+        confirmButtonColor: "#dc3545",
       });
       return;
     }
@@ -42,26 +42,26 @@ const ContactUs = () => {
       allowEscapeKey: false,
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
 
     // API call
     try {
       const response = await post(ENDPOINTS.SAVE_CONTACT_US, formData);
       Swal.close();
-      if (response.success) {
+      if (response.status === 200) {
         Swal.fire({
           icon: "success",
-          title: "Message Sent!",
-          html: `<p><strong>First Name:</strong> ${formData.firstName}</p>`,
-          confirmButtonColor: "#0aad0a"
+          title: "Thank You!",
+          text: "Your message has been sent successfully. We’ll get back to you soon.",
+          confirmButtonColor: "#0aad0a",
         });
         setFormData({
           firstName: "",
           lastName: "",
           email: "",
           phone: "",
-          message: ""
+          message: "",
         });
       } else {
         throw new Error("Failed to submit.");
@@ -71,7 +71,7 @@ const ContactUs = () => {
         icon: "error",
         title: "Submission Failed",
         text: "There was an error submitting your message. Please try again later.",
-        confirmButtonColor: "#dc3545"
+        confirmButtonColor: "#dc3545",
       });
     }
   };
@@ -83,7 +83,8 @@ const ContactUs = () => {
           <div className="mb-5 text-center">
             <h1 className="h3">Contact Us</h1>
             <p className="lead">
-              Have a question or need help? Fill out the form below and we'll get back to you as soon as possible.
+              Have a question or need help? Fill out the form below and we'll
+              get back to you as soon as possible.
             </p>
           </div>
           <form className="row" onSubmit={handleSubmit}>
@@ -164,7 +165,11 @@ const ContactUs = () => {
 
             {/* Submit */}
             <div className="col-md-12 text-center">
-              <button style={{width: "70%"}} type="submit" className="btn btn-primary px-5">
+              <button
+                style={{ width: "70%" }}
+                type="submit"
+                className="btn btn-primary px-5"
+              >
                 Submit
               </button>
             </div>

@@ -305,7 +305,7 @@ const Footer = () => {
             <div className="footer-copy">
               <div className="copyright">
                 © {year} All Rights Reserved By -
-                <Link to="/" target="_blank"> @fivlia</Link>
+                <Link to="/" target="_blank"> fivlia.com</Link>
               </div>
             </div>
           </div>
