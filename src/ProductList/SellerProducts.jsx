@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { get } from "../../apis/apiClient";
-import { ENDPOINTS } from "../../apis/endpoints";
-import { useImageUrl } from "../../utils/getSettingsValue";
-import ProductItem from "../../ProductList/ProductItem";
-import ProductShimmer from "../../ProductList/ProductShimmer";
+import { get } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
+import { useImageUrl } from "../utils/getSettingsValue";
+import ProductItem from "./ProductItem";
+import ProductShimmer from "./ProductShimmer";
 import { useSearchParams } from "react-router-dom";
-import CategoryChips from "../../utils/CategoryChips";
+import CategoryChips from "../utils/CategoryChips";
 import { Link } from "react-router-dom";
 
 // Responsive breakpoints/settings for the banner carousel
@@ -118,8 +118,10 @@ const SellerProducts = () => {
           variants: prod.variants || [],
           inventory: prod.inventory || [],
           isVeg: prod.isVeg,
+          soldBy: sellerData?.storeName || "",
+          storeId: sellerData?._id || null,
         }));
-
+        
         setSeller(sellerData);
         setAllProducts(processedProducts);
         setFilteredProducts(processedProducts);
@@ -148,7 +150,9 @@ const SellerProducts = () => {
       setSelectedCategory(item);
       setSelectedSubCategory(null);
       setSelectedSubSubCategory(null);
-      updatedProducts = updatedProducts.filter((p) => p.category_id === item._id);
+      updatedProducts = updatedProducts.filter(
+        (p) => p.category_id === item._id
+      );
     }
 
     if (level === "subcategory") {
@@ -214,30 +218,36 @@ const SellerProducts = () => {
         }
         `}</style>
         {/* Image Slider Section */}
-        {(!seller?.advertisementImages?.length && defaultImg.length > 0) || seller?.advertisementImages?.length > 0 ? (
-          <div className="image-slider" style={{ position: 'relative' }}>
+        {(!seller?.advertisementImages?.length && defaultImg.length > 0) ||
+        seller?.advertisementImages?.length > 0 ? (
+          <div className="image-slider" style={{ position: "relative" }}>
             <div className="carousel-inner">
-              { (seller?.advertisementImages?.length > 0 ? seller.advertisementImages : defaultImg).map((image, index) => (
+              {(seller?.advertisementImages?.length > 0
+                ? seller.advertisementImages
+                : defaultImg
+              ).map((image, index) => (
                 <div
                   className={`carousel-item${index === 0 ? " active" : ""}`}
                   key={index}
                   style={{ position: "relative" }}
                 >
-                  <Link 
+                  <Link
                     to={`/Shop?category=${seller?.storeName || ""}`}
                     aria-label={`Go to store: ${seller?.storeName}`}
-                    style={{ textDecoration: 'none' }}
+                    style={{ textDecoration: "none" }}
                   >
                     <div
                       style={{
-                        background: `url(${getImageUrl(image)}) no-repeat center center`,
+                        background: `url(${getImageUrl(
+                          image
+                        )}) no-repeat center center`,
                         backgroundSize: "cover",
                         borderRadius: ".5rem",
                         minHeight: 500,
                         width: "100%",
                         transition: "min-height 0.3s",
                         cursor: "pointer",
-                        position: "relative"
+                        position: "relative",
                       }}
                     >
                       <div className="slider-overlay"></div>

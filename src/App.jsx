@@ -17,7 +17,7 @@ import BrandDetail from "./pages/Shop/BrandDetail";
 import CmsPage from "./Component/CmsPage.jsx";
 import BecomeASeller from "./pages/careers/BecomeASeller.jsx";
 import BecomeADeliveryPartner from "./pages/careers/BecomeADeliveryPartner.jsx";
-import SellerProducts from "./pages/Shop/SellerProducts.jsx";
+import SellerProducts from "./ProductList/SellerProducts.jsx";
 import SimilarProducts from "./ProductList/SimilarProducts.jsx";
 import { isOpenInApp } from "./utils/isOpenInApp";
 
