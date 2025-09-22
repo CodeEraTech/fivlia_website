@@ -1,4 +1,3 @@
-// src/contexts/SettingsContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { get } from "../apis/apiClient.jsx";
 import { ENDPOINTS } from '../apis/endpoints.jsx';

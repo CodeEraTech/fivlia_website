@@ -294,7 +294,7 @@ const ProductDetails = () => {
               selectedVariant={selectedVariant}
               className="pqv-add-to-cart-btn"
             />
-            <Link to={`/explore-other-seller?id=${product.id}`}>
+            <Link to={`/explore-other-seller?id=${product.id || product._id}`}>
               Explore Other Sellers
             </Link>
           </div>

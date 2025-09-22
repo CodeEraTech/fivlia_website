@@ -2,6 +2,25 @@
 export const API_BASE_URL = "https://api.fivlia.in";
 // export const API_BASE_URL = "http://127.0.0.1:8080";
 
+// Get location from localStorage
+const getUserLocation = () => {
+  try {
+    const stored = localStorage.getItem("userLocation");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        lat: parsed?.lat || "",
+        lng: parsed?.lng || ""
+      };
+    }
+  } catch (err) {
+    console.error("Error parsing userLocation from localStorage:", err);
+  }
+  return { lat: "", lng: "" };
+};
+
+const { lat, lng } = getUserLocation();
+
 // Define all endpoints here
 export const ENDPOINTS = {
   VERIFY_MOBILE: "/verifyMobile",
@@ -15,14 +34,15 @@ export const ENDPOINTS = {
   GSTDETAIL: "/getDetailsGst",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
-  BANNERS:
-    "/website/forwebgetBanner?lat=29.145848762271545&lng=75.73472849177169",
-  //BANNERS: "/getAllBanner",
-  POPULAR_PRODUCTS: "/website/bestSelling?lat=29.1553958&lng=75.7218976",
-  RELATED_PRODUCTS: "/website/relatedProducts?lat=29.1553958&lng=75.7218976",
-  FEATURED_PRODUCTS: "/website/featureProduct?lat=29.1553958&lng=75.7218976",
-  SEARCH_PRODUCTS: "/website/searchProduct?lat=29.1553958&lng=75.7218976",
-  PRODUCTS: "/website/getProduct?lat=29.1553958&lng=75.7218976",
+
+  // Location based endpoints
+  BANNERS: `/website/forwebgetBanner?lat=${lat}&lng=${lng}`,
+  POPULAR_PRODUCTS: `/website/bestSelling?lat=${lat}&lng=${lng}`,
+  RELATED_PRODUCTS: `/website/relatedProducts?lat=${lat}&lng=${lng}`,
+  FEATURED_PRODUCTS: `/website/featureProduct?lat=${lat}&lng=${lng}`,
+  SEARCH_PRODUCTS: `/website/searchProduct?lat=${lat}&lng=${lng}`,
+  PRODUCTS: `/website/getProduct?lat=${lat}&lng=${lng}`,
+
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
   UPDATE_CART: "/updateCart",

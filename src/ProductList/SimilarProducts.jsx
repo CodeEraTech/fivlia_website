@@ -29,37 +29,35 @@ const SimilarProducts = () => {
         );
 
         if (response.data && response.data.products) {
-          const processedProducts = response.data.products.map(
-            (product) => ({
-              id: product._id,
-              name: product.productName,
-              description: product.description,
-              image: getImageUrl(product.productImageUrl?.[0]),
-              price: product.sell_price || product.variants?.[0]?.sell_price,
-              mrp: product.mrp || product.variants?.[0]?.mrp,
-              category: product.category?.[0]?.name || "Category",
-              category_id: product.category?.[0]?._id || "",
-              brand: product.brand_Name?.name || "Brand",
-              brandId: product.brand_Name?._id || "",
-              unit: product.unit?.name || "",
-              tax: product.tax,
-              rating: 4.5,
-              review_count: 0,
-              discount_percentage: product.variants?.[0]?.discountValue || 0,
-              is_hot: product.feature_product || false,
-              is_new: false,
-              sku: product.sku,
-              status: product.status,
-              productImageUrl: product.productImageUrl,
-              inCart: product.inCart?.status || false,
-              variants: product.variants || [],
-              inventory: product.inventory || [],
-              isVeg: product.isVeg,
-              soldBy: product.storeName || "",
-              storeId: product.storeId || null,
-              isOfficalStore: product.official || false,
-            })
-          );
+          const processedProducts = response.data.products.map((product) => ({
+            id: product._id,
+            name: product.productName,
+            description: product.description,
+            image: getImageUrl(product.productImageUrl?.[0]),
+            price: product.sell_price || product.variants?.[0]?.sell_price,
+            mrp: product.mrp || product.variants?.[0]?.mrp,
+            category: product.category?.[0]?.name || "Category",
+            category_id: product.category?.[0]?._id || "",
+            brand: product.brand_Name?.name || "Brand",
+            brandId: product.brand_Name?._id || "",
+            unit: product.unit?.name || "",
+            tax: product.tax,
+            rating: 4.5,
+            review_count: 0,
+            discount_percentage: product.variants?.[0]?.discountValue || 0,
+            is_hot: product.feature_product || false,
+            is_new: false,
+            sku: product.sku,
+            status: product.status,
+            productImageUrl: product.productImageUrl,
+            inCart: product.inCart?.status || false,
+            variants: product.variants || [],
+            inventory: product.inventory || [],
+            isVeg: product.isVeg,
+            soldBy: product.storeName || "",
+            storeId: product.storeId || null,
+            isOfficalStore: product.official || false,
+          }));
 
           setProducts(processedProducts);
         } else {
@@ -81,17 +79,6 @@ const SimilarProducts = () => {
       <section className="my-lg-14 my-8">
         <div className="container">
           <div className="row">
-            <div className="col-12 mb-6">
-              <div className="section-head text-center mt-8">
-                <h3 className="h3style" data-title="Similar Products">
-                  Similar Products
-                </h3>
-                <div className="wt-separator bg-primarys"></div>
-                <div className="wt-separator2 bg-primarys"></div>
-              </div>
-            </div>
-          </div>
-          <div className="row">
             <div className="col-12 text-center">
               <ProductShimmer count={10} />
             </div>
@@ -106,17 +93,6 @@ const SimilarProducts = () => {
     return (
       <section className="my-lg-14 my-8">
         <div className="container">
-          <div className="row">
-            <div className="col-12 mb-6">
-              <div className="section-head text-center mt-8">
-                <h3 className="h3style" data-title="Similar Products">
-                  Similar Products
-                </h3>
-                <div className="wt-separator bg-primarys"></div>
-                <div className="wt-separator2 bg-primarys"></div>
-              </div>
-            </div>
-          </div>
           <div className="row">
             <div className="col-12 text-center">
               <div className="alert alert-warning" role="alert">
@@ -134,18 +110,7 @@ const SimilarProducts = () => {
   return (
     <section className="my-lg-14 my-8">
       <div className="container">
-        <div className="row">
-          <div className="col-12 mb-6">
-            <div className="section-head text-center mt-8">
-              <h3 className="h3style" data-title="Similar Products">
-                Similar Products
-              </h3>
-              <div className="wt-separator bg-primarys"></div>
-              <div className="wt-separator2 bg-primarys"></div>
-            </div>
-          </div>
-        </div>
-        <ProductItem products={products} />
+        <ProductItem products={products} showSeller={true} />
       </div>
     </section>
   );

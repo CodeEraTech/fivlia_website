@@ -9,7 +9,7 @@ import {
   getStockStatusColor,
 } from "../utils/stockUtils";
 
-const ProductItem = ({ products = [] }) => {
+const ProductItem = ({ products = [], showSeller = false }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalProduct, setModalProduct] = useState(null);
   const navigate = useNavigate();
@@ -318,7 +318,7 @@ const ProductItem = ({ products = [] }) => {
                     </div>
                   </>
                 )}
-                {/* {product.soldBy && (
+                {product.soldBy && showSeller == true && (
                   <>
                     <div className="text-small mb-1">
                       <span className="text-muted">
@@ -329,7 +329,7 @@ const ProductItem = ({ products = [] }) => {
                       </span>
                     </div>
                   </>
-                )} */}
+                )}
                 <h2 className="fs-6">
                   <span
                     className="text-inherit text-decoration-none"

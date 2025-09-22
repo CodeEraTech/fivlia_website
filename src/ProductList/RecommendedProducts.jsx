@@ -88,7 +88,7 @@ const RecommendedProducts = () => {
     );
   }
 
-  if (error) return <div className="related-error">{error}</div>;
+  if (error) return <div className="related-error"></div>; //{error}
   if (!recommended.length)
     return <div className="related-empty">No recommended products found.</div>;
 
@@ -97,13 +97,26 @@ const RecommendedProducts = () => {
     name: product.productName,
     description: product.description,
     image: getImageUrl(product.productImageUrl?.[0]),
-    price:
-      product?.variants?.[0]?.sell_price || product.sell_price || product.price,
+    price: product.sell_price || product.variants[0].sell_price,
+    mrp: product.mrp || product.variants[0].mrp,
+    category: product.category?.[0]?.name || "Category",
+    category_id: product.category?.[0]?._id || "",
+    brand: product.brand_Name?.name || "Brand",
+    brandId: product.brand_Name?._id || "",
+    unit: product.unit?.name || "",
+    tax: product.tax,
+    rating: 4.5, // Default rating since not in API
+    review_count: 0, // Default since not in API
+    discount_percentage: product.variants?.[0]?.discountValue || 0,
+    is_hot: product.feature_product || false,
+    is_new: false, // Default since not in API
     sku: product.sku,
     status: product.status,
+    productImageUrl: product.productImageUrl,
     inCart: product.inCart?.status || false,
     variants: product.variants || [],
-    productImageUrl: product.productImageUrl,
+    inventory: product.inventory || [],
+    isVeg: product.isVeg,
     soldBy: product.storeName || "",
     storeId: product.storeId || null,
     isOfficalStore: product.official || false,
