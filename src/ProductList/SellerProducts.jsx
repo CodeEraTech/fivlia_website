@@ -231,11 +231,6 @@ const SellerProducts = () => {
                   key={index}
                   style={{ position: "relative" }}
                 >
-                  <Link
-                    to={`/Shop?category=${seller?.storeName || ""}`}
-                    aria-label={`Go to store: ${seller?.storeName}`}
-                    style={{ textDecoration: "none" }}
-                  >
                     <div
                       style={{
                         background: `url(${getImageUrl(
@@ -255,7 +250,6 @@ const SellerProducts = () => {
                         Products By {seller?.storeName}
                       </div>
                     </div>
-                  </Link>
                 </div>
               ))}
             </div>
