@@ -6,7 +6,10 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
   const getImageUrl = useImageUrl();
 
   // Calculate subtotal & Platform Fee
-  const subtotal = order.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotal = order.items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
   const platformFeeAmount = subtotal * (order.platformFee / 100);
 
   return (
@@ -32,8 +35,12 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
                 <div className="order-item-info">
                   <h4 className="order-item-name">{item.name}</h4>
                   <div className="order-item-details">
-                    <span><strong>Qty:</strong> {item.quantity}</span>
-                    <span><strong>Price:</strong> ₹{item.price}</span>
+                    <span>
+                      <strong>Qty:</strong> {item.quantity}
+                    </span>
+                    <span>
+                      <strong>Price:</strong> ₹{item.price}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -47,17 +54,28 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
               <strong>Subtotal:</strong> ₹{subtotal}
             </div>
             <div className="summary-item">
-              <strong >Delivery Charges:</strong> ₹{order.deliveryCharges}
+              <strong>Delivery Charges:</strong> ₹
+              {order.deliveryCharges < 1 ? (
+                <span className="fw-bold text-success">Free</span>
+              ) : (
+                order.deliveryCharges.toFixed(2)
+              )}
             </div>
             <div className="summary-item">
-              <strong>Platform Fee:</strong> ₹{platformFeeAmount}
+              <strong>Platform Fee:</strong> ₹
+              {platformFeeAmount && !isNaN(platformFeeAmount)
+                ? platformFeeAmount.toFixed(2)
+                : "0.00"}
             </div>
             <hr />
             <div className="summary-item">
               <strong>Total Amount:</strong> ₹{order.totalPrice}
             </div>
             <div className="">
-              <strong style={{color:'#000', fontSize:'0.9rem'}}>Delivery Address:</strong> <br />
+              <strong style={{ color: "#000", fontSize: "0.9rem" }}>
+                Delivery Address:
+              </strong>{" "}
+              <br />
               {order.address.fullName || ""}, <br />
               {order.address.address}, <br />
               {order.address.mobileNumber}
