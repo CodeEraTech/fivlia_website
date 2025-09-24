@@ -54,11 +54,11 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
               <strong>Subtotal:</strong> ₹{subtotal}
             </div>
             <div className="summary-item">
-              <strong>Delivery Charges:</strong> ₹
+              <strong>Delivery Charges:</strong>
               {order.deliveryCharges < 1 ? (
                 <span className="fw-bold text-success">Free</span>
               ) : (
-                order.deliveryCharges.toFixed(2)
+                "₹ " + order.deliveryCharges.toFixed(2)
               )}
             </div>
             <div className="summary-item">
