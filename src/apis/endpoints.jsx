@@ -1,4 +1,3 @@
-// Place your API base URL here
 export const API_BASE_URL = "https://api.fivlia.in";
 // export const API_BASE_URL = "http://127.0.0.1:8080";
 
@@ -42,6 +41,7 @@ export const ENDPOINTS = {
   FEATURED_PRODUCTS: `/website/featureProduct?lat=${lat}&lng=${lng}`,
   SEARCH_PRODUCTS: `/website/searchProduct?lat=${lat}&lng=${lng}`,
   PRODUCTS: `/website/getProduct?lat=${lat}&lng=${lng}`,
+  PRODUCTS_COUNT:`/products-count?lat=${lat}&lng=${lng}`,
 
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
