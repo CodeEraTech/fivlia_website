@@ -10,6 +10,7 @@ import { useSearchParams } from "react-router-dom";
 const SimilarProducts = () => {
   const [searchParams] = useSearchParams();
   const productId = searchParams.get("id");
+  const sellerId = searchParams.get("sid");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +25,7 @@ const SimilarProducts = () => {
         setError(null);
 
         const response = await get(
-          `${ENDPOINTS.SIMILAR_PRODUCT}/${productId}`,
+          `${ENDPOINTS.SIMILAR_PRODUCT}/${productId}?sellerid=${sellerId}`,
           { authRequired: true }
         );
 
