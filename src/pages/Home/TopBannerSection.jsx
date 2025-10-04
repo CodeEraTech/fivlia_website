@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { get } from "../../apis/apiClient.jsx";
-import { ENDPOINTS } from '../../apis/endpoints';
-import { useImageUrl } from '../../utils/getSettingsValue';
+import { ENDPOINTS } from "../../apis/endpoints";
+import { useImageUrl } from "../../utils/getSettingsValue";
 import { Link } from "react-router-dom";
 
 // Responsive breakpoints/settings for the banner carousel
@@ -12,7 +12,7 @@ const bannerCarouselSettings = {
   slidesToShow: 1,
   slidesToScroll: 1,
   autoplay: true,
-  autoplaySpeed: 7000, 
+  autoplaySpeed: 7000,
   responsive: [
     {
       breakpoint: 1200,
@@ -74,10 +74,10 @@ const TopBannerSection = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-    const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const bannerHeight = useResponsiveBannerHeight();
   const getImageUrl = useImageUrl();
-  
+
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
@@ -112,7 +112,8 @@ const TopBannerSection = () => {
   }, [banners]);
 
   const goToSlide = (idx) => setActiveIndex(idx);
-  const goToPrev = () => setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  const goToPrev = () =>
+    setActiveIndex((prev) => (prev - 1 + banners.length) % banners.length);
   const goToNext = () => setActiveIndex((prev) => (prev + 1) % banners.length);
 
   return (
@@ -123,11 +124,11 @@ const TopBannerSection = () => {
             <div
               className="banner-shimmer shimmer-bg"
               style={{
-                width: '100%',
+                width: "100%",
                 minHeight: bannerHeight,
-                borderRadius: '.5rem',
-                margin: '0 auto',
-                maxWidth: '100%',
+                borderRadius: ".5rem",
+                margin: "0 auto",
+                maxWidth: "100%",
               }}
             />
             <style>{`
@@ -153,17 +154,25 @@ const TopBannerSection = () => {
             <div className="carousel-inner">
               {banners.map((banner, idx) => (
                 <div
-                  className={`carousel-item${idx === activeIndex ? " active" : ""}`}
+                  className={`carousel-item${
+                    idx === activeIndex ? " active" : ""
+                  }`}
                   key={banner._id || idx}
                 >
-                  <Link 
-                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ''}`}
+                  <Link
+                    to={
+                      banner.type2 === "Store"
+                        ? `/Shop?seller=${banner.storeId || ""}`
+                        : `/Shop?category=${banner.mainCategory?._id || ""}`
+                    }
                     aria-label={`Go to ${banner.title} banner`}
-                    style={{ textDecoration: 'none' }}
+                    style={{ textDecoration: "none" }}
                   >
                     <div
                       style={{
-                        background: `url(${getImageUrl(banner.image)}) no-repeat`,
+                        background: `url(${getImageUrl(
+                          banner.image
+                        )}) no-repeat`,
                         backgroundSize: "cover",
                         borderRadius: ".5rem",
                         backgroundPosition: "center",
@@ -215,7 +224,7 @@ const TopBannerSection = () => {
                     height: 10,
                     borderRadius: "50%",
                     margin: 2,
-                    transition: "background 0.3s"
+                    transition: "background 0.3s",
                   }}
                 />
               ))}
@@ -227,4 +236,4 @@ const TopBannerSection = () => {
   );
 };
 
-export default TopBannerSection; 
+export default TopBannerSection;

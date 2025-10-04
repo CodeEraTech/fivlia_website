@@ -62,6 +62,11 @@ function Dropdown() {
       params.filterId = filterId;
     }
 
+    const sellerArr = query.getAll("seller");
+    if (sellerArr && sellerArr.length > 0) {
+      params.seller = sellerArr;
+    }
+
     return params;
   };
 
@@ -183,6 +188,10 @@ function Dropdown() {
     const filterId = query.get("filterId");
     if (filterId) {
       params.filterId = filterId;
+    }
+    const sellerId = query.get("seller");
+    if (sellerId) {
+      params.seller = sellerId;
     }
 
     const qs = new URLSearchParams();
@@ -321,6 +330,7 @@ function Dropdown() {
           <FilterSideBar
             onFilterChange={handleFilterChange}
             selectedFilters={{
+              seller: query.getAll("seller"),
               category: query.getAll("category"),
               subCategory: query.getAll("subCategory"),
               subSubCategory: query.getAll("subSubCategory"),

@@ -24,6 +24,7 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
   const getImageUrl = useImageUrl();
 
   const params = new URLSearchParams(location.search);
+  const urlSeller = params.get("seller");
   const urlCategory = params.get("category");
   const urlSubCat = params.get("subCategory");
   const urlSubSubCat = params.get("subSubCategory");
@@ -57,13 +58,18 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
     const fetchCounts = async () => {
       try {
         const qs = new URLSearchParams();
+        if (urlSeller) qs.append("seller", urlSeller);
         if (urlCategory) qs.append("category", urlCategory);
         if (urlSubCat) qs.append("subCategory", urlSubCat);
         if (urlSubSubCat) qs.append("subSubCategory", urlSubSubCat);
-        
+
         const url = `${ENDPOINTS.PRODUCTS_COUNT}&${qs.toString()}`;
         const resp = await get(url);
-        const counts = resp.data.counts || { main: {}, subcat: {}, subsubcat: {} };
+        const counts = resp.data.counts || {
+          main: {},
+          subcat: {},
+          subsubcat: {},
+        };
         setProductCounts(counts);
       } catch (err) {
         console.error("Failed to load filter counts:", err);
@@ -150,7 +156,11 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
     if (sub.subsubcat && sub.subsubcat.length > 0) {
       setCurrentView("subsubcat");
       setBreadcrumb([
-        { name: selectedCategory.name, id: selectedCategory._id, level: "main" },
+        {
+          name: selectedCategory.name,
+          id: selectedCategory._id,
+          level: "main",
+        },
         { name: sub.name, id: sub._id, level: "subcat" },
       ]);
     } else {
@@ -187,7 +197,13 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
       setCurrentView("subcat");
       setSelectedSubcat(null);
       setSelectedSubsubcat(null);
-      setBreadcrumb([{ name: selectedCategory.name, id: selectedCategory._id, level: "main" }]);
+      setBreadcrumb([
+        {
+          name: selectedCategory.name,
+          id: selectedCategory._id,
+          level: "main",
+        },
+      ]);
       if (onFilterChange) onFilterChange({ category: [selectedCategory._id] });
     }
   };
@@ -196,7 +212,13 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
     if (currentView === "subsubcat") {
       setCurrentView("subcat");
       setSelectedSubsubcat(null);
-      setBreadcrumb([{ name: selectedCategory.name, id: selectedCategory._id, level: "main" }]);
+      setBreadcrumb([
+        {
+          name: selectedCategory.name,
+          id: selectedCategory._id,
+          level: "main",
+        },
+      ]);
       if (onFilterChange) {
         onFilterChange({
           category: [selectedCategory._id],
@@ -403,7 +425,10 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
       )}
       {!loading && !error && currentView === "main" && renderMainCategories()}
       {!loading && !error && currentView === "subcat" && renderSubcategories()}
-      {!loading && !error && currentView === "subsubcat" && renderSubsubcategories()}
+      {!loading &&
+        !error &&
+        currentView === "subsubcat" &&
+        renderSubsubcategories()}
       <style>{`
         .sidebar-categories-container {
           background: none !important;
