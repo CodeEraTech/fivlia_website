@@ -13,7 +13,9 @@ import CategorySection from "./Home/CategorySection";
 import TopBannerSection from "./Home/TopBannerSection";
 import OfferBannerSection from "./Home/OfferBannerSection";
 import BrandsSection from "./Home/BrandsSection";
+import SellersSection from "./Home/SellersSection";
 import FeaturedProducts from "../ProductList/FeaturedProducts";
+
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -39,126 +41,6 @@ const Home = () => {
     };
   }, []);
 
-  const settings1 = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    initialSlide: 1,
-    responsive: [
-      {
-        breakpoint: 1600,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true,
-        },
-      },
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 900,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-    ],
-    autoplay: true,
-    autoplaySpeed: 2000,
-  };
-  const settings2 = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 2,
-    initialSlide: 1,
-    responsive: [
-      {
-        breakpoint: 1600,
-        settings: {
-          slidesToShow: 5,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true,
-        },
-      },
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 4,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 900,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          initialSlide: 1,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-    ],
-    autoplay: true,
-    autoplaySpeed: 2000,
-  };
   // loading
   const [loaderStatus, setLoaderStatus] = useState(true);
   useEffect(() => {
@@ -216,17 +98,19 @@ const Home = () => {
                             />
                             {/* text */}
                             <div className="ms-lg-4">
-                              <h1 className="fs-2 mb-1">
-                                Welcome to Fivlia
-                              </h1>
+                              <h1 className="fs-2 mb-1">Welcome to Fivlia</h1>
                               <span>
-                              Download the app and explore everything you need in one place.
+                                Download the app and explore everything you need
+                                in one place.
                               </span>
                             </div>
                           </div>
                           <div className="mt-3 mt-lg-0">
                             {/* btn */}
-                            <Link to="https://play.google.com/store/apps/details?id=com.fivlia.user" className="btn btn-dark">
+                            <Link
+                              to="https://play.google.com/store/apps/details?id=com.fivlia.user"
+                              className="btn btn-dark"
+                            >
                               Download Fivlia App
                             </Link>
                           </div>
@@ -242,15 +126,17 @@ const Home = () => {
               <CategorySection />
               {/* section */}
             </>
-              <>
+            <>
               <OfferBannerSection />
             </>
             <>
               <BrandsSection />
             </>
-          
             <>
               <PopularProducts />
+            </>
+            <>
+              <SellersSection />
             </>
             <>
               <FeaturedProducts />
@@ -275,7 +161,8 @@ const Home = () => {
                             {/* heading */}
                             <h1>Get the Fivlia app</h1>
                             <h5 className="mb-0">
-                              To get the app, open this page on your phone and tap the App Store or Google Play button below.
+                              To get the app, open this page on your phone and
+                              tap the App Store or Google Play button below.
                             </h5>
                           </div>
                           <div>
@@ -318,7 +205,7 @@ const Home = () => {
                             src={iphone}
                             alt="iphone"
                             className=" img-fluid"
-                            style={{height:656}}
+                            style={{ height: 656 }}
                           />
                         </div>
                       </Slide>
@@ -328,9 +215,7 @@ const Home = () => {
                 </div>
               </section>
             </>
-            <>
-            {/* <FAQ/> */}
-            </>
+            <>{/* <FAQ/> */}</>
           </>
         )}
       </div>

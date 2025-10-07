@@ -9,7 +9,7 @@ const getUserLocation = () => {
       const parsed = JSON.parse(stored);
       return {
         lat: parsed?.lat || "",
-        lng: parsed?.lng || ""
+        lng: parsed?.lng || "",
       };
     }
   } catch (err) {
@@ -41,7 +41,8 @@ export const ENDPOINTS = {
   FEATURED_PRODUCTS: `/website/featureProduct?lat=${lat}&lng=${lng}`,
   SEARCH_PRODUCTS: `/website/searchProduct?lat=${lat}&lng=${lng}`,
   PRODUCTS: `/website/getProduct?lat=${lat}&lng=${lng}`,
-  PRODUCTS_COUNT:`/products-count?lat=${lat}&lng=${lng}`,
+  PRODUCTS_COUNT: `/products-count?lat=${lat}&lng=${lng}`,
+  TOP_SELLERS: `/top-seller?lat=${lat}&lng=${lng}`,
 
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
@@ -58,5 +59,5 @@ export const ENDPOINTS = {
   SELLER_PRODUCTS: "seller-products",
   RECOMMANDED_PRODUCTS: "/recommedProduct",
   SIMILAR_PRODUCT: "/checkSimilarProduct",
-  SUBMIT_RATING: "/rating"
+  SUBMIT_RATING: "/rating",
 };

@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import Slider from 'react-slick';
-import { Link } from 'react-router-dom';
-import { get } from '../../apis/apiClient';
-import { ENDPOINTS } from '../../apis/endpoints';
-import { useImageUrl } from '../../utils/getSettingsValue';
-
-
+import React, { useState, useEffect } from "react";
+import Slider from "react-slick";
+import { Link } from "react-router-dom";
+import { get } from "../../apis/apiClient";
+import { ENDPOINTS } from "../../apis/endpoints";
+import { useImageUrl } from "../../utils/getSettingsValue";
 
 const BrandsSection = () => {
   const [brands, setBrands] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const getImageUrl = useImageUrl();
-  
+
   // Fetch brands from API
   useEffect(() => {
     const fetchBrands = async () => {
@@ -26,8 +24,8 @@ const BrandsSection = () => {
           setBrands([]);
         }
       } catch (err) {
-       // console.error('Error fetching brands:', err);
-        setError('Failed to load brands');
+        // console.error('Error fetching brands:', err);
+        setError("Failed to load brands");
         setBrands([]);
       } finally {
         setLoading(false);
@@ -51,37 +49,37 @@ const BrandsSection = () => {
         settings: {
           slidesToShow: 5,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 1024,
         settings: {
           slidesToShow: 4,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 768,
         settings: {
           slidesToShow: 3,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 576,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
-        }
+        },
       },
       {
         breakpoint: 480,
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-        }
-      }
-    ]
+        },
+      },
+    ],
   };
 
   // Loading shimmer component
@@ -297,20 +295,18 @@ const BrandsSection = () => {
           height: 100%;
         }
       `}</style>
-      
+
       <div className="brands-section">
         <div className="col-12">
           <div className="mb-6">
-                         <div className="section-head text-center">
-               <h3 className="h3style">
-                 Top Brands
-               </h3>
+            <div className="section-head text-center">
+              <h3 className="h3style">Top Brands</h3>
               <div className="wt-separator bg-primarys"></div>
               <div className="wt-separator2 bg-primarys"></div>
             </div>
           </div>
         </div>
-        
+
         {loading ? (
           <Slider {...settings2}>
             {[...Array(8)].map((_, index) => (
@@ -322,8 +318,8 @@ const BrandsSection = () => {
             <div className="error-icon">⚠️</div>
             <h4>Oops! Something went wrong</h4>
             <p>{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="btn btn-primary mt-3"
             >
               Try Again
@@ -336,34 +332,34 @@ const BrandsSection = () => {
             <p>We're working on adding more brands. Check back soon!</p>
           </div>
         ) : (
-        <Slider {...settings2}>
-      {brands.map((brand) => (
-        <div className="m-1" key={brand._id}>
-          <Link
-            to={`/brand?id=${brand._id}`}
-            className="text-inherit"
-            aria-label={`Go to ${brand.brandName} brand`}
-          >
-            <div className="partner-list text-center">
-              <img
-                src={getImageUrl(brand.brandLogo)}
-                alt={brand.brandName}
-                className="img-fluid"
-                style={{ objectFit: "contain", maxHeight: "80px" }}
-                onError={(e) => {
-                  e.target.src = "/assets/img/no_image.jpg";
-                }}
-              />
-              <h6 className="card-title mt-2">{brand.brandName}</h6>
-            </div>
-          </Link>
-        </div>
-      ))}
-    </Slider>
+          <Slider {...settings2}>
+            {brands.map((brand) => (
+              <div className="m-1" key={brand._id}>
+                <Link
+                  to={`/brand?id=${brand._id}`}
+                  className="text-inherit"
+                  aria-label={`Go to ${brand.brandName} brand`}
+                >
+                  <div className="partner-list text-center">
+                    <img
+                      src={getImageUrl(brand.brandLogo)}
+                      alt={brand.brandName}
+                      className="img-fluid"
+                      style={{ objectFit: "contain", maxHeight: "80px" }}
+                      onError={(e) => {
+                        e.target.src = "/assets/img/no_image.jpg";
+                      }}
+                    />
+                    <h6 className="card-title mt-2">{brand.brandName}</h6>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </Slider>
         )}
       </div>
     </div>
   );
 };
 
-export default BrandsSection; 
+export default BrandsSection;
