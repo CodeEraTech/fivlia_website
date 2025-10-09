@@ -146,7 +146,9 @@ const FilterSideBar = ({ onFilterChange, selectedFilters = {} }) => {
     if (onFilterChange) {
       onFilterChange({ category: [cat._id] });
     }
-    navigate(`/Shop?category=${cat._id}`);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("category", cat._id);
+    navigate(`/Shop?${searchParams.toString()}`);
   };
 
   const handleSubcatClick = (sub) => {

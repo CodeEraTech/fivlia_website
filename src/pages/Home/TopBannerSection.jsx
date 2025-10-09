@@ -162,7 +162,7 @@ const TopBannerSection = () => {
                   <Link
                     to={
                       banner.type2 === "Store"
-                        ? `/seller-products?id=${banner.storeId || ""}`
+                        ? `/Shop?seller=${banner.storeId || ""}`
                         : `/Shop?category=${banner.mainCategory?._id || ""}`
                     }
                     aria-label={`Go to ${banner.title} banner`}

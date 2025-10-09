@@ -141,6 +141,16 @@ const SellersSection = () => {
     );
   };
 
+  // Function to generate initials (first two letters of the store name)
+  const getInitials = (name) => {
+    const words = name.split(" ");
+    const initials = words
+      .map((word) => word[0].toUpperCase())
+      .join("")
+      .slice(0, 2); // Get only the first two letters
+    return initials;
+  };
+
   return (
     <div className="container">
       <style>{`
@@ -181,7 +191,7 @@ const SellersSection = () => {
           text-align: center;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
           transition: all 0.3s ease;
-          height: 250px;
+          height: 210px;
           width: 230px;
           display: flex;
           flex-direction: column;
@@ -198,11 +208,14 @@ const SellersSection = () => {
         }
 
         .seller-list img {
-          width: 120px;
-          height: 120px;
-          object-fit: contain;
-          margin-bottom: 1rem;
-          cursor: pointer;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          object-fit: contain;        
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-shrink: 0;
           transition: transform 0.3s ease;
         }
 
@@ -213,7 +226,7 @@ const SellersSection = () => {
         .card-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #30574e;
+            color: #000;
             margin: 0;
             line-height: 1.3;
             text-align: center;
@@ -383,22 +396,49 @@ const SellersSection = () => {
             </div>
           ) : (
             <Slider {...settings}>
-              {sellers.map((seller) => (
-                <div key={seller.storeId}>
-                  <Link to={`/seller-products?id=${seller.storeId}`}>
-                    <div className="seller-list">
-                      <img
-                        src={getImageUrl(seller.image)}
-                        alt={seller.storeName}
-                      />
-                      <h4 className="card-title">{seller.storeName}</h4>
-                      <div className="seller-rating">
-                        {renderRating(seller.averageRating)}
+              {sellers.map((seller) => {
+                const hasImage = seller.image && seller.image.trim() !== "";
+                const initials = getInitials(seller.storeName);
+
+                return (
+                  <div key={seller.storeId}>
+                    <Link to={`/seller-products?id=${seller.storeId}`}>
+                      <div className="seller-list">
+                        {/* Conditionally render image or initials circle */}
+                        {hasImage ? (
+                          <img
+                            src={getImageUrl(seller.image)}
+                            alt={seller.storeName}
+                            className="seller-image"
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              borderRadius: "50%",
+                              backgroundColor: "#30574e",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              color: "#fff",
+                              fontSize: "30px",
+                              fontWeight: "bold",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {initials}
+                          </div>
+                        )}
+                        <h4 className="card-title">{seller.storeName}</h4>
+                        <div className="seller-rating">
+                          {renderRating(seller.averageRating)}
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
+                    </Link>
+                  </div>
+                );
+              })}
             </Slider>
           )}
         </div>
