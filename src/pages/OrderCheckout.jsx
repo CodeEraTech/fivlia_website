@@ -124,6 +124,7 @@ const OrderCheckout = () => {
       const response = await post(ENDPOINTS.PLACE_ORDER, orderPayload, {
         authRequired: true,
       });
+      
       const { order, tempOrder, tempOrderId, payResponse } =
         response.data || {};
 
@@ -166,7 +167,11 @@ const OrderCheckout = () => {
         setPaymentProcess(false);
       }
     } catch (error) {
-      alert("Something went wrong!");
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("Something went wrong!");
+      }
       setPaymentProcess(false);
     }
   };
