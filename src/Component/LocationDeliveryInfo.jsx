@@ -44,7 +44,7 @@ const LocationDeliveryInfo = () => {
     }
 
     if (searchInput.length > 2) {
-      setIsSearching(true);
+      //setIsSearching(true);
       setError('');
       searchTimeoutRef.current = setTimeout(async () => {
         try {

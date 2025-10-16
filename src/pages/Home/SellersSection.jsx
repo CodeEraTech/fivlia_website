@@ -143,11 +143,21 @@ const SellersSection = () => {
 
   // Function to generate initials (first two letters of the store name)
   const getInitials = (name) => {
-    const words = name.split(" ");
+    if (!name || typeof name !== "string" || name.trim() === "") {
+      return "";
+    }
+
+    const words = name.split(" ").filter(Boolean);
+
+    if (words.length === 0) {
+      return "";
+    }
+
     const initials = words
       .map((word) => word[0].toUpperCase())
       .join("")
-      .slice(0, 2); // Get only the first two letters
+      .slice(0, 2);
+
     return initials;
   };
 

@@ -96,7 +96,7 @@ export const getAddressFromCoords = async (lat, lng) => {
   }
 };
 
-// 5. Mock delivery time function
+// 5. Delivery time function
 export const calculateDeliveryTime = async (lat, lng) => {
   try {
     const response = await get(
@@ -107,6 +107,7 @@ export const calculateDeliveryTime = async (lat, lng) => {
 
     if (response.data?.status && response.data.filtered?.length) {
       const duration = response.data.filtered[0].duration || "Unavailable";
+      location.reload();
       console.log("🚚 Delivery Duration:", duration); // 👈 Console output
       return duration;
     } else {
