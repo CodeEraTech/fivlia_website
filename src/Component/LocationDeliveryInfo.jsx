@@ -28,7 +28,7 @@ const LocationDeliveryInfo = () => {
     const storedLocation = getStoredLocation();
     if (storedLocation) {
       setLocation(storedLocation.address);
-      setDeliveryTime(`${storedLocation.deliveryTime} minutes`);
+      setDeliveryTime(`${storedLocation.deliveryTime}`);
       setIsInitialSetup(false);
     } else {
       // Show modal if no stored location

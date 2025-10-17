@@ -103,15 +103,15 @@ export const calculateDeliveryTime = async (lat, lng) => {
       `${ENDPOINTS.GET_DELIVERY_ESTIMATE}?lat=${lat}&lng=${lng}`
     );
 
-    console.log("Full response:", response.data);
+    //console.log("Full response:", response.data);
 
     if (response.data?.status && response.data.filtered?.length) {
       const duration = response.data.filtered[0].duration || "Unavailable";
       location.reload();
-      console.log("🚚 Delivery Duration:", duration); // 👈 Console output
+      //console.log("🚚 Delivery Duration:", duration); // 👈 Console output
       return duration;
     } else {
-      console.warn("⚠️ No delivery data available");
+      //sconsole.warn("⚠️ No delivery data available");
       return "Unavailable";
     }
   } catch (error) {
