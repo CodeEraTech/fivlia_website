@@ -7,6 +7,8 @@ import ProductShimmer from "./ProductShimmer";
 import { useSearchParams } from "react-router-dom";
 import CategoryChips from "../utils/CategoryChips";
 import { Link } from "react-router-dom";
+import Lottie from "lottie-react";
+import EmptyBox from "../animations/empty_box.json";
 
 // Responsive breakpoints/settings for the banner carousel
 const bannerCarouselSettings = {
@@ -293,7 +295,21 @@ const SellerProducts = () => {
         ) : error ? (
           <div className="row">
             <div className="col-12 text-center">
-              <div className="alert alert-danger">{error}</div>
+              {/* <div className="alert alert-danger">{error}</div> */}
+              <div style={{display:"flex", justifyContent:"center"}}>
+                <Lottie 
+                  animationData={EmptyBox} 
+                  loop={true} 
+                  style={{ width: 300, height: 300 }}
+                />
+              </div>
+                <h2 className="text-xl font-semibold text-gray-800 mt-4">
+                  No products available
+                </h2>
+                <p className="text-gray-500 mt-2 max-w-md">
+                  It seems this seller hasn’t added any products yet or the store is currently offline.  
+                  Please check back later or explore other stores.
+                </p>
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
