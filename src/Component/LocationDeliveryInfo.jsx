@@ -162,7 +162,7 @@ const LocationDeliveryInfo = () => {
         placeDetails = await getPlaceDetails(placeId);
       }
       
-      const deliveryTime = calculateDeliveryTime(placeDetails.lat, placeDetails.lng);
+      const deliveryTime = await calculateDeliveryTime(placeDetails.lat, placeDetails.lng);
       
       const locationData = {
         lat: placeDetails.lat,
