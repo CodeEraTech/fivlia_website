@@ -30,6 +30,7 @@ export const ENDPOINTS = {
   REGISTER: "/register",
   GETCITY: "/getAllZone",
   SUBMIT: "/addSeller",
+  DRIVERSUBMIT: "/driver",
   GSTDETAIL: "/getDetailsGst",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",

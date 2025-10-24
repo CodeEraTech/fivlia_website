@@ -2,9 +2,27 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { MagnifyingGlass } from "react-loader-spinner";
 import ScrollToTop from "../ScrollToTop";
-
+import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
+import { post } from "../../apis/apiClient.jsx";
 const BecomeADeliveryPartner = () => {
   const [loaderStatus, setLoaderStatus] = useState(true);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    vehicleType: "",
+    regNumber: "",
+    licenseNumber: "",
+    additionalInfo: "",
+    approveStatus:"pending_admin_approval"
+  });
+
+  const [files, setFiles] = useState({
+    profileImage: null,
+    drivingLicence: null,
+    idProof: null,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -13,8 +31,59 @@ const BecomeADeliveryPartner = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+ const handleFileChange = (e) => {
+  const { name, files: newFiles } = e.target;
+
+  // Append new files to the existing ones (if any)
+  setFiles((prev) => {
+    const existingFiles = prev[name] ? Array.from(prev[name]) : [];
+    return {
+      ...prev,
+      [name]: [...existingFiles, ...Array.from(newFiles)],
+    };
+  });
+};
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    try {
+      const data = new FormData();
+      data.append("driverName", `${formData.firstName} ${formData.lastName}`);
+      data.append("email", formData.email);
+      data.append("approveStatus", "pending_admin_approval");
+       // example
+      data.append(
+        "address",
+        JSON.stringify({
+          mobileNo: formData.phone,
+          vehicleType: formData.vehicleType,
+          regNumber: formData.regNumber,
+        })
+      );
+
+if (files.profileImage?.length > 0)
+        data.append("image", files.profileImage[0]);
+
+      // Aadhar (Front & Back)
+      if (files.idProof?.length > 0)
+        for (let file of files.idProof) data.append("aadharCard", file);
+
+      // Driving Licence (Front & Back)
+      if (files.drivingLicence?.length > 0)
+        for (let file of files.drivingLicence)
+          data.append("drivingLicence", file);
+
+
+
+      await post(`${API_BASE_URL}${ENDPOINTS.DRIVERSUBMIT}`, data, {
+  headers: { "Content-Type": "multipart/form-data" },
+});
 
     Swal.fire({
       icon: "success",
@@ -22,6 +91,14 @@ const BecomeADeliveryPartner = () => {
       text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
       confirmButtonColor: "#0aad0a"
     });
+} catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Something went wrong. Please try again later.",
+      });
+    }
   };
 
   return (
@@ -60,7 +137,9 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="text"
+                        name="firstName"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Enter Your First Name"
                         required
                       />
@@ -73,7 +152,9 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="text"
+                        name="lastName"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Enter Your Last Name"
                         required
                       />
@@ -86,7 +167,9 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="email"
+                        name="email"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Your Email"
                         required
                       />
@@ -99,18 +182,22 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="tel"
+                        name="phone"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Your Phone Number"
                         required
                       />
                     </div>
-
+    
                     {/* Vehicle Type */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Vehicle Type</label>
                       <input
                         type="text"
+                        name="vehicleType"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Bike, Scooter, Car, Van, etc."
                       />
                     </div>
@@ -122,7 +209,9 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="text"
+                        name="regNumber"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="e.g., DL01AB1234"
                         required
                       />
@@ -136,37 +225,65 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="text"
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Enter DL Number"
                         required
                       />
                     </div>
 
-                    {/* Upload Driving License */}
                     <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Upload Driving License<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        required
-                      />
-                    </div>
-
+                    <label>Profile Image</label>
+                    <input
+                      type="file"
+                      name="profileImage"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </div>
                     {/* Upload ID Proof */}
                     <div className="col-md-12 mb-3">
                       <label className="form-label">
-                        Upload ID Proof<span className="text-danger">*</span>
+                        Upload ID Proof (Front and Back)<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        name="idProof"
+                        className="form-control"
+                        onChange={handleFileChange}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
+                        required
+                      />
+                      {files.idProof && files.idProof.length > 0 && (
+                          <small className="text-success d-block mt-1">
+                            {Array.from(files.idProof)
+                              .map((f) => f.name)
+                              .join(", ")}
+                          </small>
+                        )}
+                    </div>
+  {/* Upload Driving License */}
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Upload Driving License (Front and Back)<span className="text-danger">*</span>
                       </label>
                       <input
                         type="file"
                         className="form-control"
+                        name="drivingLicence"
+                        onChange={handleFileChange}
                         accept=".pdf,.jpg,.jpeg,.png"
+                        multiple
                         required
                       />
+                      {files.drivingLicence && files.drivingLicence.length > 0 && (
+                        <small className="text-success d-block mt-1">
+                          {Array.from(files.drivingLicence)
+                            .map((f) => f.name)
+                            .join(", ")}
+                        </small>
+                      )}
                     </div>
-
                     {/* Additional Comments */}
                     <div className="col-md-12 mb-3">
                       <label className="form-label">Additional Information</label>
