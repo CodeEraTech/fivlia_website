@@ -163,6 +163,8 @@ const TopBannerSection = () => {
                     to={
                       banner.type2 === "Store"
                         ? `/Shop?seller=${banner.storeId || ""}`
+                        : banner.type2 === "Brand"
+                        ? `/brand?id=${banner.brand._id || ""}`
                         : `/Shop?category=${banner.mainCategory?._id || ""}`
                     }
                     aria-label={`Go to ${banner.title} banner`}
