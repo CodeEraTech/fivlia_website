@@ -1,4 +1,5 @@
 export const API_BASE_URL = "https://api.fivlia.in";
+// export const API_BASE_URL = "http://localhost:8080";
 // export const API_BASE_URL = "http://127.0.0.1:8080";
 
 // Get location from localStorage
@@ -34,6 +35,7 @@ export const ENDPOINTS = {
   GSTDETAIL: "/getDetailsGst",
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
+  BLOG: "/getBlog",
 
   // Location based endpoints
   BANNERS: `/website/forwebgetBanner?lat=${lat}&lng=${lng}`,

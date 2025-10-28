@@ -6,6 +6,8 @@ import Footer from "./Component/Footer";
 import Home from "./pages/Home";
 import Contact from "./pages/careers/ContactUs.jsx";
 import Shop from "./pages/Shop/Shop";
+import Blog from "./pages/careers/Blog";
+import BlogDetail from "./pages/careers/BLogDetail.jsx";
 import OrderCheckout from "./pages/OrderCheckout";
 import MyAccountOrder from "./pages/Accounts/MyAccountOrder";
 import MyAccountSetting from "./pages/Accounts/MyAcconutSetting";
@@ -20,6 +22,7 @@ import BecomeADeliveryPartner from "./pages/careers/BecomeADeliveryPartner.jsx";
 import SellerProducts from "./ProductList/SellerProducts.jsx";
 import SimilarProducts from "./ProductList/SimilarProducts.jsx";
 import { isOpenInApp } from "./utils/isOpenInApp";
+import { HelmetProvider } from "react-helmet-async";
 
 
 const App = () => {
@@ -31,6 +34,7 @@ const App = () => {
 
   return (
     <div>
+      <HelmetProvider>
       <Router>
         {!hideLayout && <Header />}
         <Routes>
@@ -39,6 +43,8 @@ const App = () => {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/OrderCheckout" element={<OrderCheckout />} />
           <Route path="/MyAccount" element={<MyAccountSetting />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/brand" element={<BrandDetail />} />
           <Route path="/MyAccountOrder" element={<MyAccountOrder />} />
           <Route path="/MyAccountAddress" element={<MyAccountAddress />} />
@@ -53,6 +59,7 @@ const App = () => {
         </Routes>
         {!hideLayout && <Footer />}
       </Router>
+      </HelmetProvider>
     </div>
   );
 };

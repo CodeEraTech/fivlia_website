@@ -1,0 +1,40 @@
+.blog-detail-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.blog-detail-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.blog-meta {
+  color: #888;
+  font-size: 14px;
+}
+
+.blog-detail-image {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.blog-detail-body {
+  line-height: 1.8;
+  color: #333;
+}
+
+.blog-footer {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.back-btn {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+.back-btn:hover {
+  text-decoration: underline;
+}

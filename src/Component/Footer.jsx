@@ -10,7 +10,7 @@ const Footer = () => {
   let date = new Date();
   let year = date.getFullYear();
   const [pages, setPages] = useState([]);
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
     get(ENDPOINTS.PAGES)
@@ -25,6 +25,7 @@ const Footer = () => {
         // console.error("Error fetching pages:", err);
       });
   }, []);
+
   return (
     <div>
       <style>{`
@@ -153,9 +154,11 @@ const Footer = () => {
           }
         }
       `}</style>
+
       <footer className="footer-modern mt-8">
         <div className="container">
           <div className="footer-main">
+            {/* Company Info */}
             <div className="footer-section">
               <div className="footer-logo">
                 <Link to="/">
@@ -175,34 +178,33 @@ const Footer = () => {
                 </Link>
               </div>
               <p style={{ marginBottom: 24, textAlign: "justify" }}>
-                FIVLIA is fast delivery platform within minutes that facilitates
-                the delivery of various items, including groceries, food,
-                personal care items. We connects users with local stores and
-                restaurants for quick delivery.
+                FIVLIA is a fast delivery platform that facilitates the delivery
+                of various items, including groceries, food, and personal care
+                items. We connect users with local stores and restaurants for
+                quick delivery.
               </p>
-              {/* <div className="payment-icons" style={{ marginTop: 16 }}>
-                <img src={payFooter} alt=""/>
-              </div> */}
             </div>
+
+            {/* For Consumers */}
             <div className="footer-section">
               <div className="footer-title">For Consumers</div>
               <ul className="footer-link-list">
-                {pages.map((page, index) =>
+                {pages.map((page) =>
                   page.pageTitle === "Privacy-Policy" ? null : (
-                    <React.Fragment key={page._id}>
-                      <li>
-                        <Link
-                          to={`/${page.pageSlug}`}
-                          className="text-decoration-none text-muted"
-                        >
-                          {page.pageTitle}
-                        </Link>
-                      </li>
-                    </React.Fragment>
+                    <li key={page._id}>
+                      <Link
+                        to={`/${page.pageSlug}`}
+                        className="text-decoration-none text-muted"
+                      >
+                        {page.pageTitle}
+                      </Link>
+                    </li>
                   )
                 )}
               </ul>
             </div>
+
+            {/* Useful Links */}
             <div className="footer-section">
               <div className="footer-title">Useful Links</div>
               <ul className="footer-link-list">
@@ -223,6 +225,15 @@ const Footer = () => {
                   </Link>
                 </li>
 
+                <li>
+                  <Link
+                    className="text-decoration-none text-muted"
+                    to="/blog"
+                  >
+                    Blog
+                  </Link>
+                </li>
+
                 {isLoggedIn ? (
                   <>
                     <li>
@@ -238,7 +249,7 @@ const Footer = () => {
                         className="text-decoration-none text-muted"
                         to="/MyAccountOrder"
                       >
-                        My Accounts
+                        My Account
                       </Link>
                     </li>
                   </>
@@ -261,11 +272,12 @@ const Footer = () => {
                         data-bs-target="#userModal"
                         className="text-muted"
                       >
-                        My Accounts
+                        My Account
                       </a>
                     </li>
                   </>
                 )}
+
                 <li>
                   <Link
                     className="text-decoration-none text-muted"
@@ -276,10 +288,11 @@ const Footer = () => {
                 </li>
               </ul>
             </div>
+
+            {/* Download Apps */}
             <div className="footer-section">
               <div className="footer-title">Download App</div>
               <ul className="footer-link-list">
-                {/* Play Store Links */}
                 <li>
                   <a
                     href="https://play.google.com/store/apps/details?id=com.fivlia.user"
@@ -297,10 +310,9 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="d-flex align-items-center"
                   >
-                    <i className="fab fa-apple me-2"></i>User App (iOS)
+                    <i className="fab fa-apple me-2"></i> User App (iOS)
                   </a>
                 </li>
-
                 <li>
                   <a
                     href="https://play.google.com/store/apps/details?id=com.fivlia.delivery.fivliadelivery"
@@ -308,7 +320,7 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="d-flex align-items-center"
                   >
-                    <i className="fab fa-google-play me-2"></i>Delivery App
+                    <i className="fab fa-google-play me-2"></i> Delivery App
                   </a>
                 </li>
                 <li>
@@ -318,12 +330,13 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     className="d-flex align-items-center"
                   >
-                    <i className="fab fa-google-play me-2"></i>Seller App
+                    <i className="fab fa-google-play me-2"></i> Seller App
                   </a>
                 </li>
               </ul>
             </div>
 
+            {/* Stay Connected */}
             <div className="footer-section">
               <div className="footer-title">Stay Connected</div>
               <form
@@ -334,7 +347,6 @@ const Footer = () => {
                   type="email"
                   id="email"
                   placeholder="Your Email"
-                  className="form-control form-control-lg"
                   required
                 />
                 <button type="submit">
@@ -342,45 +354,46 @@ const Footer = () => {
                 </button>
               </form>
               <div className="social-media">
-                <Link
-                  to="https://www.facebook.com/profile.php?id=100090157863841"
-                  className="facebook"
+                <a
+                  href="https://www.facebook.com/profile.php?id=100090157863841"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fab fa-facebook-f"></i>
-                </Link>
-                <Link
-                  to="https://www.youtube.com/channel/UCnX8Bt9yXNWUY7xWAycLGVw"
-                  className="twitter"
+                </a>
+                <a
+                  href="https://www.youtube.com/channel/UCnX8Bt9yXNWUY7xWAycLGVw"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fab fa-youtube"></i>
-                </Link>
-                <Link
-                  to="https://www.instagram.com/fivliaindia"
-                  className="instagram"
+                </a>
+                <a
+                  href="https://www.instagram.com/fivliaindia"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fab fa-instagram"></i>
-                </Link>
-                <Link
-                  to="https://www.linkedin.com/in/fivlia-online-shopping-925641377/"
-                  className="linkedin"
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/fivlia-online-shopping-925641377/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fab fa-linkedin-in"></i>
-                </Link>
+                </a>
               </div>
             </div>
           </div>
         </div>
+
         <div className="footer-bar">
           <div className="container text-center">
-            <div className="footer-copy">
-              <div className="copyright">
-                © {year} All Rights Reserved By -
-                <Link to="/" target="_blank">
-                  {" "}
-                  Fivlia.com
-                </Link>
-              </div>
-            </div>
+            © {year} All Rights Reserved By —
+            <Link to="/" target="_blank">
+              {" "}
+              Fivlia.com
+            </Link>
           </div>
         </div>
       </footer>
