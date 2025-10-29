@@ -23,6 +23,7 @@ import SellerProducts from "./ProductList/SellerProducts.jsx";
 import SimilarProducts from "./ProductList/SimilarProducts.jsx";
 import { isOpenInApp } from "./utils/isOpenInApp";
 import { HelmetProvider } from "react-helmet-async";
+import Careers from "./pages/careers/career";
 
 
 const App = () => {
@@ -44,6 +45,7 @@ const App = () => {
           <Route path="/OrderCheckout" element={<OrderCheckout />} />
           <Route path="/MyAccount" element={<MyAccountSetting />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/careers" element={<Careers />} />
           <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/brand" element={<BrandDetail />} />
           <Route path="/MyAccountOrder" element={<MyAccountOrder />} />
