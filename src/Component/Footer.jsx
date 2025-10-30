@@ -189,6 +189,11 @@ const Footer = () => {
             <div className="footer-section">
               <div className="footer-title">For Consumers</div>
               <ul className="footer-link-list">
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/blog">
+                    Blog
+                  </Link>
+                </li>
                 {pages.map((page) =>
                   page.pageTitle === "Privacy-Policy" ? null : (
                     <li key={page._id}>
@@ -222,15 +227,6 @@ const Footer = () => {
                     to="/become-a-delivery-partner"
                   >
                     Deliver With Us
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    className="text-decoration-none text-muted"
-                    to="/blog"
-                  >
-                    Blog
                   </Link>
                 </li>
 
