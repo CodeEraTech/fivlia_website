@@ -120,6 +120,7 @@ const RecommendedProducts = () => {
     soldBy: product.storeName || "",
     storeId: product.storeId || null,
     isOfficalStore: product.official || false,
+    slug: product.slug,
   }));
 
   return (

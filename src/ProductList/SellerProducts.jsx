@@ -122,6 +122,7 @@ const SellerProducts = () => {
           isVeg: prod.isVeg,
           soldBy: sellerData?.storeName || "",
           storeId: sellerData?._id || null,
+          slug: prod.slug,
         }));
         
         setSeller(sellerData);

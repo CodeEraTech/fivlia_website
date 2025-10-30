@@ -58,6 +58,7 @@ const SimilarProducts = () => {
             soldBy: product.storeName || "",
             storeId: product.storeId || null,
             isOfficalStore: product.official || false,
+            slug: product.slug,
           }));
 
           setProducts(processedProducts);

@@ -1,4 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { post } from "../apis/apiClient";
+import { getCurrentLocation } from "../apis/olaMapApis";
+import { ENDPOINTS } from "../apis/endpoints";
 
 const AuthContext = createContext();
 
@@ -11,10 +14,25 @@ export const AuthProvider = ({ children }) => {
     if (storedToken) {
       setToken(storedToken);
       setIsLoggedIn(true);
+      updateLocation();
     } else {
       // console.log('AuthContext: No token found in localStorage');
     }
   }, []);
+
+  const updateLocation = async () => {
+    const coords = await getCurrentLocation();
+    if (coords.lat && coords.lng) {
+      await post(
+        ENDPOINTS.UPDATE_LOCATION,
+        {
+          latitude: coords.lat,
+          longitude: coords.lng,
+        },
+        { authRequired: true }
+      );
+    }
+  };
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -35,12 +53,14 @@ export const AuthProvider = ({ children }) => {
     return {
       isAuthenticated,
       token: storedToken,
-      isLoggedIn
+      isLoggedIn,
     };
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, login, logout, checkAuth }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, token, login, logout, checkAuth }}
+    >
       {children}
     </AuthContext.Provider>
   );

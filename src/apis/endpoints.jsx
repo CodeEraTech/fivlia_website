@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://api.fivlia.in";
+export const API_BASE_URL = "https://api.fivlia.com";
 // export const API_BASE_URL = "http://localhost:8080";
 // export const API_BASE_URL = "http://127.0.0.1:8080";
 
@@ -46,6 +46,8 @@ export const ENDPOINTS = {
   PRODUCTS: `/website/getProduct?lat=${lat}&lng=${lng}`,
   PRODUCTS_COUNT: `/products-count?lat=${lat}&lng=${lng}`,
   TOP_SELLERS: `/top-seller?lat=${lat}&lng=${lng}`,
+  PRODUCT_DETAILS: (slug) =>
+    `/website/forwebGetSingleProduct/${slug}?lat=${lat}&lng=${lng}`,
 
   ADD_TO_CART: "/addCart",
   GET_CART: "/getCart",
@@ -63,4 +65,5 @@ export const ENDPOINTS = {
   RECOMMANDED_PRODUCTS: "/recommedProduct",
   SIMILAR_PRODUCT: "/checkSimilarProduct",
   SUBMIT_RATING: "/rating",
+  UPDATE_LOCATION: "/location",
 };

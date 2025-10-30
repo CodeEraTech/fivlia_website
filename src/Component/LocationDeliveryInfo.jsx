@@ -116,7 +116,7 @@ const LocationDeliveryInfo = () => {
       const coords = await getCurrentLocation();
       const addressData = await getAddressFromCoords(coords.lat, coords.lng);
       const deliveryTime = await  calculateDeliveryTime(coords.lat, coords.lng);
-      console.log("deliveryTime",deliveryTime);
+      //console.log("deliveryTime",deliveryTime);
       
       const locationData = {
         lat: coords.lat,

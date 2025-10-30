@@ -226,7 +226,7 @@ const ProductItem = ({ products = [], showSeller = false }) => {
                       cursor: "pointer",
                     }}
                     onClick={() =>
-                      navigate(`/product/${product.id}`, { state: { product } })
+                      navigate(`/product/${product.slug}`, { state: { product } })
                     }
                     onError={(e) => {
                       e.target.src = "/assets/img/no_image.jpg";
@@ -335,7 +335,7 @@ const ProductItem = ({ products = [], showSeller = false }) => {
                     className="text-inherit text-decoration-none"
                     style={{ cursor: "pointer" }}
                     onClick={() =>
-                      navigate(`/product/${product.id}`, { state: { product } })
+                      navigate(`/product/${product.slug}`, { state: { product } })
                     }
                   >
                     {product.name}

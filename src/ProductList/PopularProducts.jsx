@@ -18,7 +18,6 @@ const PopularProducts = () => {
         setError(null);
 
         const response = await get(ENDPOINTS.POPULAR_PRODUCTS);
-
         if (response.data && response.data.best) {
           const processedProducts = response.data.best.map((product) => ({
             id: product._id,
@@ -48,6 +47,7 @@ const PopularProducts = () => {
             soldBy: product.storeName || "",
             storeId: product.storeId || null,
             isOfficalStore: product.official || false,
+            slug: product.slug,
           }));
 
           setProducts(processedProducts);
