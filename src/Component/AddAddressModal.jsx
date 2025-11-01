@@ -128,13 +128,13 @@ const AddAddressModal = ({ onAddressAdded }) => {
                       className="form-check-input"
                       type="radio"
                       name="addressType"
-                      id="office"
-                      value="office"
-                      checked={formData.addressType === 'office'}
+                      id="work"
+                      value="work"
+                      checked={formData.addressType === 'work'}
                       onChange={handleInputChange}
                     />
-                    <label className="form-check-label" htmlFor="office">
-                      <i className="fa fa-building me-2"></i>Office
+                    <label className="form-check-label" htmlFor="work">
+                      <i className="fa fa-building me-2"></i>Work
                     </label>
                   </div>
                   <div className="form-check">
