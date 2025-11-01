@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { getPlaceSuggestions, getPlaceDetails } from '../apis/olaMapApis'; // adjust path as needed
+import React, { useState, useEffect, useRef } from "react";
+import { getPlaceSuggestions, getPlaceDetails } from "../apis/olaMapApis";
+import { post } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
 
 const AreaAutocompleteInput = ({ formData, setFormData }) => {
-  const [searchInput, setSearchInput] = useState(formData.area || '');
+  const [searchInput, setSearchInput] = useState(formData.area || "");
   const [suggestions, setSuggestions] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [hasSelected, setHasSelected] = useState(false); // New flag
   const searchTimeoutRef = useRef(null);
 
@@ -20,16 +22,21 @@ const AreaAutocompleteInput = ({ formData, setFormData }) => {
 
     if (searchInput.length > 2) {
       setIsSearching(true);
-      setError('');
+      setError("");
       searchTimeoutRef.current = setTimeout(async () => {
         try {
+          await post(ENDPOINTS.TRACK_MAP_USAGE, {
+            source: "web",
+            callType: "autocomplete",
+            subCallType: "AreaAutocompleteInput",
+          });
           let results = await getPlaceSuggestions(searchInput);
           if (!results?.length) {
             results = [];
           }
           setSuggestions(results);
         } catch (_) {
-          setError('Error fetching suggestions');
+          setError("Error fetching suggestions");
           setSuggestions([]);
         } finally {
           setIsSearching(false);
@@ -44,8 +51,13 @@ const AreaAutocompleteInput = ({ formData, setFormData }) => {
 
   const handleSelect = async (placeId) => {
     setIsSearching(true);
-    setError('');
+    setError("");
     try {
+      await post(ENDPOINTS.TRACK_MAP_USAGE, {
+        source: "web",
+        callType: "placedetails",
+        subCallType: "handleSelect_AreaAutocompleteInput",
+      });
       const placeDetails = await getPlaceDetails(placeId);
       setFormData((prev) => ({
         ...prev,
@@ -55,7 +67,7 @@ const AreaAutocompleteInput = ({ formData, setFormData }) => {
       setSuggestions([]);
       setHasSelected(true); // Block further fetch until user types again
     } catch {
-      setError('Failed to fetch place details');
+      setError("Failed to fetch place details");
     } finally {
       setIsSearching(false);
     }
@@ -81,16 +93,16 @@ const AreaAutocompleteInput = ({ formData, setFormData }) => {
       />
 
       {isSearching && (
-        <div style={{ padding: '0.5rem', color: '#6c757d' }}>
-          Searching...
-        </div>
+        <div style={{ padding: "0.5rem", color: "#6c757d" }}>Searching...</div>
       )}
       {error && (
-        <div style={{
-          color: '#dc3545',
-          fontSize: '0.8rem',
-          marginTop: '0.25rem',
-        }}>
+        <div
+          style={{
+            color: "#dc3545",
+            fontSize: "0.8rem",
+            marginTop: "0.25rem",
+          }}
+        >
           {error}
         </div>
       )}
@@ -104,15 +116,24 @@ const AreaAutocompleteInput = ({ formData, setFormData }) => {
               onClick={() => handleSelect(s.place_id)}
             >
               <div className="suggestion-icon">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"
-                  strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
               </div>
               <div>
                 <div className="suggestion-text">
-                  {s.structured_formatting?.main_text || s.description.split(',')[0]}
+                  {s.structured_formatting?.main_text ||
+                    s.description.split(",")[0]}
                 </div>
                 {/* <div className="suggestion-subtext">
                   {s.structured_formatting?.secondary_text || s.description}

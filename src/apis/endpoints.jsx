@@ -66,4 +66,5 @@ export const ENDPOINTS = {
   SIMILAR_PRODUCT: "/checkSimilarProduct",
   SUBMIT_RATING: "/rating",
   UPDATE_LOCATION: "/location",
+  TRACK_MAP_USAGE: "/track-map-usage",
 };

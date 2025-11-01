@@ -1,24 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  getCurrentLocation, 
-  getPlaceSuggestions, 
-  getPlaceDetails, 
-  getAddressFromCoords, 
-  calculateDeliveryTime, 
-  storeLocation, 
-  getStoredLocation 
-} from '../apis/olaMapApis';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  getCurrentLocation,
+  getPlaceSuggestions,
+  getPlaceDetails,
+  getAddressFromCoords,
+  calculateDeliveryTime,
+  storeLocation,
+  getStoredLocation,
+} from "../apis/olaMapApis";
+import { post } from "../apis/apiClient";
+import { ENDPOINTS } from "../apis/endpoints";
 
 const LocationDeliveryInfo = () => {
-  const [location, setLocation] = useState('Mumbai, Maharashtra');
-  const [deliveryTime, setDeliveryTime] = useState('2-3 hours');
+  const [location, setLocation] = useState("Mumbai, Maharashtra");
+  const [deliveryTime, setDeliveryTime] = useState("2-3 hours");
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isInitialSetup, setIsInitialSetup] = useState(true);
   const searchTimeoutRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -45,24 +47,29 @@ const LocationDeliveryInfo = () => {
 
     if (searchInput.length > 2) {
       //setIsSearching(true);
-      setError('');
+      setError("");
       searchTimeoutRef.current = setTimeout(async () => {
         try {
+          await post(ENDPOINTS.TRACK_MAP_USAGE, {
+            source: "web",
+            callType: "autocomplete",
+            subCallType: "LocationDeliveryInfo",
+          });
           // Try Google Maps API first
           let results = await getPlaceSuggestions(searchInput);
-          
+
           // If no results from Google Maps, try fallback
           if (!results || results.length === 0) {
             results = getFallbackSuggestions(searchInput);
           }
-          
+
           setSuggestions(results || []);
         } catch (error) {
-          console.error('Error getting suggestions:', error);
+          console.error("Error getting suggestions:", error);
           // Use fallback suggestions on error
           const fallbackResults = getFallbackSuggestions(searchInput);
           setSuggestions(fallbackResults);
-          setError('Using offline suggestions');
+          setError("Using offline suggestions");
         } finally {
           setIsSearching(false);
         }
@@ -81,50 +88,55 @@ const LocationDeliveryInfo = () => {
   // Fallback suggestions function
   const getFallbackSuggestions = (input) => {
     const commonCities = [
-      'Mumbai, Maharashtra, India',
-      'Delhi, India',
-      'Bangalore, Karnataka, India',
-      'Hyderabad, Telangana, India',
-      'Chennai, Tamil Nadu, India',
-      'Kolkata, West Bengal, India',
-      'Pune, Maharashtra, India',
-      'Ahmedabad, Gujarat, India',
-      'Jaipur, Rajasthan, India',
-      'Surat, Gujarat, India'
+      "Mumbai, Maharashtra, India",
+      "Delhi, India",
+      "Bangalore, Karnataka, India",
+      "Hyderabad, Telangana, India",
+      "Chennai, Tamil Nadu, India",
+      "Kolkata, West Bengal, India",
+      "Pune, Maharashtra, India",
+      "Ahmedabad, Gujarat, India",
+      "Jaipur, Rajasthan, India",
+      "Surat, Gujarat, India",
     ];
-    
-    const filtered = commonCities.filter(city => 
+
+    const filtered = commonCities.filter((city) =>
       city.toLowerCase().includes(input.toLowerCase())
     );
-    
+
     return filtered.map((city, index) => ({
       place_id: `fallback_${index}`,
       description: city,
       structured_formatting: {
-        main_text: city.split(',')[0],
-        secondary_text: city.split(',').slice(1).join(',').trim()
-      }
+        main_text: city.split(",")[0],
+        secondary_text: city.split(",").slice(1).join(",").trim(),
+      },
     }));
   };
 
   // Handle location detection
   const handleDetectLocation = async () => {
     setIsDetectingLocation(true);
-    setError('');
-    
+    setError("");
+
     try {
       const coords = await getCurrentLocation();
+      await post(ENDPOINTS.TRACK_MAP_USAGE, {
+        source: "web",
+        callType: "reverseGeocode",
+        subCallType: "handleDetectLocation_LocationDeliveryInfo",
+      });
       const addressData = await getAddressFromCoords(coords.lat, coords.lng);
-      const deliveryTime = await  calculateDeliveryTime(coords.lat, coords.lng);
+      const deliveryTime = await calculateDeliveryTime(coords.lat, coords.lng);
       //console.log("deliveryTime",deliveryTime);
-      
+
       const locationData = {
         lat: coords.lat,
         lng: coords.lng,
         address: addressData.address,
-        deliveryTime: deliveryTime
+        deliveryTime: deliveryTime,
       };
-      
+
       storeLocation(locationData);
       setLocation(addressData.address);
       setDeliveryTime(`${deliveryTime}`);
@@ -140,46 +152,54 @@ const LocationDeliveryInfo = () => {
   // Handle place selection
   const handlePlaceSelect = async (placeId) => {
     setIsSearching(true);
-    setError('');
-    
+    setError("");
+
     try {
       let placeDetails;
-      
-      if (placeId.startsWith('fallback_')) {
+
+      if (placeId.startsWith("fallback_")) {
         // Handle fallback selection
-        const index = parseInt(placeId.split('_')[1]);
-        const fallbackCities = getFallbackSuggestions('');
+        const index = parseInt(placeId.split("_")[1]);
+        const fallbackCities = getFallbackSuggestions("");
         const selectedCity = fallbackCities[index];
-        
+
         placeDetails = {
-          lat: 19.0760 + (Math.random() - 0.5) * 0.1, // Mock coordinates around Mumbai
+          lat: 19.076 + (Math.random() - 0.5) * 0.1, // Mock coordinates around Mumbai
           lng: 72.8777 + (Math.random() - 0.5) * 0.1,
           address: selectedCity.description,
-          name: selectedCity.structured_formatting.main_text
+          name: selectedCity.structured_formatting.main_text,
         };
       } else {
         // Handle Google Maps selection
+        await post(ENDPOINTS.TRACK_MAP_USAGE, {
+          source: "web",
+          callType: "placedetails",
+          subCallType: "handlePlaceSelect_LocationDeliveryInfo",
+        });
         placeDetails = await getPlaceDetails(placeId);
       }
-      
-      const deliveryTime = await calculateDeliveryTime(placeDetails.lat, placeDetails.lng);
-      
+
+      const deliveryTime = await calculateDeliveryTime(
+        placeDetails.lat,
+        placeDetails.lng
+      );
+
       const locationData = {
         lat: placeDetails.lat,
         lng: placeDetails.lng,
         address: placeDetails.address,
-        deliveryTime: deliveryTime
+        deliveryTime: deliveryTime,
       };
-      
+
       storeLocation(locationData);
       setLocation(placeDetails.address);
       setDeliveryTime(`${deliveryTime} `);
       setShowModal(false);
-      setSearchInput('');
+      setSearchInput("");
       setSuggestions([]);
       setIsInitialSetup(false);
     } catch (error) {
-      setError('Failed to get location details');
+      setError("Failed to get location details");
     } finally {
       setIsSearching(false);
     }
@@ -189,9 +209,9 @@ const LocationDeliveryInfo = () => {
   const handleCloseModal = () => {
     if (!isInitialSetup) {
       setShowModal(false);
-      setSearchInput('');
+      setSearchInput("");
       setSuggestions([]);
-      setError('');
+      setError("");
     }
   };
 
@@ -297,7 +317,7 @@ const LocationDeliveryInfo = () => {
             padding: 1.25rem;
             width: 450px;
             height: auto;
-            max-height: ${suggestions.length > 0 ? '600px' : '400px'};
+            max-height: ${suggestions.length > 0 ? "600px" : "400px"};
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             animation: modalSlideIn 0.3s ease-out;
             margin-top: 20px;
@@ -365,7 +385,7 @@ const LocationDeliveryInfo = () => {
             display: flex;
             flex-direction: column;
             gap: 0.875rem;
-            margin-bottom: ${suggestions.length > 0 ? '0' : '1.25rem'};
+            margin-bottom: ${suggestions.length > 0 ? "0" : "1.25rem"};
           }
           
           .detect-location-btn {
@@ -553,26 +573,44 @@ const LocationDeliveryInfo = () => {
             }
           }
         `}</style>
-        
+
         <div className="location-icon">
-          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-            <circle cx="12" cy="10" r="3"/>
+          <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
           </svg>
         </div>
-        
+
         <div className="location-content">
           <div className="delivery-text">
-            {isLoading ? 'Loading...' : `Delivery in ${deliveryTime}`}
+            {isLoading ? "Loading..." : `Delivery in ${deliveryTime}`}
           </div>
           <div className="location-text">
-            {isLoading ? 'Getting location...' : location}
+            {isLoading ? "Getting location..." : location}
           </div>
         </div>
-        
+
         <div className="chevron-icon">
-          <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <polyline points="6 9 12 15 18 9"/>
+          <svg
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
       </div>
@@ -586,19 +624,18 @@ const LocationDeliveryInfo = () => {
                 ×
               </button>
             )}
-            
+
             <div className="modal-header">
               <h2 className="modal-title">
-                {isInitialSetup ? 'Welcome to FIVLIA! 🎉' : 'Change Location'}
+                {isInitialSetup ? "Welcome to FIVLIA! 🎉" : "Change Location"}
               </h2>
-              <p className="modal-subtitle" style={{marginTop: 10}}>
-                {isInitialSetup 
-                  ? 'Please set your delivery location to get started' 
-                  : 'Update your delivery location'
-                }
+              <p className="modal-subtitle" style={{ marginTop: 10 }}>
+                {isInitialSetup
+                  ? "Please set your delivery location to get started"
+                  : "Update your delivery location"}
               </p>
             </div>
-            
+
             <div className="location-options">
               <button
                 className="detect-location-btn"
@@ -612,17 +649,28 @@ const LocationDeliveryInfo = () => {
                   </>
                 ) : (
                   <>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                      <circle cx="12" cy="10" r="3"/>
+                    <svg
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
                     </svg>
                     Detect My Location
                   </>
                 )}
               </button>
-              
+
               <div className="search-section">
-                <label className="search-label">Or enter your location manually:</label>
+                <label className="search-label">
+                  Or enter your location manually:
+                </label>
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -632,22 +680,30 @@ const LocationDeliveryInfo = () => {
                   onChange={(e) => setSearchInput(e.target.value)}
                   disabled={isSearching}
                 />
-                
+
                 {isSearching && (
-                  <div style={{ textAlign: 'center', padding: '0.5rem', color: '#6c757d' }}>
-                    <div className="loading-spinner" style={{ borderColor: '#0AAD0A', borderTopColor: 'transparent' }}></div>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "0.5rem",
+                      color: "#6c757d",
+                    }}
+                  >
+                    <div
+                      className="loading-spinner"
+                      style={{
+                        borderColor: "#0AAD0A",
+                        borderTopColor: "transparent",
+                      }}
+                    ></div>
                     Searching...
                   </div>
                 )}
               </div>
             </div>
-            
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
-            
+
+            {error && <div className="error-message">{error}</div>}
+
             {/* Integrated Suggestions */}
             {suggestions.length > 0 && (
               <div className="suggestions-container">
@@ -658,17 +714,28 @@ const LocationDeliveryInfo = () => {
                     onClick={() => handlePlaceSelect(suggestion.place_id)}
                   >
                     <div className="suggestion-icon">
-                      <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                        <circle cx="12" cy="10" r="3"/>
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
                       </svg>
                     </div>
                     <div>
                       <div className="suggestion-text">
-                        {suggestion.structured_formatting?.main_text || suggestion.description.split(',')[0]}
+                        {suggestion.structured_formatting?.main_text ||
+                          suggestion.description.split(",")[0]}
                       </div>
                       <div className="suggestion-subtext">
-                        {suggestion.structured_formatting?.secondary_text || suggestion.description}
+                        {suggestion.structured_formatting?.secondary_text ||
+                          suggestion.description}
                       </div>
                     </div>
                   </div>
@@ -682,4 +749,4 @@ const LocationDeliveryInfo = () => {
   );
 };
 
-export default LocationDeliveryInfo; 
+export default LocationDeliveryInfo;
