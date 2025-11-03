@@ -314,6 +314,12 @@ const BecomeASeller = () => {
     formData.aadharCard.forEach((file) => form.append("aadharCard", file));
     formData.panCard.forEach((file) => form.append("panCard", file));
 
+    const params = new URLSearchParams(window.location.search);
+    const defValue = params.get("def");
+    if (defValue) {
+      form.append("referralCode", defValue);
+    }
+
     try {
       const res = await post(`${API_BASE_URL}${ENDPOINTS.SUBMIT}`, form, {
         headers: { "Content-Type": "multipart/form-data" },
