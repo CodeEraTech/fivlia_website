@@ -55,12 +55,21 @@ const BecomeASeller = () => {
     zone: "",
     aadharCard: [],
     panCard: [],
+    referralCode: "",
   });
 
   const [city, setCity] = useState([]);
   const [zone, setZone] = useState([]);
   const [zoneRadius, setZoneRadius] = useState(null);
   const [zoneCenter, setZoneCenter] = useState(null); // ✅ fixed zone center
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const defValue = params.get("def");
+    if (defValue) {
+      setFormData((prev) => ({ ...prev, referralCode: defValue }));
+    }
+  }, []);
 
   // Timer for resend OTP
   useEffect(() => {
@@ -313,12 +322,6 @@ const BecomeASeller = () => {
     form.append("Longitude", longitude);
     formData.aadharCard.forEach((file) => form.append("aadharCard", file));
     formData.panCard.forEach((file) => form.append("panCard", file));
-
-    const params = new URLSearchParams(window.location.search);
-    const defValue = params.get("def");
-    if (defValue) {
-      form.append("referralCode", defValue);
-    }
 
     try {
       const res = await post(`${API_BASE_URL}${ENDPOINTS.SUBMIT}`, form, {
@@ -701,6 +704,20 @@ const BecomeASeller = () => {
                       name="additionalInfo"
                       value={formData.additionalInfo}
                       onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label">
+                      Referral Code (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="referralCode"
+                      value={formData.referralCode || ""}
+                      onChange={handleChange}
+                      placeholder="Enter referral code (optional)"
                     />
                   </div>
 
