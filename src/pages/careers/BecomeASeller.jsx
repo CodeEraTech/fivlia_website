@@ -44,7 +44,7 @@ const BecomeASeller = () => {
     firstName: "",
     lastName: "",
     storeName: "",
-    email: "",
+    // email: "",
     PhoneNumber: "",
     gstNumber: "",
     additionalInfo: "",
@@ -742,21 +742,27 @@ const BecomeASeller = () => {
                       <div className="modal-content p-3">
                         <h5 className="mb-3">Verify Your OTP</h5>
                         <div className="mb-3">
-                          <label>WhatsApp/Phone OTP</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={otpData.phoneOtp}
-                            onChange={(e) =>
-                              setOtpData((prev) => ({
-                                ...prev,
-                                phoneOtp: e.target.value,
-                              }))
-                            }
-                            placeholder="Enter WhatsApp/Phone OTP"
-                          />
+                          <label className="mb-2">WhatsApp / Phone OTP</label>
+                          <div className="input-group">
+                            <span className="input-group-text bg-light">
+                             <i className="fa-solid fa-phone text-primary"></i>
+                            </span>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={otpData.phoneOtp}
+                              onChange={(e) =>
+                                setOtpData((prev) => ({
+                                  ...prev,
+                                  phoneOtp: e.target.value,
+                                }))
+                              }
+                              placeholder="Enter WhatsApp/Phone OTP"
+                            />
+                          </div>
                         </div>
-                        <div className="mb-2">
+
+                        {/* <div className="mb-2">
                           <label>Email OTP</label>
                           <input
                             type="text"
@@ -770,7 +776,7 @@ const BecomeASeller = () => {
                             }
                             placeholder="Enter Email OTP"
                           />
-                        </div>
+                        </div> */}
                         <div className="mb-3">
                           <h6>
                             Check your spam/junk folder if the OTP isn’t in your
