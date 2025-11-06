@@ -16,6 +16,8 @@ import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
 import { useNavigate } from "react-router-dom";
 import { Switch, FormControlLabel } from "@mui/material";
 const { BaseLayer } = LayersControl;
+import Lottie from "lottie-react";
+import MobileOTP from "../../animations/mobile_otp.json";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -327,7 +329,7 @@ const BecomeASeller = () => {
       const res = await post(`${API_BASE_URL}${ENDPOINTS.SUBMIT}`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      Swal.fire("Success", res.data.message, "success");
+      Swal.fire("Success", "OTP sent to phone for verification", "success");
       setOtpModal(true);
       setResendTimer(60);
     } catch (error) {
@@ -546,7 +548,7 @@ const BecomeASeller = () => {
                   {/* WhatsApp Number */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
-                      <svg
+                      {/*   <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
                         height="16"
@@ -555,8 +557,8 @@ const BecomeASeller = () => {
                         viewBox="0 0 16 16"
                       >
                         <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232" />
-                      </svg>{" "}
-                      WhatsApp/Phone Number
+                      </svg>{" "} */}
+                      Phone Number
                     </label>
                     <input
                       type="tel"
@@ -564,7 +566,7 @@ const BecomeASeller = () => {
                       className="form-control"
                       value={formData.PhoneNumber}
                       onChange={handleChange}
-                      placeholder="Enter WhatsApp/Phone Number With country code"
+                      placeholder="Enter Phone Number With country code"
                     />
                   </div>
                   <div className="col-md-12 mb-3">
@@ -736,85 +738,96 @@ const BecomeASeller = () => {
                 {otpModal && (
                   <div
                     className="modal d-block"
-                    style={{ background: "rgba(0,0,0,0.5)" }}
+                    style={{
+                      background: "rgba(0,0,0,0.6)",
+                      backdropFilter: "blur(4px)",
+                    }}
                   >
-                    <div className="modal-dialog">
-                      <div className="modal-content p-3">
-                        <h5 className="mb-3">Verify Your OTP</h5>
-                        <div className="mb-3">
-                          <label className="mb-2">WhatsApp / Phone OTP</label>
-                          <div className="input-group">
-                            <span className="input-group-text bg-light">
-                             <i className="fa-solid fa-phone text-primary"></i>
-                            </span>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={otpData.phoneOtp}
-                              onChange={(e) =>
-                                setOtpData((prev) => ({
-                                  ...prev,
-                                  phoneOtp: e.target.value,
-                                }))
-                              }
-                              placeholder="Enter WhatsApp/Phone OTP"
+                    <div
+                      className="modal-dialog modal-lg modal-dialog-centered"
+                      style={{ maxWidth: "750px" }}
+                    >
+                      <div
+                        className="modal-content border-0 shadow-lg overflow-hidden"
+                        style={{ borderRadius: "15px", width: "800px" }}
+                      >
+                        <div className="row g-0">
+                          {/* LEFT SIDE - Lottie Animation */}
+                          <div
+                            className="col-md-6 d-flex align-items-center justify-content-center"
+                            style={{
+                              padding: "10px",
+                            }}
+                          >
+                            <Lottie
+                              animationData={MobileOTP}
+                              loop={true}
+                              style={{ width: 200, height: 200 }}
                             />
                           </div>
-                        </div>
 
-                        {/* <div className="mb-2">
-                          <label>Email OTP</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={otpData.emailOtp}
-                            onChange={(e) =>
-                              setOtpData((prev) => ({
-                                ...prev,
-                                emailOtp: e.target.value,
-                              }))
-                            }
-                            placeholder="Enter Email OTP"
-                          />
-                        </div> */}
-                        <div className="mb-3">
-                          <h6>
-                            Check your spam/junk folder if the OTP isn’t in your
-                            inbox.
-                          </h6>
-                        </div>
-                        <div className="mb-3 text-muted">
-                          {resendTimer > 0 ? (
-                            <span style={{ color: "red" }}>
-                              You can request a new OTP in {resendTimer} seconds
-                            </span>
-                          ) : (
-                            <span
-                              onClick={resendOtp}
-                              style={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                                color: "blue",
-                              }}
-                            >
-                              Resend OTP
-                            </span>
-                          )}
-                        </div>
-                        <div className="d-flex justify-content-end">
-                          <button
-                            className="btn btn-secondary me-2"
-                            onClick={() => setOtpModal(false)}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            className="btn btn-primary"
-                            onClick={verifyOtp}
-                            disabled={verifying}
-                          >
-                            {verifying ? "Verifying..." : "Verify OTP"}
-                          </button>
+                          {/* RIGHT SIDE - OTP form */}
+                          <div className="col-md-6 p-4 d-flex flex-column">
+                            <h5 className="mb-4 fw-bold text-primary">
+                              Verify Your OTP
+                            </h5>
+                            <div className="mb-3">
+                              <label className="form-label fw-semibold mb-2">
+                                Phone OTP
+                              </label>
+                              <div className="d-flex align-items-center justify-content-center">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={otpData.phoneOtp}
+                                  onChange={(e) =>
+                                    setOtpData((prev) => ({
+                                      ...prev,
+                                      phoneOtp: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="Enter OTP"
+                                  maxLength={6}
+                                />
+                              </div>
+                            </div>
+                            {/* <div className="mb-2"> <label>Email OTP</label> <input type="text" className="form-control" value={otpData.emailOtp} onChange={(e) => setOtpData((prev) => ({ ...prev, emailOtp: e.target.value, })) } placeholder="Enter Email OTP" /> </div> */}{" "}
+                            {/* <div className="mb-3"> <h6> Check your spam/junk folder if the OTP isn’t in your inbox. </h6> </div> */}
+                            <div className="mb-3 text-muted">
+                              {resendTimer > 0 ? (
+                                <span style={{ color: "red" }}>
+                                  You can request a new OTP in {resendTimer}{" "}
+                                  seconds
+                                </span>
+                              ) : (
+                                <span
+                                  onClick={resendOtp}
+                                  style={{
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    color: "blue",
+                                  }}
+                                >
+                                  Resend OTP
+                                </span>
+                              )}
+                            </div>
+                            <div className="d-flex">
+                              <button
+                                className="btn btn-outline-secondary me-2 px-4"
+                                onClick={() => setOtpModal(false)}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                className="btn btn-primary px-4"
+                                onClick={verifyOtp}
+                                disabled={verifying}
+                              >
+                                {verifying ? "Verifying..." : "Verify OTP"}
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
