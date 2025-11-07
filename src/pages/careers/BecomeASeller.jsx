@@ -9,6 +9,7 @@ import {
   useMapEvents,
   LayersControl,
   Circle,
+  useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -63,7 +64,8 @@ const BecomeASeller = () => {
   const [city, setCity] = useState([]);
   const [zone, setZone] = useState([]);
   const [zoneRadius, setZoneRadius] = useState(null);
-  const [zoneCenter, setZoneCenter] = useState(null); // ✅ fixed zone center
+  const [zoneCenter, setZoneCenter] = useState(null);
+  const [locateTrigger, setLocateTrigger] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -230,6 +232,19 @@ const BecomeASeller = () => {
     return null;
   };
 
+  const MapViewUpdater = ({ position }) => {
+    const map = useMapEvents({});
+    useEffect(() => {
+      if (position && position.lat && position.lng) {
+        map.flyTo(position, 12, {
+          animate: true,
+          duration: 1.5,
+        });
+      }
+    }, [position]);
+    return null;
+  };
+
   // Submit form
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) {
@@ -353,6 +368,69 @@ const BecomeASeller = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+  };
+
+  const LocateMeControl = ({ onLocate }) => {
+    const map = useMap();
+    useEffect(() => {
+      if (onLocate) onLocate(map);
+    }, [onLocate, map]);
+
+    return null;
+  };
+
+  const handleLocateMe = () => {
+    if (!zoneCenter) {
+      Swal.fire("Error", "Please select a zone first.", "error");
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      Swal.fire(
+        "Error",
+        "Geolocation is not supported by your browser.",
+        "error"
+      );
+      return;
+    }
+
+    // Swal.fire({
+    //   title: "Detecting your location...",
+    //   allowOutsideClick: false,
+    //   didOpen: () => Swal.showLoading(),
+    // });
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+
+        const distance = L.latLng(zoneCenter.lat, zoneCenter.lng).distanceTo(
+          L.latLng(lat, lng)
+        );
+
+        if (zoneRadius && distance > zoneRadius) {
+          Swal.fire(
+            "Out of Zone",
+            "Your current location is outside the selected zone area.",
+            "warning"
+          );
+        } else {
+          //Swal.fire("Success", "Location detected successfully!", "success");
+        }
+
+        setMarkerPosition({ lat, lng });
+        setLatitude(lat);
+        setLongitude(lng);
+
+        // trigger map flyTo through LocateMeControl
+        setLocateTrigger(() => (mapInstance) => {
+          mapInstance.flyTo([lat, lng], 12, { animate: true, duration: 1.5 });
+        });
+      },
+      () => {
+        Swal.fire("Error", "Failed to get your location.", "error");
+      }
+    );
   };
 
   return (
@@ -605,30 +683,44 @@ const BecomeASeller = () => {
                   </div>
 
                   {/* Zone */}
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Selling Zone<span className="text-danger">*</span>
-                    </label>
-                    <select
-                      name="zone"
-                      className="form-control"
-                      value={formData.zone[0] || ""}
-                      onChange={handleZoneChange}
-                      required
-                    >
-                      <option value="">Select Selling Zone</option>
-                      {zone.map((z) => (
-                        <option key={z._id} value={z._id}>
-                          {z.zoneTitle}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="col-md-6 mb-3 d-flex align-items-end gap-2">
+                    <div style={{ flex: 1 }}>
+                      <label className="form-label">
+                        Selling Zone<span className="text-danger">*</span>
+                      </label>
+                      <select
+                        name="zone"
+                        className="form-control"
+                        value={formData.zone[0] || ""}
+                        onChange={handleZoneChange}
+                        required
+                      >
+                        <option value="">Select Selling Zone</option>
+                        {zone.map((z) => (
+                          <option key={z._id} value={z._id}>
+                            {z.zoneTitle}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Locate Me Button */}
+                    {formData.zone[0] && (
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary mt-auto"
+                        onClick={handleLocateMe}
+                      >
+                        Locate Me
+                      </button>
+                    )}
                   </div>
 
                   {/* Map */}
                   <div className="mb-3">
                     <div style={{ height: "400px", width: "100%" }}>
                       <MapContainer
+                        id="mapContainerId"
                         center={markerPosition}
                         zoom={12}
                         style={{ height: "100%", width: "100%" }}
@@ -667,6 +759,8 @@ const BecomeASeller = () => {
 
                         {/* Click control */}
                         <MapUpdater />
+                        <MapViewUpdater position={markerPosition} />
+                        <LocateMeControl onLocate={locateTrigger} />
                       </MapContainer>
                     </div>
                     <div className="d-flex flex-wrap gap-3 mt-2">
