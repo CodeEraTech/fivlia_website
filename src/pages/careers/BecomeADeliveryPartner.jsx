@@ -15,14 +15,14 @@ const BecomeADeliveryPartner = () => {
     regNumber: "",
     licenseNumber: "",
     additionalInfo: "",
-    approveStatus:"pending_admin_approval"
+    approveStatus: "pending_admin_approval",
   });
 
-  const [files, setFiles] = useState({
-    profileImage: null,
-    drivingLicence: null,
-    idProof: null,
-  });
+  // const [files, setFiles] = useState({
+  //   profileImage: null,
+  //   drivingLicence: null,
+  //   idProof: null,
+  // });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,19 +35,18 @@ const BecomeADeliveryPartner = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleFileChange = (e) => {
-  const { name, files: newFiles } = e.target;
+  const handleFileChange = (e) => {
+    const { name, files: newFiles } = e.target;
 
-  // Append new files to the existing ones (if any)
-  setFiles((prev) => {
-    const existingFiles = prev[name] ? Array.from(prev[name]) : [];
-    return {
-      ...prev,
-      [name]: [...existingFiles, ...Array.from(newFiles)],
-    };
-  });
-};
-
+    // Append new files to the existing ones (if any)
+    setFiles((prev) => {
+      const existingFiles = prev[name] ? Array.from(prev[name]) : [];
+      return {
+        ...prev,
+        [name]: [...existingFiles, ...Array.from(newFiles)],
+      };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,7 +56,7 @@ const BecomeADeliveryPartner = () => {
       data.append("driverName", `${formData.firstName} ${formData.lastName}`);
       data.append("email", formData.email);
       data.append("approveStatus", "pending_admin_approval");
-       // example
+      // example
       data.append(
         "address",
         JSON.stringify({
@@ -67,31 +66,37 @@ const BecomeADeliveryPartner = () => {
         })
       );
 
-if (files.profileImage?.length > 0)
-        data.append("image", files.profileImage[0]);
+      // if (files.profileImage?.length > 0)
+      //         data.append("image", files.profileImage[0]);
 
-      // Aadhar (Front & Back)
-      if (files.idProof?.length > 0)
-        for (let file of files.idProof) data.append("aadharCard", file);
+      //       // Aadhar (Front & Back)
+      //       if (files.idProof?.length > 0)
+      //         for (let file of files.idProof) data.append("aadharCard", file);
 
-      // Driving Licence (Front & Back)
-      if (files.drivingLicence?.length > 0)
-        for (let file of files.drivingLicence)
-          data.append("drivingLicence", file);
-
-
+      //       // Driving Licence (Front & Back)
+      //       if (files.drivingLicence?.length > 0)
+      //         for (let file of files.drivingLicence)
+      //           data.append("drivingLicence", file);
 
       await post(`${API_BASE_URL}${ENDPOINTS.DRIVERSUBMIT}`, data, {
-  headers: { "Content-Type": "multipart/form-data" },
-});
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    Swal.fire({
-      icon: "success",
-      title: "Thank you!",
-      text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
-      confirmButtonColor: "#0aad0a"
-    });
-} catch (error) {
+      Swal.fire({
+        icon: "success",
+        title: "Thank you!",
+        text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
+        confirmButtonColor: "#0aad0a",
+      });
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Already Exists",
+          text: error.response.data.message, // ← backend message shown here
+        });
+      }
+
       console.error(error);
       Swal.fire({
         icon: "error",
@@ -104,7 +109,10 @@ if (files.profileImage?.length > 0)
   return (
     <div>
       {loaderStatus ? (
-        <div className="loader-container d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+        <div
+          className="loader-container d-flex justify-content-center align-items-center"
+          style={{ minHeight: "60vh" }}
+        >
           <MagnifyingGlass
             visible={true}
             height="100"
@@ -126,7 +134,8 @@ if (files.profileImage?.length > 0)
                   <div className="mb-8">
                     <h1 className="h3">Become a Delivery Partner</h1>
                     <p className="lead mb-0">
-                      Want to deliver with us? Fill out the form below, and our team will review your application.
+                      Want to deliver with us? Fill out the form below, and our
+                      team will review your application.
                     </p>
                   </div>
                   <form className="row" onSubmit={handleSubmit}>
@@ -189,7 +198,7 @@ if (files.profileImage?.length > 0)
                         required
                       />
                     </div>
-    
+
                     {/* Vehicle Type */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">Vehicle Type</label>
@@ -205,7 +214,8 @@ if (files.profileImage?.length > 0)
                     {/* Vehicle Reg No */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Vehicle Registration Number<span className="text-danger">*</span>
+                        Vehicle Registration Number
+                        <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -220,7 +230,8 @@ if (files.profileImage?.length > 0)
                     {/* Driving License Number */}
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
-                        Driving License Number<span className="text-danger">*</span>
+                        Driving License Number
+                        <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -231,7 +242,7 @@ if (files.profileImage?.length > 0)
                       />
                     </div>
 
-                    <div className="col-md-6 mb-3">
+                    {/* <div className="col-md-6 mb-3">
                     <label>Profile Image</label>
                     <input
                       type="file"
@@ -239,9 +250,9 @@ if (files.profileImage?.length > 0)
                       accept="image/*"
                       onChange={handleFileChange}
                     />
-                  </div>
+                  </div> */}
                     {/* Upload ID Proof */}
-                    <div className="col-md-12 mb-3">
+                    {/* <div className="col-md-12 mb-3">
                       <label className="form-label">
                         Upload ID Proof (Front and Back)<span className="text-danger">*</span>
                       </label>
@@ -261,9 +272,9 @@ if (files.profileImage?.length > 0)
                               .join(", ")}
                           </small>
                         )}
-                    </div>
-  {/* Upload Driving License */}
-                    <div className="col-md-6 mb-3">
+                    </div> */}
+                    {/* Upload Driving License */}
+                    {/* <div className="col-md-6 mb-3">
                       <label className="form-label">
                         Upload Driving License (Front and Back)<span className="text-danger">*</span>
                       </label>
@@ -283,10 +294,12 @@ if (files.profileImage?.length > 0)
                             .join(", ")}
                         </small>
                       )}
-                    </div>
+                    </div> */}
                     {/* Additional Comments */}
                     <div className="col-md-12 mb-3">
-                      <label className="form-label">Additional Information</label>
+                      <label className="form-label">
+                        Additional Information
+                      </label>
                       <textarea
                         rows={3}
                         className="form-control"

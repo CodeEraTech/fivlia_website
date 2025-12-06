@@ -253,7 +253,7 @@ const Header = () => {
                                 {page.pageTitle}
                               </Link>
                             </li>
-                            {index < activePages.length - 2 && (
+                            {index < activePages.length - 1 && (
                               <li className="list-inline-item">
                                 <span className="text-muted mx-2">|</span>
                               </li>

@@ -11,6 +11,7 @@ const Footer = () => {
   let year = date.getFullYear();
   const [pages, setPages] = useState([]);
   const { isLoggedIn } = useAuth();
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   useEffect(() => {
     get(ENDPOINTS.PAGES)
@@ -187,13 +188,14 @@ const Footer = () => {
 
             {/* For Consumers */}
             <div className="footer-section">
-              <div className="footer-title">For Consumers</div>
+              <div className="footer-title">Informations</div>
               <ul className="footer-link-list">
                 {pages.map((page) =>
                   page.pageTitle === "Privacy-Policy" ? null : (
                     <li key={page._id}>
                       <Link
                         to={`/${page.pageSlug}`}
+                        onClick={scrollTop}
                         className="text-decoration-none text-muted"
                       >
                         {page.pageTitle}
@@ -202,11 +204,6 @@ const Footer = () => {
                   )
                 )}
               </ul>
-                 <li>
-                  <Link className="text-decoration-none text-muted" to="/blog">
-                    Blog
-                  </Link>
-                </li>
             </div>
 
             {/* Useful Links */}
@@ -217,6 +214,7 @@ const Footer = () => {
                   <Link
                     className="text-decoration-none text-muted"
                     to="/become-a-seller"
+                    onClick={scrollTop}
                   >
                     Sell With Us
                   </Link>
@@ -225,6 +223,7 @@ const Footer = () => {
                   <Link
                     className="text-decoration-none text-muted"
                     to="/become-a-delivery-partner"
+                    onClick={scrollTop}
                   >
                     Deliver With Us
                   </Link>
@@ -236,6 +235,7 @@ const Footer = () => {
                       <Link
                         className="text-decoration-none text-muted"
                         to="/MyAccountOrder"
+                        onClick={scrollTop}
                       >
                         Track Orders
                       </Link>
@@ -244,6 +244,7 @@ const Footer = () => {
                       <Link
                         className="text-decoration-none text-muted"
                         to="/MyAccountOrder"
+                        onClick={scrollTop}
                       >
                         My Account
                       </Link>
@@ -278,6 +279,7 @@ const Footer = () => {
                   <Link
                     className="text-decoration-none text-muted"
                     to="/delete-account"
+                    onClick={scrollTop}
                   >
                     Delete Account
                   </Link>
@@ -285,8 +287,39 @@ const Footer = () => {
               </ul>
             </div>
 
+              <div className="footer-section">
+              <div className="footer-title">References</div>
+              <ul className="footer-link-list">
+                <li>
+                  <Link className="text-decoration-none text-muted" onClick={scrollTop} to="#">
+                    Bulk Orders
+                  </Link>
+                </li>
+                 <li>
+                  <Link className="text-decoration-none text-muted" to="/blog" onClick={scrollTop}>
+                    Our Blogs
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-decoration-none text-muted" to="#" onClick={scrollTop}>
+                    Franchise
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/charity" onClick={scrollTop}>
+                    Humanity
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-decoration-none text-muted" to="/downloads" onClick={scrollTop}>
+                    Download App
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
             {/* Download Apps */}
-            <div className="footer-section">
+            {/* <div className="footer-section">
               <div className="footer-title">Download App</div>
               <ul className="footer-link-list">
                 <li>
@@ -330,7 +363,7 @@ const Footer = () => {
                   </a>
                 </li>
               </ul>
-            </div>
+            </div> */}
 
             {/* Stay Connected */}
             <div className="footer-section">

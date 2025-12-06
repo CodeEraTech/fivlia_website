@@ -1,5 +1,5 @@
-export const API_BASE_URL = "https://api.fivlia.in";
-// export const API_BASE_URL = "http://localhost:8080";
+// export const API_BASE_URL = "https://api.fivlia.in";
+export const API_BASE_URL = "http://localhost:8080";
 // export const API_BASE_URL = "https://api.fivlia.co.in";
 
 // Get location from localStorage
@@ -36,6 +36,7 @@ export const ENDPOINTS = {
   CATEGORIES: "/getMainCategory",
   BRANDS: "/getBrand",
   BLOG: "/getBlog",
+  APPDOWNLOAD:"/getDownloadAppPages",
 
   // Location based endpoints
   BANNERS: `/website/forwebgetBanner?lat=${lat}&lng=${lng}`,
@@ -67,4 +68,6 @@ export const ENDPOINTS = {
   SUBMIT_RATING: "/rating",
   UPDATE_LOCATION: "/location",
   TRACK_MAP_USAGE: "/track-map-usage",
+  GET_CHARITY: "/getCharity",
+  GET_CHARITY_CONTENT: "/getCharityContent"
 };

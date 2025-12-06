@@ -8,6 +8,10 @@ import Contact from "./pages/careers/ContactUs.jsx";
 import Shop from "./pages/Shop/Shop";
 import Blog from "./pages/careers/Blog";
 import BlogDetail from "./pages/careers/BLogDetail.jsx";
+import HumanityDonation from "./pages/Others/HumanityDonation.jsx";
+import CharityList from "./pages/Others/Humanity.jsx";
+import CharityDetail from "./pages/Others/charityDetails.jsx";
+import DownloadApp from "./pages/Others/DownloadApp.jsx";
 import OrderCheckout from "./pages/OrderCheckout";
 import MyAccountOrder from "./pages/Accounts/MyAccountOrder";
 import MyAccountSetting from "./pages/Accounts/MyAcconutSetting";
@@ -45,6 +49,10 @@ const App = () => {
           <Route path="/OrderCheckout" element={<OrderCheckout />} />
           <Route path="/MyAccount" element={<MyAccountSetting />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/donation" element={<HumanityDonation />} />
+          <Route path="/charity" element={<CharityList />} />
+          <Route path="/charities/:slug" element={<CharityDetail />} />
+          <Route path="/downloads" element={<DownloadApp />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/brand" element={<BrandDetail />} />
