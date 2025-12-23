@@ -69,5 +69,6 @@ export const ENDPOINTS = {
   UPDATE_LOCATION: "/location",
   TRACK_MAP_USAGE: "/track-map-usage",
   GET_CHARITY: "/getCharity",
-  GET_CHARITY_CONTENT: "/getCharityContent"
+  GET_CHARITY_CONTENT: "/getCharityContent",
+  FRANCHISE_ENQUIRY: "/frenchise-enquiry"
 };

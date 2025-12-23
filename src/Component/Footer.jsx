@@ -301,7 +301,7 @@ const Footer = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link className="text-decoration-none text-muted" to="#" onClick={scrollTop}>
+                  <Link className="text-decoration-none text-muted" to="/franchise" onClick={scrollTop}>
                     Franchise
                   </Link>
                 </li>
