@@ -26,6 +26,7 @@ const FranchiseEnquiry = () => {
     "Punjab",
     "Madhya Pradesh",
     "Gujarat",
+    "Other"
   ];
 
   const handleChange = (e) => {
