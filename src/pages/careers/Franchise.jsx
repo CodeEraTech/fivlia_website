@@ -18,16 +18,47 @@ const FranchiseEnquiry = () => {
   });
 
   const states = [
-    "Delhi",
-    "Maharashtra",
-    "Uttar Pradesh",
-    "Haryana",
-    "Rajasthan",
-    "Punjab",
-    "Madhya Pradesh",
-    "Gujarat",
-    "Other"
-  ];
+  // States
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+
+  // Union Territories
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry"
+];
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -246,7 +277,7 @@ const FranchiseEnquiry = () => {
                   onChange={handleChange}
                 />
                 <label className="form-check-label">
-                  Invest with us for <strong>18% annual return</strong>
+                  Invest with us (<strong>Upto 18% returns annually</strong>)
                 </label>
               </div>
 
