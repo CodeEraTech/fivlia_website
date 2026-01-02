@@ -1,5 +1,5 @@
-export const API_BASE_URL = "https://api.fivlia.in";
-// export const API_BASE_URL = "http://localhost:8080";
+// export const API_BASE_URL = "https://api.fivlia.in";
+export const API_BASE_URL = "http://localhost:8080";
 // export const API_BASE_URL = "https://api.fivlia.co.in";
 
 // Get location from localStorage
@@ -62,7 +62,7 @@ export const ENDPOINTS = {
   GET_ORDERS: "/getOrderDetails",
   PAGES: "/getPage",
   SAVE_CONTACT_US: "/save-contact-us",
-  SELLER_PRODUCTS: "seller-products",
+  SELLER_PRODUCTS: "/seller-products",
   RECOMMANDED_PRODUCTS: "/recommedProduct",
   SIMILAR_PRODUCT: "/checkSimilarProduct",
   SUBMIT_RATING: "/rating",
@@ -70,5 +70,6 @@ export const ENDPOINTS = {
   TRACK_MAP_USAGE: "/track-map-usage",
   GET_CHARITY: "/getCharity",
   GET_CHARITY_CONTENT: "/getCharityContent",
-  FRANCHISE_ENQUIRY: "/frenchise-enquiry"
+  FRANCHISE_ENQUIRY: "/frenchise-enquiry",
+  GET_SELLER_COUPONS: "/seller/get-coupons"
 };

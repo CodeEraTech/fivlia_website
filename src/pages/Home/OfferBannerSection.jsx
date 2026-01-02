@@ -88,7 +88,10 @@ const OfferBannerSection = () => {
               <div className="col-12 col-lg-6 mb-3 fade-in-left" key={banner._id || idx}>
                 <Slide direction={idx % 2 === 0 ? "left" : "right"}>
                   <Link
-                    to={`/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ""}`}
+                    to={
+                      banner.type2 === "Store" 
+                      ? `/seller-products?id=${banner.storeId || ""}&offer=${banner._id}`
+                      : `/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ""}`}
                     style={{ textDecoration: "none" }}
                   >
                     <div style={{

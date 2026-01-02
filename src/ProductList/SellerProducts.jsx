@@ -61,7 +61,7 @@ const bannerCarouselSettings = {
 const SellerProducts = () => {
   const [searchParams] = useSearchParams();
   const sellerId = searchParams.get("id");
-
+  const offerId = searchParams.get("offer");
   const [seller, setSeller] = useState(null);
   const [allProducts, setAllProducts] = useState([]); // keep unfiltered list
   const [filteredProducts, setFilteredProducts] = useState([]); // filtered list
@@ -83,7 +83,9 @@ const SellerProducts = () => {
         setError(null);
 
         const response = await get(
-          `${ENDPOINTS.SELLER_PRODUCTS}?id=${sellerId}`
+          `${ENDPOINTS.SELLER_PRODUCTS}?id=${sellerId}${
+            offerId ? `&offer=${offerId}` : ""
+          }`
         );
 
         const sellerData = response?.data?.seller || {};
@@ -124,7 +126,7 @@ const SellerProducts = () => {
           storeId: sellerData?._id || null,
           slug: prod.slug,
         }));
-        
+
         setSeller(sellerData);
         setAllProducts(processedProducts);
         setFilteredProducts(processedProducts);
@@ -221,41 +223,69 @@ const SellerProducts = () => {
         }
         `}</style>
         {/* Image Slider Section */}
-        {(!seller?.advertisementImages?.length && defaultImg.length > 0) ||
-        seller?.advertisementImages?.length > 0 ? (
-          <div className="image-slider" style={{ position: "relative" }}>
+        {/* {(!seller?.advertisementImages?.length && defaultImg.length > 0) ||
+        seller?.advertisementImages?.length > 0 */}
+        {defaultImg.length > 0 ? (
+          <div
+            id="sellerCarousel"
+            className="carousel slide image-slider"
+            data-bs-ride="carousel"
+            data-bs-interval="4000"
+            style={{ position: "relative" }}
+          >
             <div className="carousel-inner">
-              {(seller?.advertisementImages?.length > 0
+              {/* {(seller?.advertisementImages?.length > 0
                 ? seller.advertisementImages
                 : defaultImg
-              ).map((image, index) => (
+              ) */}
+              {defaultImg.map((image, index) => (
                 <div
-                  className={`carousel-item${index === 0 ? " active" : ""}`}
+                  className={`carousel-item ${index === 0 ? "active" : ""}`}
                   key={index}
-                  style={{ position: "relative" }}
                 >
-                    <div
-                      style={{
-                        background: `url(${getImageUrl(
-                          image
-                        )}) no-repeat center center`,
-                        backgroundSize: "cover",
-                        borderRadius: ".5rem",
-                        minHeight: 500,
-                        width: "100%",
-                        transition: "min-height 0.3s",
-                        cursor: "pointer",
-                        position: "relative",
-                      }}
-                    >
-                      <div className="slider-overlay"></div>
-                      <div className="store-name-overlay">
-                        Products By {seller?.storeName}
-                      </div>
+                  <div
+                    style={{
+                      background: `url(${getImageUrl(
+                        image
+                      )}) no-repeat center center`,
+                      backgroundSize: "cover",
+                      borderRadius: ".5rem",
+                      minHeight: 500,
+                      width: "100%",
+                      position: "relative",
+                    }}
+                  >
+                    <div className="slider-overlay"></div>
+                    <div className="store-name-overlay">
+                      Products By {seller?.storeName}
                     </div>
+                  </div>
                 </div>
               ))}
             </div>
+
+            {/* OPTIONAL CONTROLS */}
+            {defaultImg.length > 1 && (
+              <>
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#sellerCarousel"
+                  data-bs-slide="prev"
+                >
+                  <span className="carousel-control-prev-icon" />
+                </button>
+
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#sellerCarousel"
+                  data-bs-slide="next"
+                >
+                  <span className="carousel-control-next-icon" />
+                </button>
+              </>
+            )}
           </div>
         ) : null}
 
@@ -297,20 +327,21 @@ const SellerProducts = () => {
           <div className="row">
             <div className="col-12 text-center">
               {/* <div className="alert alert-danger">{error}</div> */}
-              <div style={{display:"flex", justifyContent:"center"}}>
-                <Lottie 
-                  animationData={EmptyBox} 
-                  loop={true} 
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Lottie
+                  animationData={EmptyBox}
+                  loop={true}
                   style={{ width: 300, height: 300 }}
                 />
               </div>
-                <h2 className="text-xl font-semibold text-gray-800 mt-4">
-                  No products available
-                </h2>
-                <p className="text-gray-500 mt-2 max-w-md">
-                  It seems this seller hasn’t added any products yet or the store is currently offline.  
-                  Please check back later or explore other stores.
-                </p>
+              <h2 className="text-xl font-semibold text-gray-800 mt-4">
+                No products available
+              </h2>
+              <p className="text-gray-500 mt-2 max-w-md">
+                It seems this seller hasn’t added any products yet or the store
+                is currently offline. Please check back later or explore other
+                stores.
+              </p>
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
