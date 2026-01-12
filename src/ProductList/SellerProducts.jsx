@@ -6,7 +6,6 @@ import ProductItem from "./ProductItem";
 import ProductShimmer from "./ProductShimmer";
 import { useSearchParams } from "react-router-dom";
 import CategoryChips from "../utils/CategoryChips";
-import { Link } from "react-router-dom";
 import Lottie from "lottie-react";
 import EmptyBox from "../animations/empty_box.json";
 
@@ -61,7 +60,6 @@ const bannerCarouselSettings = {
 const SellerProducts = () => {
   const [searchParams] = useSearchParams();
   const sellerId = searchParams.get("id");
-  const offerId = searchParams.get("offer");
   const [seller, setSeller] = useState(null);
   const [allProducts, setAllProducts] = useState([]); // keep unfiltered list
   const [filteredProducts, setFilteredProducts] = useState([]); // filtered list
@@ -83,15 +81,14 @@ const SellerProducts = () => {
         setError(null);
 
         const response = await get(
-          `${ENDPOINTS.SELLER_PRODUCTS}?id=${sellerId}${
-            offerId ? `&offer=${offerId}` : ""
-          }`
+          `${ENDPOINTS.SELLER_PRODUCTS}?id=${sellerId}`
         );
 
         const sellerData = response?.data?.seller || {};
         const productList = response?.data?.products || [];
         const catList = response?.data?.categories || [];
         const defaultImg = response?.data?.sellerImage || [];
+        const offerData = response?.data?.offer || null;
         const advertisementImages = response?.data?.advertisementImages || [];
 
         const processedProducts = productList.map((prod) => ({
@@ -102,7 +99,8 @@ const SellerProducts = () => {
             prod.productImageUrl?.[0] || prod.productThumbnailUrl
           ),
           price: prod.variants?.[0]?.sell_price || prod.sell_price || 0,
-          mrp: prod.variants?.[0]?.mrp || prod.mrp || 0,
+          mrp:
+            prod.variants?.[0]?.original_price || prod.variants?.[0]?.mrp || 0,
           category: prod.category?.[0]?.name || "Category",
           category_id: prod.category?.[0]?._id || "",
           subCategory_id: prod.subCategory?.[0]?._id || "",
@@ -113,7 +111,10 @@ const SellerProducts = () => {
           tax: prod.tax || 0,
           rating: prod.rating?.rate || 0,
           review_count: prod.rating?.users || 0,
-          discount_percentage: prod.variants?.[0]?.discountValue || 0,
+          discount_percentage: offerData
+            ? Number(offerData)
+            : prod.variants?.[0]?.discountValue || 0,
+
           is_hot: prod.feature_product || false,
           is_new: prod.ribbon?.toLowerCase() === "new",
           sku: prod.sku,

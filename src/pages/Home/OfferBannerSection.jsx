@@ -90,7 +90,7 @@ const OfferBannerSection = () => {
                   <Link
                     to={
                       banner.type2 === "Store" 
-                      ? `/seller-products?id=${banner.storeId || ""}&offer=${banner._id}`
+                      ? `/seller-products?id=${banner.storeId || ""}`
                       : `/Shop?category=${banner.mainCategory?._id || banner.mainCategory || ""}`}
                     style={{ textDecoration: "none" }}
                   >
