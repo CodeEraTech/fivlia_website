@@ -15,7 +15,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
 import { useNavigate } from "react-router-dom";
-import { Switch, FormControlLabel } from "@mui/material";
+// import { Switch, FormControlLabel } from "@mui/material";
 const { BaseLayer } = LayersControl;
 import Lottie from "lottie-react";
 import MobileOTP from "../../animations/mobile_otp.json";
@@ -53,6 +53,7 @@ const BecomeASeller = () => {
     additionalInfo: "",
     sellFood: false,
     fullAddress: "",
+    businessType: "",
     fsiNumber: "",
     city: "",
     zone: "",
@@ -120,7 +121,7 @@ const BecomeASeller = () => {
       Swal.fire(
         "Error",
         error.response?.data?.message || "OTP verification failed",
-        "error"
+        "error",
       );
     } finally {
       setVerifying(false);
@@ -133,7 +134,7 @@ const BecomeASeller = () => {
       return Swal.fire("Error", "Enter GST Number", "error");
     try {
       const res = await get(
-        `${API_BASE_URL}${ENDPOINTS.GSTDETAIL}?gst=${formData.gstNumber}`
+        `${API_BASE_URL}${ENDPOINTS.GSTDETAIL}?gst=${formData.gstNumber}`,
       );
       if (res.data.success) {
         const gst = res.data.gstDetails;
@@ -191,7 +192,7 @@ const BecomeASeller = () => {
 
     const currentCity = city.find((c) => c.city === formData.city);
     const selectedZone = currentCity?.zones.find(
-      (z) => z._id === selectedZoneId
+      (z) => z._id === selectedZoneId,
     );
     if (selectedZone) {
       const newCenter = {
@@ -215,7 +216,7 @@ const BecomeASeller = () => {
         const clickedLat = e.latlng.lat;
         const clickedLon = e.latlng.lng;
         const distance = L.latLng(zoneCenter.lat, zoneCenter.lng).distanceTo(
-          L.latLng(clickedLat, clickedLon)
+          L.latLng(clickedLat, clickedLon),
         );
 
         if (distance > zoneRadius) {
@@ -258,21 +259,21 @@ const BecomeASeller = () => {
       return Swal.fire(
         "Error",
         "Please select a zone before submitting.",
-        "error"
+        "error",
       );
     }
 
     // find selected zone object from city data
     const currentCity = city.find((c) => c.city === formData.city);
     const selectedZone = currentCity?.zones?.find(
-      (z) => z._id === selectedZoneId
+      (z) => z._id === selectedZoneId,
     );
 
     if (!selectedZone) {
       return Swal.fire(
         "Error",
         "Selected zone not found. Please re-select the zone.",
-        "error"
+        "error",
       );
     }
 
@@ -289,13 +290,13 @@ const BecomeASeller = () => {
       return Swal.fire(
         "Error",
         "Please set a valid location on the map before submitting.",
-        "error"
+        "error",
       );
     }
 
     // compute distance in meters using Leaflet
     const distanceMeters = L.latLng(zoneLat, zoneLng).distanceTo(
-      L.latLng(submitLat, submitLng)
+      L.latLng(submitLat, submitLng),
     );
 
     const MAX_DISTANCE_METERS = Number(selectedZone.range);
@@ -351,7 +352,7 @@ const BecomeASeller = () => {
       Swal.fire(
         "Error",
         error.response?.data?.message || "Submission failed",
-        "error"
+        "error",
       );
     }
   };
@@ -389,7 +390,7 @@ const BecomeASeller = () => {
       Swal.fire(
         "Error",
         "Geolocation is not supported by your browser.",
-        "error"
+        "error",
       );
       return;
     }
@@ -405,14 +406,14 @@ const BecomeASeller = () => {
         const { latitude: lat, longitude: lng } = pos.coords;
 
         const distance = L.latLng(zoneCenter.lat, zoneCenter.lng).distanceTo(
-          L.latLng(lat, lng)
+          L.latLng(lat, lng),
         );
 
         if (zoneRadius && distance > zoneRadius) {
           Swal.fire(
             "Out of Zone",
             "Your current location is outside the selected zone area.",
-            "warning"
+            "warning",
           );
         } else {
           //Swal.fire("Success", "Location detected successfully!", "success");
@@ -429,7 +430,7 @@ const BecomeASeller = () => {
       },
       () => {
         Swal.fire("Error", "Failed to get your location.", "error");
-      }
+      },
     );
   };
 
@@ -500,44 +501,63 @@ const BecomeASeller = () => {
                     />
                   </div>
                   {/* GST */}
-                  {/* Material-UI Switch */}
                   <div className="col-md-6 mb-3">
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={formData.sellFood}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              sellFood: e.target.checked,
-                            }))
-                          }
-                          sx={{
-                            "& .MuiSwitch-switchBase.Mui-checked": {
-                              color: "green", // the circle color when checked
-                            },
-                            "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                              {
-                                backgroundColor: "green", // the track color when checked
-                              },
-                          }}
-                        />
+                    <label className="form-label">
+                      Business Registration Type
+                      <span className="text-danger">*</span>
+                    </label>
+
+                    <select
+                      className="form-control"
+                      value={formData.businessType}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          businessType: e.target.value,
+                          gstNumber: "",
+                          fsiNumber: "",
+                        }))
                       }
-                      label="Do You Sell Food?"
-                      className="form-label"
-                      sx={{
-                        marginTop: "30px",
-                      }}
-                    />
+                      required
+                    >
+                      <option value="">Select Registration Type</option>
+
+                      <option value="FSSAI">
+                        Food Business (FSSAI Licensed)
+                      </option>
+
+                      <option value="GST">
+                        Business With GST Registration
+                      </option>
+
+                      <option value="NON_GST">
+                        Business Without GST Registration
+                      </option>
+                    </select>
                   </div>
 
                   {/* Conditionally show GST or FSI */}
-                  {!formData.sellFood ? (
-                    // If selling food, ask GST
+                  {formData.businessType === "food" && (
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        FSSAI License No.<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="fsiNumber"
+                        value={formData.fsiNumber}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  )}
+                  {formData.businessType === "gst" && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         GST Number<span className="text-danger">*</span>
                       </label>
+
                       <div className="d-flex">
                         <input
                           type="text"
@@ -547,6 +567,7 @@ const BecomeASeller = () => {
                           onChange={handleChange}
                           required
                         />
+
                         <button
                           type="button"
                           className="btn btn-secondary ms-2"
@@ -555,21 +576,6 @@ const BecomeASeller = () => {
                           Verify
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    // If not selling food, ask FSI Number
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        FSSAI License No.<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="fsiNumber"
-                        value={formData.fsiNumber || ""}
-                        onChange={handleChange}
-                        required
-                      />
                     </div>
                   )}
 
