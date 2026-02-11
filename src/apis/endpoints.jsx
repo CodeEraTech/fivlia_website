@@ -57,6 +57,7 @@ export const ENDPOINTS = {
   REMOVE_CART: "/removeCart",
   GET_ADDRESS: "/getAddress",
   ADD_ADDRESS: "/address",
+  SET_DEFAULT_ADDRESS: "/setDefault",
   GET_DELIVERY_ESTIMATE: "/getDeliveryEstimateForWebsite",
   PLACE_ORDER: "/placeOrder",
   VERIFY_PAYMENT: "/verifyPayment",

@@ -29,6 +29,9 @@ export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
   const [storeId, setStoreId] = useState(null);
   const [paymentOption, setPaymentOption] = useState(false);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+  const [deliveryDistanceKm, setDeliveryDistanceKm] = useState(0);
+  const [billableKm, setBillableKm] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -49,6 +52,11 @@ export const CartProvider = ({ children }) => {
       //console.log('CartContext: User not authenticated, clearing cart');
       setCartItems([]);
       setCartCount(0);
+      setStoreId(null);
+      setPaymentOption(false);
+      setDeliveryCharge(0);
+      setDeliveryDistanceKm(0);
+      setBillableKm(0);
       return;
     }
 
@@ -65,16 +73,29 @@ export const CartProvider = ({ children }) => {
         setCartCount(response.data.items.length);
         setStoreId(response.data.StoreID);
         setPaymentOption(response.data.paymentOption);
+        setDeliveryCharge(Number(response.data.deliveryCharge) || 0);
+        setDeliveryDistanceKm(Number(response.data.deliveryDistanceKm) || 0);
+        setBillableKm(Number(response.data.billableKm) || 0);
       } else {
         //console.log('CartContext: No items in response, clearing cart');
         setCartItems([]);
         setCartCount(0);
+        setStoreId(null);
+        setPaymentOption(false);
+        setDeliveryCharge(0);
+        setDeliveryDistanceKm(0);
+        setBillableKm(0);
       }
     } catch (error) {
       //console.error('CartContext: Failed to fetch cart:', error);
       setError(error.message);
       setCartItems([]);
       setCartCount(0);
+      setStoreId(null);
+      setPaymentOption(false);
+      setDeliveryCharge(0);
+      setDeliveryDistanceKm(0);
+      setBillableKm(0);
     } finally {
       setLoading(false);
     }
@@ -324,6 +345,9 @@ export const CartProvider = ({ children }) => {
         removingItems,
         storeId,
         paymentOption,
+        deliveryCharge,
+        deliveryDistanceKm,
+        billableKm,
       }}
     >
       {children}
