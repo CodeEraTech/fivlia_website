@@ -537,7 +537,7 @@ const BecomeASeller = () => {
                   </div>
 
                   {/* Conditionally show GST or FSI */}
-                  {formData.businessType === "food" && (
+                  {formData.businessType === "FSSAI" && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         FSSAI License No.<span className="text-danger">*</span>
@@ -552,7 +552,7 @@ const BecomeASeller = () => {
                       />
                     </div>
                   )}
-                  {formData.businessType === "gst" && (
+                  {formData.businessType === "GST" && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         GST Number<span className="text-danger">*</span>
