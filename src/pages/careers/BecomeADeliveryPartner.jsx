@@ -90,23 +90,33 @@ const BecomeADeliveryPartner = () => {
       //         for (let file of files.drivingLicence)
       //           data.append("drivingLicence", file);
 
-      await post(`${API_BASE_URL}${ENDPOINTS.DRIVERSUBMIT}`, data, {
+      const response = await post(`${API_BASE_URL}${ENDPOINTS.DRIVERSUBMIT}`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      Swal.fire({
-        icon: "success",
-        title: "Thank you!",
-        text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
-        confirmButtonColor: "#0aad0a",
-      });
-      setFormData(initialFormState); // 👈 clears all fields
+      if (response.status === 200 || response.status === 201) {
+        Swal.fire({
+          icon: "success",
+          title: "Thank you!",
+          text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
+          confirmButtonColor: "#0aad0a",
+        });
+        setFormData(initialFormState);
+        return;
+      }
+      if (response.status === 202) {
+        Swal.fire({
+          icon: "info",
+          title: "Under Review",
+          text: response.data.message,
+        });
+        return;
+      }
     } catch (error) {
       if (error.response && error.response.status === 409) {
         return Swal.fire({
           icon: "warning",
           title: "Already Exists",
-          text: error.response.data.message, // ← backend message shown here
+          text: error.response.data.message,
         });
       }
 
