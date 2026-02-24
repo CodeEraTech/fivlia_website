@@ -6,6 +6,17 @@ import { API_BASE_URL, ENDPOINTS } from "../../apis/endpoints";
 import { post } from "../../apis/apiClient.jsx";
 const BecomeADeliveryPartner = () => {
   const [loaderStatus, setLoaderStatus] = useState(true);
+  const initialFormState = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    vehicleType: "",
+    regNumber: "",
+    licenseNumber: "",
+    additionalInfo: "",
+  };
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -56,14 +67,15 @@ const BecomeADeliveryPartner = () => {
       data.append("driverName", `${formData.firstName} ${formData.lastName}`);
       data.append("email", formData.email);
       data.append("approveStatus", "pending_admin_approval");
+      data.append("drivingLicenseNumber", formData.licenseNumber);
+      data.append("vehicleRegistrationNumber", formData.regNumber);
       // example
       data.append(
         "address",
         JSON.stringify({
           mobileNo: formData.phone,
           vehicleType: formData.vehicleType,
-          regNumber: formData.regNumber,
-        })
+        }),
       );
 
       // if (files.profileImage?.length > 0)
@@ -88,6 +100,7 @@ const BecomeADeliveryPartner = () => {
         text: "Your delivery partner application has been submitted. Our team will contact you shortly.",
         confirmButtonColor: "#0aad0a",
       });
+      setFormData(initialFormState); // 👈 clears all fields
     } catch (error) {
       if (error.response && error.response.status === 409) {
         return Swal.fire({
@@ -147,6 +160,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="text"
                         name="firstName"
+                        value={formData.firstName}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Enter Your First Name"
@@ -162,6 +176,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="text"
                         name="lastName"
+                        value={formData.lastName}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Enter Your Last Name"
@@ -177,6 +192,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="email"
                         name="email"
+                        value={formData.email}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Your Email"
@@ -192,6 +208,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="tel"
                         name="phone"
+                        value={formData.phone}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Your Phone Number"
@@ -205,6 +222,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="text"
                         name="vehicleType"
+                        value={formData.vehicleType}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Bike, Scooter, Car, Van, etc."
@@ -220,6 +238,7 @@ const BecomeADeliveryPartner = () => {
                       <input
                         type="text"
                         name="regNumber"
+                        value={formData.regNumber}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="e.g., DL01AB1234"
@@ -235,6 +254,8 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <input
                         type="text"
+                        name="licenseNumber"
+                        value={formData.licenseNumber}
                         className="form-control"
                         onChange={handleChange}
                         placeholder="Enter DL Number"
@@ -302,7 +323,10 @@ const BecomeADeliveryPartner = () => {
                       </label>
                       <textarea
                         rows={3}
+                        name="additionalInfo"
+                        value={formData.additionalInfo}
                         className="form-control"
+                        onChange={handleChange}
                         placeholder="Any additional comments or availability notes"
                       />
                     </div>
