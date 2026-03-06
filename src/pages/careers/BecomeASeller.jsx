@@ -48,6 +48,7 @@ const BecomeASeller = () => {
     lastName: "",
     storeName: "",
     // email: "",
+    enrollmentId: "",
     PhoneNumber: "",
     gstNumber: "",
     additionalInfo: "",
@@ -516,6 +517,7 @@ const BecomeASeller = () => {
                           businessType: e.target.value,
                           gstNumber: "",
                           fsiNumber: "",
+                          enrollmentId: "",
                         }))
                       }
                       required
@@ -547,6 +549,22 @@ const BecomeASeller = () => {
                         className="form-control"
                         name="fsiNumber"
                         value={formData.fsiNumber}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  )}
+                  {(formData.businessType === "FSSAI" || formData.businessType === "NON_GST") && (
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Enrollment ID
+                        <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="enrollmentId"
+                        className="form-control"
+                        value={formData.enrollmentId}
                         onChange={handleChange}
                         required
                       />
@@ -613,7 +631,6 @@ const BecomeASeller = () => {
                                           required
                                         />
                                       </div> */}
-
                   {/* Email */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
