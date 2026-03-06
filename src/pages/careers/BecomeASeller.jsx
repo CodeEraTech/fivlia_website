@@ -436,6 +436,70 @@ const BecomeASeller = () => {
     );
   };
 
+  const isFoodBusiness = formData.businessType === "FSSAI";
+  const isWithGst =
+    formData.businessType === "GST" ||
+    (formData.businessType === "FSSAI" &&
+      formData.fssaiRegistrationType !== "ENROLLMENT");
+
+  const handleSellFoodSelection = (value) => {
+    const doesSellFood = value === "YES";
+    setFormData((prev) => {
+      const next = { ...prev, sellFood: doesSellFood };
+
+      if (doesSellFood) {
+        const withGst =
+          prev.businessType === "GST" ||
+          (prev.businessType === "FSSAI" &&
+            prev.fssaiRegistrationType !== "ENROLLMENT");
+        next.businessType = "FSSAI";
+        next.fssaiRegistrationType = withGst ? "GST" : "ENROLLMENT";
+        if (withGst) {
+          next.enrollmentId = "";
+        } else {
+          next.gstNumber = "";
+        }
+      } else {
+        const withGst =
+          prev.businessType === "GST" ||
+          (prev.businessType === "FSSAI" &&
+            prev.fssaiRegistrationType !== "ENROLLMENT");
+        next.businessType = withGst ? "GST" : "NON_GST";
+        next.fsiNumber = "";
+        next.fssaiRegistrationType = "";
+        if (withGst) {
+          next.enrollmentId = "";
+        } else {
+          next.gstNumber = "";
+        }
+      }
+
+      return next;
+    });
+  };
+
+  const handleGstSelection = (value) => {
+    const withGst = value === "GST";
+    setFormData((prev) => {
+      const next = { ...prev };
+      if (prev.businessType === "FSSAI") {
+        next.businessType = "FSSAI";
+        next.fssaiRegistrationType = withGst ? "GST" : "ENROLLMENT";
+        next.sellFood = true;
+      } else {
+        next.businessType = withGst ? "GST" : "NON_GST";
+        next.fssaiRegistrationType = "";
+        next.sellFood = false;
+      }
+      if (withGst) {
+        next.enrollmentId = "";
+      } else {
+        next.gstNumber = "";
+      }
+      return next;
+    });
+  };
+
   return (
     <div>
       <>
@@ -483,126 +547,7 @@ const BecomeASeller = () => {
                     />
                   </div>
 
-                  {/* Aadhar Upload */}
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Aadhar Card<span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      multiple
-                      accept="image/*"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          aadharCard: Array.from(e.target.files),
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  {/* GST */}
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label">
-                      Business Registration Type
-                      <span className="text-danger">*</span>
-                    </label>
-
-                    <select
-                      className="form-control"
-                      value={formData.businessType}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          businessType: e.target.value,
-                          gstNumber: "",
-                          fsiNumber: "",
-                          enrollmentId: "",
-                          fssaiRegistrationType: "",
-                        }))
-                      }
-                      required
-                    >
-                      <option value="">Select Registration Type</option>
-
-                      <option value="FSSAI">
-                        Food Business (FSSAI Licensed)
-                      </option>
-
-                      <option value="GST">
-                        Business With GST Registration
-                      </option>
-
-                      <option value="NON_GST">
-                        Business Without GST Registration
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* Conditionally show GST or FSI */}
-                  {formData.businessType === "FSSAI" && (
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        FSSAI License No.<span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="fsiNumber"
-                        value={formData.fsiNumber}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  )}
-                  {formData.businessType === "FSSAI" && (
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        FSSAI Registration Type
-                        <span className="text-danger">*</span>
-                      </label>
-
-                      <select
-                        className="form-control"
-                        value={formData.fssaiRegistrationType}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            fssaiRegistrationType: e.target.value,
-                            gstNumber: "",
-                            enrollmentId: "",
-                          }))
-                        }
-                        required
-                      >
-                        <option value="">Select Type</option>
-                        <option value="GST">With GST</option>
-                        <option value="ENROLLMENT">With Enrollment ID</option>
-                      </select>
-                    </div>
-                  )}
-                  {(formData.businessType === "NON_GST" ||
-                    (formData.businessType === "FSSAI" &&
-                      formData.fssaiRegistrationType === "ENROLLMENT")) && (
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">
-                        Enrollment ID
-                        <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="enrollmentId"
-                        className="form-control"
-                        value={formData.enrollmentId}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  )}
-                  {(formData.businessType === "GST" ||
-                    (formData.businessType === "FSSAI" &&
-                      formData.fssaiRegistrationType === "GST")) && (
+                  {isWithGst && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         GST Number<span className="text-danger">*</span>
@@ -628,6 +573,136 @@ const BecomeASeller = () => {
                       </div>
                     </div>
                   )}
+
+                  {!isWithGst && (
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        Enrollment ID
+                        <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="enrollmentId"
+                        className="form-control"
+                        value={formData.enrollmentId}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* GST selection */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Registration Type<span className="text-danger">*</span>
+                    </label>
+                    <div className="d-flex gap-4 mt-2">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="gstOption"
+                          id="gstYes"
+                          checked={isWithGst}
+                          onChange={() => handleGstSelection("GST")}
+                        />
+                        <label className="form-check-label" htmlFor="gstYes">
+                          With GST
+                        </label>
+                      </div>
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="gstOption"
+                          id="gstNo"
+                          checked={!isWithGst}
+                          onChange={() => handleGstSelection("NO_GST")}
+                        />
+                        <label className="form-check-label" htmlFor="gstNo">
+                          No GST
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+           {/* Food selling selection */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Do you sell food?<span className="text-danger">*</span>
+                    </label>
+                    <div className="d-flex gap-4 mt-2">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="sellFoodOption"
+                          id="sellFoodYes"
+                          checked={isFoodBusiness}
+                          onChange={() => handleSellFoodSelection("YES")}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="sellFoodYes"
+                        >
+                          Yes
+                        </label>
+                      </div>
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="radio"
+                          name="sellFoodOption"
+                          id="sellFoodNo"
+                          checked={!isFoodBusiness}
+                          onChange={() => handleSellFoodSelection("NO")}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="sellFoodNo"
+                        >
+                          No
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Conditionally show FSSAI / GST / Enrollment */}
+                  {isFoodBusiness && (
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        FSSAI License No.<span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="fsiNumber"
+                        value={formData.fsiNumber}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {/* Aadhar Upload */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Aadhar Card<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          aadharCard: Array.from(e.target.files),
+                        }))
+                      }
+                      required
+                    />
+                  </div>
 
                   {/* Store Name */}
                   <div className="col-md-6 mb-3">
