@@ -48,13 +48,14 @@ const BecomeASeller = () => {
     lastName: "",
     storeName: "",
     // email: "",
+    fssaiRegistrationType: "", // NEW
     enrollmentId: "",
     PhoneNumber: "",
     gstNumber: "",
     additionalInfo: "",
     sellFood: false,
     fullAddress: "",
-    businessType: "",
+    businessType: "GST", // default to GST
     fsiNumber: "",
     city: "",
     zone: "",
@@ -518,6 +519,7 @@ const BecomeASeller = () => {
                           gstNumber: "",
                           fsiNumber: "",
                           enrollmentId: "",
+                          fssaiRegistrationType: "",
                         }))
                       }
                       required
@@ -554,7 +556,35 @@ const BecomeASeller = () => {
                       />
                     </div>
                   )}
-                  {(formData.businessType === "FSSAI" || formData.businessType === "NON_GST") && (
+                  {formData.businessType === "FSSAI" && (
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">
+                        FSSAI Registration Type
+                        <span className="text-danger">*</span>
+                      </label>
+
+                      <select
+                        className="form-control"
+                        value={formData.fssaiRegistrationType}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            fssaiRegistrationType: e.target.value,
+                            gstNumber: "",
+                            enrollmentId: "",
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">Select Type</option>
+                        <option value="GST">With GST</option>
+                        <option value="ENROLLMENT">With Enrollment ID</option>
+                      </select>
+                    </div>
+                  )}
+                  {(formData.businessType === "NON_GST" ||
+                    (formData.businessType === "FSSAI" &&
+                      formData.fssaiRegistrationType === "ENROLLMENT")) && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         Enrollment ID
@@ -570,7 +600,9 @@ const BecomeASeller = () => {
                       />
                     </div>
                   )}
-                  {formData.businessType === "GST" && (
+                  {(formData.businessType === "GST" ||
+                    (formData.businessType === "FSSAI" &&
+                      formData.fssaiRegistrationType === "GST")) && (
                     <div className="col-md-6 mb-3">
                       <label className="form-label">
                         GST Number<span className="text-danger">*</span>
