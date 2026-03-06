@@ -620,7 +620,7 @@ const BecomeASeller = () => {
                           onChange={() => handleGstSelection("NO_GST")}
                         />
                         <label className="form-check-label" htmlFor="gstNo">
-                          No GST
+                          With Enrollment Id
                         </label>
                       </div>
                     </div>
