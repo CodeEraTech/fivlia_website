@@ -62,6 +62,8 @@ const BecomeASeller = () => {
     aadharCard: [],
     panCard: [],
     referralCode: "",
+    filter: "snack",
+    isVeg: "mix",
   });
 
   const [city, setCity] = useState([]);
@@ -626,7 +628,7 @@ const BecomeASeller = () => {
                     </div>
                   </div>
 
-           {/* Food selling selection */}
+                  {/* Food selling selection */}
                   <div className="col-md-6 mb-3">
                     <label className="form-label">
                       Do you sell food?<span className="text-danger">*</span>
@@ -664,6 +666,167 @@ const BecomeASeller = () => {
                           No
                         </label>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* ─── Store type ─── */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Store type<span className="text-danger">*</span>
+                    </label>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#6b7280",
+                        marginBottom: "10px",
+                        marginTop: "2px",
+                      }}
+                    >
+                      Select the category that best describes your store
+                    </p>
+                    <div
+                      style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
+                    >
+                      {[
+                        { value: "snack", label: "Snacks & fast food" },
+                        { value: "healthy", label: "Healthy food" },
+                        { value: "gym", label: "Gym Diet" },
+                      ].map(({ value, label }) => (
+                        <label
+                          key={value}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            padding: "6px 14px",
+                            borderRadius: "8px",
+                            fontSize: "13.5px",
+                            cursor: "pointer",
+                            userSelect: "none",
+                            border:
+                              formData.filter === value
+                                ? "1px solid #b59054"
+                                : "1px solid #d1d5db",
+                            background:
+                              formData.filter === value ? "#faf4eb" : "#ffffff",
+                            color:
+                              formData.filter === value ? "#7a5c2e" : "#6b7280",
+                            fontWeight:
+                              formData.filter === value ? "500" : "400",
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name="filter"
+                            value={value}
+                            checked={formData.filter === value}
+                            onChange={handleChange}
+                            style={{ display: "none" }}
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ─── Menu type ─── */}
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">
+                      Menu type<span className="text-danger">*</span>
+                    </label>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#6b7280",
+                        marginBottom: "10px",
+                        marginTop: "2px",
+                      }}
+                    >
+                      Select what kind of food your store serves
+                    </p>
+                    <div
+                      style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
+                    >
+                      {[
+                        {
+                          value: "veg",
+                          label: "Pure veg",
+                          dot: "#4c9a52",
+                          activeBorder: "#4c9a52",
+                          activeBg: "#f0f7f0",
+                          activeColor: "#2d6b32",
+                        },
+                        {
+                          value: "non-veg",
+                          label: "Non veg",
+                          dot: "#c0392b",
+                          activeBorder: "#b05555",
+                          activeBg: "#fdf2f2",
+                          activeColor: "#7a2e2e",
+                        },
+                        {
+                          value: "mix",
+                          label: "Veg & non veg",
+                          dot: "#6b7280",
+                          activeBorder: "#6b7280",
+                          activeBg: "#f4f4f5",
+                          activeColor: "#374151",
+                        },
+                      ].map(
+                        ({
+                          value,
+                          label,
+                          dot,
+                          activeBorder,
+                          activeBg,
+                          activeColor,
+                        }) => (
+                          <label
+                            key={value}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "7px",
+                              padding: "6px 14px",
+                              borderRadius: "8px",
+                              fontSize: "13.5px",
+                              cursor: "pointer",
+                              userSelect: "none",
+                              border:
+                                formData.isVeg === value
+                                  ? `1px solid ${activeBorder}`
+                                  : "1px solid #d1d5db",
+                              background:
+                                formData.isVeg === value ? activeBg : "#ffffff",
+                              color:
+                                formData.isVeg === value
+                                  ? activeColor
+                                  : "#6b7280",
+                              fontWeight:
+                                formData.isVeg === value ? "500" : "400",
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="isVeg"
+                              value={value}
+                              checked={formData.isVeg === value}
+                              onChange={handleChange}
+                              style={{ display: "none" }}
+                            />
+                            <span
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                borderRadius: "50%",
+                                background: dot,
+                                flexShrink: 0,
+                                display: "inline-block",
+                              }}
+                            />
+                            {label}
+                          </label>
+                        ),
+                      )}
                     </div>
                   </div>
 
