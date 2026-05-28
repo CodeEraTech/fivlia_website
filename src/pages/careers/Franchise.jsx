@@ -79,10 +79,19 @@ const FranchiseEnquiry = () => {
       return;
     }
 
-    if (!franchiseInvestment && !investWithUs) {
+    // if (!franchiseInvestment) {
+    //   Swal.fire(
+    //     "Selection Required",
+    //     "Please select investment option to continue.",
+    //     "warning"
+    //   );
+    //   return;
+    // }
+
+    if (!investWithUs) {
       Swal.fire(
         "Selection Required",
-        "Please select at least one investment option.",
+        "Please accept the Terms & Conditions and Privacy Policy.",
         "warning"
       );
       return;
@@ -254,7 +263,7 @@ const FranchiseEnquiry = () => {
               />
 
               {/* CHECKBOXES */}
-              <div className="form-check mb-2">
+              {/* <div className="form-check mb-2">
                 <input
                   className="form-check-input"
                   type="checkbox"
@@ -263,10 +272,10 @@ const FranchiseEnquiry = () => {
                   onChange={handleChange}
                 />
                 <label className="form-check-label">
-                  Investment approx ₹10 lacs per zone (depending on availbility
+                  Investment approx ₹10 lacs & more per zone (depending on availbility
                   and city)
                 </label>
-              </div>
+              </div> */}
 
               <div className="form-check mb-4">
                 <input
@@ -277,7 +286,7 @@ const FranchiseEnquiry = () => {
                   onChange={handleChange}
                 />
                 <label className="form-check-label">
-                  Invest with us (<strong>Upto 18% returns annually</strong>)
+                  I agree to Fivlia Term of Use and Privacy Policy and I acknowledge that I am above 18 years of age
                 </label>
               </div>
 
