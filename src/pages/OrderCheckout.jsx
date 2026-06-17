@@ -32,6 +32,8 @@ const OrderCheckout = () => {
   const {
     cartItems,
 
+    freeItems,
+
     getCartTotal,
 
     getOriginalCartTotal,
@@ -53,6 +55,8 @@ const OrderCheckout = () => {
     appliedCoupon,
 
     couponDiscount,
+
+    freeProductSavings,
 
     removeCoupon,
   } = useCart();
@@ -639,7 +643,7 @@ const OrderCheckout = () => {
 
                                 <span>
                                   <small className="text-muted">
-                                    ₹{item.price} / unit
+                                    ₹{Number(item.finalPrice ?? item.price).toFixed(2)} / unit
                                   </small>
                                 </span>
                               </div>
@@ -650,8 +654,51 @@ const OrderCheckout = () => {
 
                               <div className="col-3 text-lg-end text-start text-md-end col-md-3">
                                 <span className="fw-bold">
-                                  ₹{item.price * item.quantity}
+                                  ₹{(Number(item.finalPrice ?? item.price) * item.quantity).toFixed(2)}
                                 </span>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+
+                        {freeItems.map((item, index) => (
+                          <li
+                            key={`free-${item.productId}-${item.varientId}-${index}`}
+                            className="list-group-item px-4 py-3 free-checkout-item"
+                          >
+                            <div className="row align-items-center">
+                              <div className="col-2 col-md-2 position-relative">
+                                <img
+                                  src={getImageUrl(item.image)}
+                                  alt={item.name}
+                                  className="img-fluid"
+                                  onError={(e) => {
+                                    e.target.src = "/assets/img/no_image.jpg";
+                                  }}
+                                />
+                                <span className="badge bg-success free-checkout-badge">
+                                  FREE
+                                </span>
+                              </div>
+
+                              <div className="col-5 col-md-5">
+                                <h6 className="mb-0">{item.name}</h6>
+                                <small className="text-success d-block">
+                                  Added by offer
+                                </small>
+                              </div>
+
+                              <div className="col-2 col-md-2 text-center text-muted">
+                                <span>{item.quantity}</span>
+                              </div>
+
+                              <div className="col-3 text-lg-end text-start text-md-end col-md-3">
+                                <span className="fw-bold text-success">₹0.00</span>
+                                {Number(item.basePrice) > 0 && (
+                                  <small className="text-muted d-block text-decoration-line-through">
+                                    ₹{(Number(item.basePrice) * item.quantity).toFixed(2)}
+                                  </small>
+                                )}
                               </div>
                             </div>
                           </li>
@@ -683,7 +730,9 @@ const OrderCheckout = () => {
                                         Coupon Applied
                                       </small>
                                       <small className="text-muted">
-                                        You saved ₹{couponDiscount.toFixed(2)}
+                                        {freeItems.length > 0
+                                          ? `${freeItems.length} free item${freeItems.length > 1 ? "s" : ""} added`
+                                          : `You saved ₹${couponDiscount.toFixed(2)}`}
                                       </small>
                                     </div>
                                   </div>
@@ -722,6 +771,24 @@ const OrderCheckout = () => {
                                   - ₹{couponDiscount.toFixed(2)}
                                 </div>
                               </div>
+                              <hr className="my-2" />
+                            </>
+                          )}
+
+                          {freeItems.length > 0 && (
+                            <>
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <div className="text-success">Free Product</div>
+                                <div className="text-success">₹0.00</div>
+                              </div>
+                              {freeProductSavings > 0 && (
+                                <div className="d-flex align-items-center justify-content-between mb-2">
+                                  <div className="text-muted">Free Product Value</div>
+                                  <div className="text-muted">
+                                    ₹{freeProductSavings.toFixed(2)}
+                                  </div>
+                                </div>
+                              )}
                               <hr className="my-2" />
                             </>
                           )}
@@ -829,6 +896,17 @@ const OrderCheckout = () => {
 
             .coupon-check-icon {
               font-size: 1.2rem;
+            }
+
+            .free-checkout-item {
+              background: #f3fbf4;
+            }
+
+            .free-checkout-badge {
+              position: absolute;
+              top: -6px;
+              left: 4px;
+              font-size: 0.65rem;
             }
           `}</style>
         </>

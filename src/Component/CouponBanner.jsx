@@ -6,6 +6,25 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const isCouponActive = (coupon) => {
+    if (coupon.status === false) return false;
+    if (coupon.approvalStatus && coupon.approvalStatus !== "approved") {
+      return false;
+    }
+
+    const now = new Date();
+    const startsAt = coupon.fromTo ? new Date(coupon.fromTo) : null;
+    const expiresAt = coupon.expireDate ? new Date(coupon.expireDate) : null;
+
+    return (!startsAt || startsAt <= now) && (!expiresAt || expiresAt >= now);
+  };
+
+  const isCouponEligibleByTotal = (coupon) => {
+    if (coupon.discountScope === "selected_products") return true;
+    const minOrder = coupon.minimumOrderAmount || coupon.limit || 0;
+    return cartTotal >= minOrder;
+  };
+
   useEffect(() => {
     if (storeId) {
       fetchCoupons();
@@ -20,10 +39,7 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
       });
 
       if (response.data && response.data.coupons) {
-        // Filter active coupons
-        const activeCoupons = response.data.coupons.filter(
-          (coupon) => coupon.status === true
-        );
+        const activeCoupons = response.data.coupons.filter(isCouponActive);
         setCoupons(activeCoupons);
       }
     } catch (err) {
@@ -38,8 +54,7 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
 
     // Find the first coupon user can apply
     const eligibleCoupon = coupons.find((coupon) => {
-      const minOrder = coupon.minimumOrderAmount || coupon.limit || 0;
-      return cartTotal >= minOrder;
+      return isCouponEligibleByTotal(coupon);
     });
 
     if (eligibleCoupon) return eligibleCoupon;
@@ -58,14 +73,10 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
     const minOrder = coupon.minimumOrderAmount || coupon.limit || 0;
     const offerValue = parseFloat(coupon.offer) || 0;
 
-    if (cartTotal >= minOrder) {
+    if (isCouponEligibleByTotal(coupon)) {
       // Eligible
       if (coupon.offerType === "cart_discount") {
-        if (coupon.discountType === "percentage" || offerValue <= 100) {
-          return `${offerValue}% OFF available! Click to apply`;
-        } else {
-          return `₹${offerValue} OFF available! Click to apply`;
-        }
+        return `${offerValue}% OFF available! Click to apply`;
       } else {
         return `Free ${coupon.freeProductId?.productName || "Product"} available!`;
       }
@@ -74,9 +85,7 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
       const shortfall = minOrder - cartTotal;
       return `Add ₹${shortfall.toFixed(0)} more to get ${
         coupon.offerType === "cart_discount"
-          ? coupon.discountType === "percentage" || offerValue <= 100
-            ? `${offerValue}% OFF`
-            : `₹${offerValue} OFF`
+          ? `${offerValue}% OFF`
           : `Free ${coupon.freeProductId?.productName || "Product"}`
       }`;
     }
@@ -89,7 +98,7 @@ const CouponBanner = ({ storeId, cartTotal, onApplyCouponClick }) => {
   const bestCoupon = getBestCoupon();
   if (!bestCoupon) return null;
 
-  const isEligible = cartTotal >= (bestCoupon.minimumOrderAmount || bestCoupon.limit || 0);
+  const isEligible = isCouponEligibleByTotal(bestCoupon);
 
   return (
     <div

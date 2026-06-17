@@ -2,11 +2,11 @@ import { getApps, initializeApp } from "firebase/app";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 // export const DEFAULT_API_BASE_URL = "https://api.fivlia.in";
-// export const DEFAULT_API_BASE_URL = "https://api.fivlia.com";
+export const DEFAULT_API_BASE_URL = "https://api.fivlia.com";
 // export const DEFAULT_API_BASE_URL = "https://api.fivlia.in";
-export const DEFAULT_API_BASE_URL = "http://localhost:8080";
+// export const DEFAULT_API_BASE_URL = "http://localhost:8080";
 // export const DEFAULT_API_BASE_URL = "https://api.fivlia.co.in";
-export const USE_FIREBASE_API_URL = false; // Set to true to enable Firebase-based API URL fetching
+export const USE_FIREBASE_API_URL = true; // Set to true to enable Firebase-based API URL fetching
 
 const firebaseConfig = {
   apiKey: "AIzaSyCOtUDhG_Sk6ewi8CRBHYNJVwtWy-pWYh0",

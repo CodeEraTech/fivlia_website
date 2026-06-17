@@ -9,6 +9,7 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
   const [error, setError] = useState(null);
   const [applyingCoupon, setApplyingCoupon] = useState(null);
   const getImageUrl = useImageUrl();
+  const now = useMemo(() => new Date(), [isOpen]);
 
   // Calculate cart total (use original price if available)
   const cartTotal = useMemo(() => {
@@ -17,6 +18,29 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
       return total + price * item.quantity;
     }, 0);
   }, [cartItems]);
+
+  const cartProductIds = useMemo(() => {
+    return new Set(
+      cartItems
+        .map((item) => item.productId?._id || item.productId)
+        .filter(Boolean)
+        .map(String)
+    );
+  }, [cartItems]);
+
+  const visibleCoupons = useMemo(() => {
+    return coupons.filter((coupon) => {
+      if (coupon.status === false) return false;
+      if (coupon.approvalStatus && coupon.approvalStatus !== "approved") {
+        return false;
+      }
+
+      const startsAt = coupon.fromTo ? new Date(coupon.fromTo) : null;
+      const expiresAt = coupon.expireDate ? new Date(coupon.expireDate) : null;
+
+      return (!startsAt || startsAt <= now) && (!expiresAt || expiresAt >= now);
+    });
+  }, [coupons, now]);
 
   useEffect(() => {
     if (storeId && isOpen) {
@@ -47,8 +71,14 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
     const minOrder = coupon.minimumOrderAmount || coupon.limit || 0;
     
     // Check minimum order requirement
-    if (minOrder > 0 && cartTotal < minOrder) {
+    if (coupon.discountScope !== "selected_products" && minOrder > 0 && cartTotal < minOrder) {
       alert(`Minimum order of ₹${minOrder} required to apply this coupon. Add ₹${(minOrder - cartTotal).toFixed(2)} more to your cart.`);
+      return;
+    }
+
+    const eligibility = getCouponEligibility(coupon);
+    if (!eligibility.eligible) {
+      alert(eligibility.message);
       return;
     }
 
@@ -97,11 +127,7 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
   const getCouponDescription = (coupon) => {
     if (coupon.offerType === "cart_discount") {
       const offerValue = parseFloat(coupon.offer) || 0;
-      if (coupon.discountType === "percentage" || offerValue <= 100) {
-        return `Get ${offerValue}% off`;
-      } else {
-        return `Get ₹${offerValue} off`;
-      }
+      return `Get ${offerValue}% off`;
     } else if (coupon.offerType === "free_product") {
       return `Get ${coupon.freeProductId?.productName || "Free Product"} free`;
     }
@@ -110,6 +136,40 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
 
   const getCouponEligibility = (coupon) => {
     const minOrder = coupon.minimumOrderAmount || coupon.limit || 0;
+    const offerProductIds = Array.isArray(coupon.productId)
+      ? coupon.productId.map((product) => product?._id || product).filter(Boolean)
+      : [];
+    const isSelectedProductsCoupon =
+      coupon.offerType === "cart_discount" &&
+      coupon.discountScope === "selected_products";
+
+    if (isSelectedProductsCoupon) {
+      if (offerProductIds.length === 0) {
+        return {
+          eligible: false,
+          message: "This offer is not linked to any product",
+          type: "warning"
+        };
+      }
+
+      const hasEligibleProduct = offerProductIds.some((productId) =>
+        cartProductIds.has(String(productId))
+      );
+
+      if (!hasEligibleProduct) {
+        return {
+          eligible: false,
+          message: "Eligible products are not in your cart",
+          type: "warning"
+        };
+      }
+
+      return {
+        eligible: true,
+        message: "Eligible product in cart",
+        type: "success"
+      };
+    }
     
     if (minOrder > 0) {
       if (cartTotal >= minOrder) {
@@ -170,7 +230,7 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
           </div>
           <div className="modal-body p-3">
             {/* Current Cart Total Info */}
-            <div className="cart-info-banner mb-3">
+              <div className="coupon-modal-cart-summary mb-3">
               <div className="d-flex align-items-center justify-content-between">
                 <span className="text-muted small">Your cart total:</span>
                 <span className="fw-bold text-success">₹{cartTotal.toFixed(2)}</span>
@@ -188,27 +248,27 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
               <div className="alert alert-danger" role="alert">
                 {error}
               </div>
-            ) : coupons.length === 0 ? (
+            ) : visibleCoupons.length === 0 ? (
               <div className="text-center py-5">
                 <i className="fa fa-ticket fa-3x text-muted mb-3"></i>
                 <p className="text-muted">No coupons available at the moment</p>
               </div>
             ) : (
-              <div className="coupon-list">
-                {coupons.map((coupon) => {
-                  const isApplied = appliedCouponId === coupon._id;
+              <div className="coupon-modal-list">
+                {visibleCoupons.map((coupon) => {
+                  const isApplied = String(appliedCouponId) === String(coupon._id);
                   const isApplying = applyingCoupon === coupon._id;
                   const eligibility = getCouponEligibility(coupon);
 
                   return (
                     <div
                       key={coupon._id}
-                      className={`coupon-card mb-3 ${isApplied ? "applied" : ""} ${!eligibility.eligible ? "locked" : ""}`}
+                      className={`coupon-modal-card mb-3 ${isApplied ? "applied" : ""} ${!eligibility.eligible ? "locked" : ""}`}
                     >
-                      <div className="coupon-header">
+                      <div className="coupon-modal-card-header">
                         <div className="d-flex align-items-start justify-content-between">
                           <div className="d-flex align-items-center flex-grow-1">
-                            <div className="coupon-icon">
+                            <div className="coupon-modal-icon">
                               <i className={`fa ${coupon.offerType === "free_product" ? "fa-gift" : "fa-percent"} text-success`}></i>
                             </div>
                             <div className="ms-3 flex-grow-1">
@@ -227,8 +287,8 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
                         </div>
                       </div>
 
-                      <div className="coupon-body">
-                        <div className="coupon-description mb-2">
+                      <div className="coupon-modal-card-body">
+                        <div className="coupon-modal-description mb-2">
                           <p className="mb-0 fw-semibold text-dark">
                             {getCouponDescription(coupon)}
                           </p>
@@ -236,7 +296,7 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
 
                         {coupon.offerType === "free_product" &&
                           coupon.freeProductId?.productThumbnailUrl && (
-                            <div className="free-product-preview mb-2">
+                            <div className="coupon-modal-free-product mb-2">
                               <img
                                 src={getImageUrl(
                                   coupon.freeProductId.productThumbnailUrl
@@ -254,8 +314,8 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
                             </div>
                           )}
 
-                        <div className="coupon-details">
-                          <div className={`eligibility-badge ${eligibility.type}`}>
+                        <div className="coupon-modal-details">
+                          <div className={`coupon-modal-eligibility ${eligibility.type}`}>
                             <i className={`fa ${eligibility.eligible ? "fa-check-circle" : "fa-info-circle"} me-1`}></i>
                             {eligibility.message}
                           </div>
@@ -278,7 +338,7 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
                               : "btn-outline-secondary"
                           }`}
                           onClick={() => handleApplyCoupon(coupon)}
-                          disabled={isApplying || isApplied}
+                          disabled={isApplying || isApplied || !eligibility.eligible}
                         >
                           {isApplying ? (
                             <>
@@ -348,11 +408,23 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
 
         .custom-modal-content {
           background: white;
-          border-radius: 12px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+          border-radius: 8px;
+          box-shadow: 0 18px 50px rgba(16, 24, 40, 0.24);
           max-height: 90vh;
           display: flex;
           flex-direction: column;
+          overflow: hidden;
+        }
+
+        .custom-modal-content .modal-header {
+          flex-shrink: 0;
+          padding: 1rem 1.1rem;
+          background: #ffffff;
+        }
+
+        .custom-modal-content .modal-body {
+          overflow: hidden;
+          min-height: 0;
         }
 
         @keyframes fadeIn {
@@ -371,66 +443,56 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
           }
         }
 
-        #couponModal {
-          z-index: 1055 !important;
-        }
-
-        #couponModal .modal-dialog {
-          z-index: 1056 !important;
-        }
-
-        .modal-dialog {
-          max-width: 500px;
-        }
-
-        .cart-info-banner {
-          background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+        .coupon-modal-cart-summary {
+          background: #f0faf1;
           padding: 0.75rem 1rem;
           border-radius: 8px;
-          border-left: 4px solid #0aad0a;
+          border: 1px solid #ccefd0;
         }
 
-        .coupon-list {
+        .coupon-modal-list {
           max-height: 60vh;
           overflow-y: auto;
+          padding-right: 0.25rem;
         }
 
-        .coupon-card {
-          border: 2px dashed #dee2e6;
-          border-radius: 12px;
+        .coupon-modal-card {
+          border: 1px dashed #c8d0d8;
+          border-radius: 8px;
           overflow: hidden;
           transition: all 0.3s ease;
           background: white;
+          padding: 0;
         }
 
-        .coupon-card:hover:not(.locked) {
+        .coupon-modal-card:hover:not(.locked) {
           border-color: #0aad0a;
           box-shadow: 0 4px 12px rgba(10, 173, 10, 0.15);
           transform: translateY(-2px);
         }
 
-        .coupon-card.applied {
+        .coupon-modal-card.applied {
           border-color: #0aad0a;
           border-style: solid;
-          background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e9 100%);
+          background: #f5fbf5;
         }
 
-        .coupon-card.locked {
+        .coupon-modal-card.locked {
           opacity: 0.8;
           background: #f8f9fa;
         }
 
-        .coupon-header {
+        .coupon-modal-card-header {
           padding: 1rem;
-          background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+          background: #ffffff;
           border-bottom: 1px dashed #dee2e6;
         }
 
-        .coupon-icon {
-          width: 45px;
-          height: 45px;
-          background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-          border-radius: 12px;
+        .coupon-modal-icon {
+          width: 42px;
+          height: 42px;
+          background: #e8f5e9;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -438,46 +500,40 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
           flex-shrink: 0;
         }
 
-        .coupon-body {
+        .coupon-modal-card-body {
           padding: 1rem;
         }
 
-        .coupon-description {
+        .coupon-modal-description {
           font-size: 0.95rem;
         }
 
-        .coupon-details {
+        .coupon-modal-details {
           background: #f8f9fa;
           padding: 0.75rem;
           border-radius: 8px;
           margin-top: 0.75rem;
         }
 
-        .eligibility-badge {
+        .coupon-modal-eligibility {
           display: inline-block;
           padding: 0.35rem 0.75rem;
-          border-radius: 20px;
+          border-radius: 999px;
           font-size: 0.85rem;
           font-weight: 500;
         }
 
-        .eligibility-badge.success {
+        .coupon-modal-eligibility.success {
           background: #e8f5e9;
           color: #2e7d32;
         }
 
-        .eligibility-badge.warning {
+        .coupon-modal-eligibility.warning {
           background: #fff3e0;
           color: #e65100;
-          animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-
-        .free-product-preview {
+        .coupon-modal-free-product {
           display: flex;
           align-items: center;
           padding: 0.5rem;
@@ -486,22 +542,35 @@ const CouponModal = ({ storeId, cartItems, onCouponApplied, appliedCouponId, isO
           border: 1px dashed #dee2e6;
         }
 
-        .free-product-preview img {
+        .coupon-modal-free-product img {
           max-width: 50px;
         }
 
         @media (max-width: 576px) {
-          .custom-modal-dialog {
-            margin: 0.5rem;
+          .custom-modal {
+            align-items: flex-end;
+            padding: 0.75rem;
           }
 
-          .coupon-icon {
+          .custom-modal-dialog {
+            margin: 0;
+          }
+
+          .custom-modal-content {
+            max-height: 86vh;
+          }
+
+          .coupon-modal-list {
+            max-height: 58vh;
+          }
+
+          .coupon-modal-icon {
             width: 40px;
             height: 40px;
             font-size: 1.1rem;
           }
 
-          .coupon-header h6 {
+          .coupon-modal-card-header h6 {
             font-size: 0.9rem;
           }
         }

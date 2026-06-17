@@ -14,6 +14,7 @@ const CartCanvas = () => {
   
   const {
     cartItems,
+    freeItems,
     cartCount,
     loading,
     error,
@@ -27,6 +28,7 @@ const CartCanvas = () => {
     storeId,
     appliedCoupon,
     couponDiscount,
+    freeProductSavings,
     removeCoupon,
     fetchCartItems,
   } = useCart();
@@ -340,19 +342,64 @@ const CartCanvas = () => {
                         </div>
                         <div className="col-12 col-sm-2 text-end">
                           <span className="fw-bold">
-                            ₹{item.price * item.quantity}
+                            ₹{(Number(item.finalPrice ?? item.price) * item.quantity).toFixed(2)}
                           </span>
                         </div>
                       </div>
                     </li>
                   );
                 })}
+
+                {freeItems.map((item, index) => (
+                  <li
+                    key={`free-${item.productId}-${item.varientId}-${index}`}
+                    className="list-group-item free-cart-item py-3 px-0"
+                  >
+                    <div className="row align-items-center g-2">
+                      <div className="col-3 col-sm-2 position-relative">
+                        <img
+                          src={getImageUrl(item.image)}
+                          alt={item.name}
+                          className="img-fluid rounded"
+                          onError={(e) => {
+                            e.target.src = "/assets/img/no_image.jpg";
+                          }}
+                        />
+                        <span className="badge bg-success position-absolute top-0 start-0">
+                          FREE
+                        </span>
+                      </div>
+                      <div className="col-6 col-sm-5">
+                        <h6 className="mb-1 text-truncate">{item.name}</h6>
+                        <small className="text-success d-block">
+                          Added by offer
+                        </small>
+                        {item.offerTitle && (
+                          <small className="text-muted d-block text-truncate">
+                            {item.offerTitle}
+                          </small>
+                        )}
+                      </div>
+                      <div className="col-3 col-sm-3">
+                        <div className="cart-free-qty">Qty {item.quantity}</div>
+                      </div>
+                      <div className="col-12 col-sm-2 text-end">
+                        <span className="fw-bold text-success">₹0.00</span>
+                        {Number(item.basePrice) > 0 && (
+                          <small className="text-muted d-block text-decoration-line-through">
+                            ₹{(Number(item.basePrice) * item.quantity).toFixed(2)}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                ))}
               </ul>
+              <RecommendedProducts />
             </div>
           </>
         )}
       </div>
-      <RecommendedProducts />
       {/* Coupon Section */}
       {cartItems.length > 0 && (
         <div className="cart-coupon-section">
@@ -368,7 +415,9 @@ const CartCanvas = () => {
                       Coupon Applied
                     </small>
                     <small className="text-muted">
-                      You saved ₹{couponDiscount.toFixed(2)}
+                      {freeItems.length > 0
+                        ? `${freeItems.length} free item${freeItems.length > 1 ? "s" : ""} added`
+                        : `You saved ₹${couponDiscount.toFixed(2)}`}
                     </small>
                   </div>
                 </div>
@@ -396,7 +445,7 @@ const CartCanvas = () => {
       {/* Fixed Checkout Section */}
       {cartItems.length > 0 && (
         <div className="cart-checkout-section">
-          <div className="pt-0 mb-5">
+          <div className="cart-checkout-inner">
             {/* Subtotal breakdown */}
             <div className="price-breakdown mb-3">
               {couponDiscount > 0 && (
@@ -413,6 +462,25 @@ const CartCanvas = () => {
                       - ₹{couponDiscount.toFixed(2)}
                     </span>
                   </div>
+                  <hr className="my-2" />
+                </>
+              )}
+              {freeItems.length > 0 && (
+                <>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span className="text-success">Free Product:</span>
+                    <span className="text-success">
+                      ₹0.00
+                    </span>
+                  </div>
+                  {freeProductSavings > 0 && (
+                    <div className="d-flex justify-content-between mb-2">
+                      <span className="text-muted">Free Product Value:</span>
+                      <span className="text-muted">
+                        ₹{freeProductSavings.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <hr className="my-2" />
                 </>
               )}
@@ -469,21 +537,24 @@ const CartCanvas = () => {
         .cart-body {
           display: flex;
           flex-direction: column;
-          height: calc(100vh - 120px);
+          flex: 1 1 auto;
+          min-height: 0;
           padding-bottom: 0;
+          overflow-y: auto;
           overflow-x: hidden;
         }
 
         .cart-products-section {
-          flex: 1;
-          overflow-y: auto;
+          flex: 0 0 auto;
+          min-height: 0;
+          overflow-y: visible;
           overflow-x: hidden;
           padding-bottom: 20px;
         }
 
         .cart-coupon-section {
-          position: sticky;
-          bottom: 90px;
+          flex-shrink: 0;
+          position: static;
           background: white;
           padding: 0.75rem 1rem;
           border-top: 1px solid #e0e0e0;
@@ -509,14 +580,42 @@ const CartCanvas = () => {
         }
 
         .cart-checkout-section {
-          position: sticky;
-          bottom: 0;
+          flex-shrink: 0;
+          position: static;
           background: white;
-          padding: 1rem;
+          padding: 0.85rem 1rem;
           border-top: 1px solid #e0e0e0;
           box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
           z-index: 10;
           overflow: hidden;
+        }
+
+        .cart-checkout-inner {
+          margin: 0;
+        }
+
+        #offcanvasRight {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+        }
+
+        .free-cart-item {
+          background: #f3fbf4;
+        }
+
+        .cart-free-qty {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 72px;
+          height: 34px;
+          border: 1px solid #bfe7c4;
+          border-radius: 7px;
+          color: #198754;
+          background: #ffffff;
+          font-weight: 600;
+          font-size: 0.85rem;
         }
 
         .price-breakdown {
@@ -606,12 +705,15 @@ const CartCanvas = () => {
 
         @media (max-width: 576px) {
           .cart-body {
-            height: calc(100vh - 100px);
+            flex: 1 1 auto;
           }
 
           .cart-coupon-section {
-            bottom: 80px;
             padding: 0.5rem;
+          }
+
+          .cart-checkout-section {
+            padding: 0.75rem;
           }
           
           .cart-qty-box {
