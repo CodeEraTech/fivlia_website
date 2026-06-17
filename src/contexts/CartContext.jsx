@@ -37,6 +37,8 @@ export const CartProvider = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [updatingItems, setUpdatingItems] = useState(new Set());
   const [removingItems, setRemovingItems] = useState(new Set());
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
   const { checkAuth, isLoggedIn } = useAuth();
   const updateTimeouts = useRef({});
   const removeTimeouts = useRef({});
@@ -76,6 +78,20 @@ export const CartProvider = ({ children }) => {
         setDeliveryCharge(Number(response.data.deliveryCharge) || 0);
         setDeliveryDistanceKm(Number(response.data.deliveryDistanceKm) || 0);
         setBillableKm(Number(response.data.billableKm) || 0);
+        
+        // Check if any item has coupon applied
+        const itemWithCoupon = response.data.items.find(item => item.isCouponApplied && item.couponId);
+        if (itemWithCoupon) {
+          setAppliedCoupon(itemWithCoupon.couponId);
+          // Calculate total discount from all items
+          const totalDiscount = response.data.items.reduce((sum, item) => {
+            return sum + (item.discountAmount || 0) * item.quantity;
+          }, 0);
+          setCouponDiscount(totalDiscount);
+        } else {
+          setAppliedCoupon(null);
+          setCouponDiscount(0);
+        }
       } else {
         //console.log('CartContext: No items in response, clearing cart');
         setCartItems([]);
@@ -85,6 +101,8 @@ export const CartProvider = ({ children }) => {
         setDeliveryCharge(0);
         setDeliveryDistanceKm(0);
         setBillableKm(0);
+        setAppliedCoupon(null);
+        setCouponDiscount(0);
       }
     } catch (error) {
       //console.error('CartContext: Failed to fetch cart:', error);
@@ -96,6 +114,8 @@ export const CartProvider = ({ children }) => {
       setDeliveryCharge(0);
       setDeliveryDistanceKm(0);
       setBillableKm(0);
+      setAppliedCoupon(null);
+      setCouponDiscount(0);
     } finally {
       setLoading(false);
     }
@@ -289,6 +309,46 @@ export const CartProvider = ({ children }) => {
     }, 0);
   };
 
+  // Calculate original cart total (before discount)
+  const getOriginalCartTotal = () => {
+    return cartItems.reduce((total, item) => {
+      const originalPrice = item.originalPrice || item.price;
+      return total + originalPrice * item.quantity;
+    }, 0);
+  };
+
+  // Remove applied coupon
+  const removeCoupon = async () => {
+    const { isAuthenticated } = checkAuth();
+
+    if (!isAuthenticated) {
+      setError("User not authenticated");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const cartIds = cartItems.map((item) => item._id);
+
+      const response = await post(
+        ENDPOINTS.REMOVE_COUPON,
+        { cartIds },
+        { authRequired: true }
+      );
+
+      if (response.data) {
+        setAppliedCoupon(null);
+        setCouponDiscount(0);
+        await fetchCartItems();
+      }
+    } catch (error) {
+      console.error("CartContext: Failed to remove coupon:", error);
+      setError("Failed to remove coupon");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Calculate shipping charge (3% of total)
   const getShippingCharge = () => {
     const total = getCartTotal();
@@ -338,6 +398,7 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         updateCartItem,
         getCartTotal,
+        getOriginalCartTotal,
         getShippingCharge,
         fetchCartItems,
         isInitialized,
@@ -348,6 +409,9 @@ export const CartProvider = ({ children }) => {
         deliveryCharge,
         deliveryDistanceKm,
         billableKm,
+        appliedCoupon,
+        couponDiscount,
+        removeCoupon,
       }}
     >
       {children}

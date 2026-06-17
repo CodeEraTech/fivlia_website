@@ -16,17 +16,25 @@ import ScrollToTop from "./ScrollToTop";
 
 import AddAddressModal from "../Component/AddAddressModal";
 
+import CouponModal from "../Component/CouponModal";
+
+import CouponBanner from "../Component/CouponBanner";
+
 import AddressShimmer from "../Component/AddressShimmer";
 
 import launchRazorpay from "../utils/launchRazorpay";
 
 import { useSettingValue, useImageUrl } from "../utils/getSettingsValue";
 
+import Swal from "sweetalert2";
+
 const OrderCheckout = () => {
   const {
     cartItems,
 
     getCartTotal,
+
+    getOriginalCartTotal,
 
     getShippingCharge,
 
@@ -41,6 +49,12 @@ const OrderCheckout = () => {
     deliveryCharge,
 
     deliveryDistanceKm,
+
+    appliedCoupon,
+
+    couponDiscount,
+
+    removeCoupon,
   } = useCart();
 
   const { isLoggedIn } = useAuth();
@@ -66,6 +80,47 @@ const OrderCheckout = () => {
   const [paymentProcess, setPaymentProcess] = useState(false);
 
   const [settingDefaultAddress, setSettingDefaultAddress] = useState(false);
+
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+
+  const handleRemoveCoupon = async () => {
+    try {
+      await removeCoupon();
+      Swal.fire({
+        icon: "success",
+        title: "Coupon Removed",
+        text: "Coupon has been removed successfully",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error removing coupon:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to remove coupon. Please try again.",
+      });
+    }
+  };
+
+  const handleCouponApplied = (data) => {
+    fetchCartItems();
+    Swal.fire({
+      icon: "success",
+      title: "Coupon Applied!",
+      text: data.message || "Coupon applied successfully",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
+  const handleOpenCouponModal = () => {
+    setIsCouponModalOpen(true);
+  };
+
+  const handleCloseCouponModal = () => {
+    setIsCouponModalOpen(false);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -603,6 +658,74 @@ const OrderCheckout = () => {
                         ))}
 
                         <li className="list-group-item px-4 py-3">
+                          {/* Coupon Banner - Prominent */}
+                          {!appliedCoupon && storeId && (
+                            <div className="mb-3">
+                              <CouponBanner
+                                storeId={storeId}
+                                cartTotal={getOriginalCartTotal()}
+                                onApplyCouponClick={handleOpenCouponModal}
+                              />
+                            </div>
+                          )}
+
+                          {/* Coupon Section */}
+                          <div className="mb-3">
+                            {appliedCoupon ? (
+                              <div className="coupon-applied-box">
+                                <div className="d-flex align-items-center justify-content-between">
+                                  <div className="d-flex align-items-center">
+                                    <div className="coupon-check-icon me-2">
+                                      <i className="fa fa-check-circle text-success"></i>
+                                    </div>
+                                    <div>
+                                      <small className="text-success fw-bold d-block">
+                                        Coupon Applied
+                                      </small>
+                                      <small className="text-muted">
+                                        You saved ₹{couponDiscount.toFixed(2)}
+                                      </small>
+                                    </div>
+                                  </div>
+                                  <button
+                                    className="btn btn-sm btn-outline-danger"
+                                    onClick={handleRemoveCoupon}
+                                    style={{ fontSize: "0.75rem" }}
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                className="btn btn-outline-success btn-sm w-100"
+                                onClick={handleOpenCouponModal}
+                              >
+                                <i className="fa fa-tag me-2"></i>
+                                Apply Coupon
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Price Breakdown */}
+                          {couponDiscount > 0 && (
+                            <>
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <div className="text-muted">Original Price</div>
+                                <div className="text-muted">
+                                  ₹{getOriginalCartTotal().toFixed(2)}
+                                </div>
+                              </div>
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <div className="text-success">Coupon Discount</div>
+                                <div className="text-success">
+                                  - ₹{couponDiscount.toFixed(2)}
+                                </div>
+                              </div>
+                              <hr className="my-2" />
+                            </>
+                          )}
+
                           <div className="d-flex align-items-center justify-content-between mb-2">
                             <div>Item Subtotal</div>
 
@@ -687,6 +810,27 @@ const OrderCheckout = () => {
           </section>
 
           <AddAddressModal onAddressAdded={fetchAddresses} />
+          <CouponModal
+            storeId={storeId}
+            cartItems={cartItems}
+            onCouponApplied={handleCouponApplied}
+            appliedCouponId={appliedCoupon}
+            isOpen={isCouponModalOpen}
+            onClose={handleCloseCouponModal}
+          />
+
+          <style>{`
+            .coupon-applied-box {
+              background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e9 100%);
+              border: 1px solid #0aad0a;
+              border-radius: 8px;
+              padding: 0.75rem;
+            }
+
+            .coupon-check-icon {
+              font-size: 1.2rem;
+            }
+          `}</style>
         </>
       )}
     </div>

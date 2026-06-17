@@ -11,3 +11,37 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Global Modal Z-Index Fix */
+.modal-backdrop {
+  z-index: 1045 !important;
+}
+
+.modal {
+  z-index: 1055 !important;
+}
+
+.modal.show {
+  z-index: 1055 !important;
+}
+
+.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
+
+body.modal-open {
+  padding-right: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Ensure modal content is above backdrop */
+.modal-dialog {
+  z-index: 1056 !important;
+  position: relative;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 1057 !important;
+}

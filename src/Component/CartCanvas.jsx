@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import CartShimmer from "./CartShimmer";
@@ -6,8 +6,12 @@ import { isOutOfStock } from "../utils/stockUtils";
 import Swal from "sweetalert2";
 import { useImageUrl } from "../utils/getSettingsValue";
 import RecommendedProducts from "../ProductList/RecommendedProducts";
+import CouponModal from "./CouponModal";
+import CouponBanner from "./CouponBanner";
 
 const CartCanvas = () => {
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  
   const {
     cartItems,
     cartCount,
@@ -16,9 +20,15 @@ const CartCanvas = () => {
     removeCartItem,
     updateCartItem,
     getCartTotal,
+    getOriginalCartTotal,
     isInitialized,
     updatingItems,
     removingItems,
+    storeId,
+    appliedCoupon,
+    couponDiscount,
+    removeCoupon,
+    fetchCartItems,
   } = useCart();
 
   const navigate = useNavigate();
@@ -47,6 +57,38 @@ const CartCanvas = () => {
 
   const isAnyItemProcessing = () => {
     return updatingItems.size > 0 || removingItems.size > 0;
+  };
+
+  const handleRemoveCoupon = async () => {
+    try {
+      await removeCoupon();
+    } catch (error) {
+      console.error("Error removing coupon:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to remove coupon. Please try again.",
+      });
+    }
+  };
+
+  const handleCouponApplied = (data) => {
+    fetchCartItems();
+    Swal.fire({
+      icon: "success",
+      title: "Coupon Applied!",
+      text: data.message || "Coupon applied successfully",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  };
+
+  const handleOpenCouponModal = () => {
+    setIsCouponModalOpen(true);
+  };
+
+  const handleCloseCouponModal = () => {
+    setIsCouponModalOpen(false);
   };
 
   // Check if any items in cart are out of stock
@@ -157,6 +199,17 @@ const CartCanvas = () => {
           <>
             {/* Scrollable Products Section */}
             <div className="cart-products-section">
+              {/* Coupon Banner - Prominent at top */}
+              {!appliedCoupon && storeId && cartItems.length > 0 && (
+                <div className="mb-3">
+                  <CouponBanner
+                    storeId={storeId}
+                    cartTotal={getOriginalCartTotal()}
+                    onApplyCouponClick={handleOpenCouponModal}
+                  />
+                </div>
+              )}
+
               <ul className="list-group list-group-flush">
                 {cartItems.map((item, index) => {
                   const cartItemId = item._id || item.cartItemId;
@@ -300,17 +353,77 @@ const CartCanvas = () => {
         )}
       </div>
       <RecommendedProducts />
+      {/* Coupon Section */}
+      {cartItems.length > 0 && (
+        <div className="cart-coupon-section">
+          {appliedCoupon ? (
+            <div className="applied-coupon-card">
+              <div className="d-flex align-items-center justify-content-between">
+                <div className="d-flex align-items-center">
+                  <div className="coupon-icon-small">
+                    <i className="fa fa-check-circle text-success"></i>
+                  </div>
+                  <div className="ms-2">
+                    <small className="text-success fw-bold d-block">
+                      Coupon Applied
+                    </small>
+                    <small className="text-muted">
+                      You saved ₹{couponDiscount.toFixed(2)}
+                    </small>
+                  </div>
+                </div>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={handleRemoveCoupon}
+                  disabled={loading}
+                >
+                  {loading ? "Removing..." : "Remove"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="btn btn-outline-success w-100"
+              onClick={handleOpenCouponModal}
+              disabled={isAnyItemProcessing()}
+            >
+              <i className="fa fa-tag me-2"></i>
+              Apply Coupon
+            </button>
+          )}
+        </div>
+      )}
       {/* Fixed Checkout Section */}
       {cartItems.length > 0 && (
         <div className="cart-checkout-section">
-          <div className="pt-0 d-flex justify-content-between mb-5">
-            <div className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Total:&nbsp;&nbsp;&nbsp;</h5>
-              <h5 className="mb-0 text-success">₹{getCartTotal()}</h5>
+          <div className="pt-0 mb-5">
+            {/* Subtotal breakdown */}
+            <div className="price-breakdown mb-3">
+              {couponDiscount > 0 && (
+                <>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span className="text-muted">Original Price:</span>
+                    <span className="text-muted">
+                      ₹{getOriginalCartTotal().toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="d-flex justify-content-between mb-2">
+                    <span className="text-success">Coupon Discount:</span>
+                    <span className="text-success">
+                      - ₹{couponDiscount.toFixed(2)}
+                    </span>
+                  </div>
+                  <hr className="my-2" />
+                </>
+              )}
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">Total:</h5>
+                <h5 className="mb-0 text-success">₹{getCartTotal().toFixed(2)}</h5>
+              </div>
             </div>
             <button
               onClick={handleCheckout}
-              className={`btn w-50 ${
+              className={`btn w-100 ${
                 hasOutOfStockItems ? "btn-warning" : "btn-success"
               } ${isAnyItemProcessing() ? "disabled" : ""}`}
               style={{
@@ -342,6 +455,16 @@ const CartCanvas = () => {
         </div>
       )}
 
+      {/* Coupon Modal */}
+      <CouponModal
+        storeId={storeId}
+        cartItems={cartItems}
+        onCouponApplied={handleCouponApplied}
+        appliedCouponId={appliedCoupon}
+        isOpen={isCouponModalOpen}
+        onClose={handleCloseCouponModal}
+      />
+
       <style>{`
         .cart-body {
           display: flex;
@@ -358,6 +481,33 @@ const CartCanvas = () => {
           padding-bottom: 20px;
         }
 
+        .cart-coupon-section {
+          position: sticky;
+          bottom: 90px;
+          background: white;
+          padding: 0.75rem 1rem;
+          border-top: 1px solid #e0e0e0;
+          z-index: 9;
+        }
+
+        .applied-coupon-card {
+          background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e9 100%);
+          border: 1px solid #0aad0a;
+          border-radius: 8px;
+          padding: 0.75rem;
+        }
+
+        .coupon-icon-small {
+          width: 32px;
+          height: 32px;
+          background: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1rem;
+        }
+
         .cart-checkout-section {
           position: sticky;
           bottom: 0;
@@ -367,6 +517,10 @@ const CartCanvas = () => {
           box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
           z-index: 10;
           overflow: hidden;
+        }
+
+        .price-breakdown {
+          font-size: 0.9rem;
         }
 
         .cart-qty-box {
@@ -453,6 +607,11 @@ const CartCanvas = () => {
         @media (max-width: 576px) {
           .cart-body {
             height: calc(100vh - 100px);
+          }
+
+          .cart-coupon-section {
+            bottom: 80px;
+            padding: 0.5rem;
           }
           
           .cart-qty-box {
